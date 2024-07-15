@@ -18,7 +18,7 @@ def get_high_symmetry_positions_and_labels(k, high_symmetry_points):
 def plot_bandstructure(k, bands, positions, labels, title=None):
     
     for band in range (len(bands)):
-        plt.plot(k,bands[band, :], c = 'blue')
+        plt.plot(k,bands[band, :])
 
     plt.xlabel("High Symmetry Points")
     plt.ylabel("Energy (eV)")
@@ -26,7 +26,10 @@ def plot_bandstructure(k, bands, positions, labels, title=None):
     if title:
         plt.title(title)
     plt.grid(True)
-    plt.show()
+    
+def plot_settings(**kwargs):
+    for key, value in kwargs.items():
+        plt.rcParams[key] = value
     
 
     
