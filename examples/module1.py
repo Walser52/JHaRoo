@@ -1,8 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
-# k = np.unique(data[:,0])
-# bands = np.reshape(data[:,1], [-1, len(k)])
+
 def process_band_structure(data):
+    """
+    Functionailty
+
+    Args: 
+        data: type? list? dictionary?
+    Returns: 
+
+    """
+
     nbnd = len(np.where(np.diff(data[:, 0]) < 0)[0]) + 1
     lenk = int(data.shape[0] / nbnd)
     k = data[:lenk, 0]

@@ -16,13 +16,13 @@ range_for_lumo = efermi + 0.1
 title = 'CsPbI3'
 #Define High Symmetry Points
 high_symmetry_points = {
-    'gG1': 0,
-    'X1': 30,
-    'M1': 60,
-    'gG2': 90,
-    'R1': 120,
-    'X2|M2': 150,
-    'R2': 180
+    'gG1'   : 0,
+    'X1'    : 30,
+    'M1'    : 60,
+    'gG2'   : 90,
+    'R1'    : 120,
+    'X2|M2' : 150,
+    'R2'    : 180
 }
 
 #Get positions and labels using imported function
