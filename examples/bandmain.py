@@ -1,4 +1,4 @@
-from module1 import process_band_structure, get_high_symmetry_positions_and_labels, plot_bandstructure, plot_settings
+from module1 import process_band_structure, get_high_symmetry_positions_and_labels, plot_bandstructure, plot_settings, find_bandgap
 import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
@@ -7,6 +7,11 @@ data = np.loadtxt(filename)
 
 # Get k points and bands from imported function
 k, bands = process_band_structure(data)
+
+# Define fermi energy and the range for valence and conduction band to find the bandgap
+efermi = 3.6711
+range_for_homo = efermi + 0.3
+range_for_lumo = efermi + 0.1
 #Title
 title = 'CsPbI3'
 #Define High Symmetry Points
@@ -41,6 +46,15 @@ plt.gca().set_prop_cycle(cycler('color', colors))
 
 
 # Plot the bandstructure using imported function
-plot_bandstructure(k, bands, positions, labels, title=title)
+plot_bandstructure(k, bands, positions, labels, efermi, title=title)
+
+
+# Find the bandgap
+
+bandgap = find_bandgap(bands, range_for_homo, range_for_lumo)
+if bandgap is not None:
+    print(f"Bandgap: {bandgap:.4f} eV")
+else:
+    print("No bands found near eFermi to calculate bandgap.")
 plt.show()
 
