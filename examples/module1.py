@@ -23,7 +23,7 @@ def get_high_symmetry_positions_and_labels(k, high_symmetry_points):
     labels = list(high_symmetry_points.keys())
     return positions, labels
 
-def plot_bandstructure(k, bands, positions, labels, efermi, title=None):
+def plot_bandstructure(k, bands, positions, labels, efermi, title=None, bandgap_info=None):
     
     for band in range (len(bands)):
         plt.plot(k,bands[band, :] - efermi)
@@ -34,6 +34,14 @@ def plot_bandstructure(k, bands, positions, labels, efermi, title=None):
     if title:
         plt.title(title)
     #plt.grid(True)
+    if bandgap_info:
+        homo, lumo = bandgap_info
+        plt.axhline(y=homo - efermi, color='g', linestyle='-')
+        plt.axhline(y=lumo - efermi, color='g', linestyle='-')
+        plt.annotate('', xy=(positions[-1], lumo - efermi), xytext=(positions[-1], homo - efermi),
+                     arrowprops=dict(arrowstyle='<->', color='blue'))
+        plt.text(positions[-1], (lumo + homo) / 2 - efermi, f'Bandgap: {lumo - homo:.4f} eV', 
+                 ha='left', va='center', color='blue')
     
 def plot_settings(**kwargs):
     for key, value in kwargs.items():
@@ -49,7 +57,7 @@ def find_bandgap(bands, range_for_homo, range_for_lumo):
     
     # Calculate the bandgap
     bandgap = lumo - homo
-    return bandgap
+    return homo, lumo, bandgap
     
 
     

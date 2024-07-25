@@ -45,16 +45,17 @@ colors = plt.cm.get_cmap('tab10').colors
 plt.gca().set_prop_cycle(cycler('color', colors))
 
 
-# Plot the bandstructure using imported function
-plot_bandstructure(k, bands, positions, labels, efermi, title=title)
-
 
 # Find the bandgap
 
-bandgap = find_bandgap(bands, range_for_homo, range_for_lumo)
+homo, lumo, bandgap = find_bandgap(bands, range_for_homo, range_for_lumo)
 if bandgap is not None:
     print(f"Bandgap: {bandgap:.4f} eV")
+    bandgap_info = (homo, lumo)
 else:
     print("No bands found near eFermi to calculate bandgap.")
+    bandgap_info = None
+    # Plot the bandstructure using imported function
+plot_bandstructure(k, bands, positions, labels, efermi, title=title, bandgap_info=bandgap_info)
 plt.show()
 
