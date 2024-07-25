@@ -1,0 +1,50 @@
+# load the pw.x input from file
+load_fromPWI pwscf.in
+prefix "mpirun -n 4"
+# open a file for writing resulting total energies
+
+
+# loop over different "ecut" values
+foreach ecut { value } {
+
+    # name of I/O files: $name.in & $name.out
+    set name pwscf_ecutwfc-$ecut
+
+    # set the pw.x "ecutwfc" variable
+    SYSTEM "ecutwfc = $ecut"
+
+    # run the pw.x calculation
+    runPW $name.in
+
+    # extract the "total energy" and write it to file
+    set Etot [::pwtk::pwo::totene $name.out]
+
+    set fid [open etot_vs_ecutwfc.dat a]
+    puts $fid "$ecut $Etot"
+    close $fid
+}
+
+
+
+
+# loop over different "ecut" values
+foreach ecut { 16 20 24 28 } {
+
+    # name of I/O files: $name.in & $name.out
+    set name pwscf_ecutwfc-$ecut
+
+    # set the pw.x "ecutwfc" variable
+    SYSTEM "ecutwfc = $ecut"
+
+    # run the pw.x calculation
+    runPW $name.in
+
+    # extract the "total energy" and write it to file
+    set Etot [::pwtk::pwo::totene $name.out]
+
+    set fid [open etot_vs_ecutwfc.dat a]
+    puts $fid "$ecut $Etot"
+    close $fid
+}
+
+

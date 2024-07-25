@@ -1,41 +1,29 @@
-&CONTROL
-  calculation = 'scf'
-  etot_conv_thr =   4.0000000000d-04
-  forc_conv_thr =   1.0000000000d-04
-  outdir = '../../out/'
-  prefix = 'aiida'
-  pseudo_dir = '../../pseudo/'
-  tprnfor = .true.
-  tstress = .true.
-  verbosity = 'high'
-/
-&SYSTEM
-  degauss =   1.4699723600d-02
-  ecutrho =   3.2000000000d+02
-  ecutwfc =   4.0000000000d+01
-  nat = 3
-  nosym = .false.
-  ntyp = 3
-  occupations = 'smearing'
-  smearing = 'cold'
-  space_group = 221
-  A = 6.28
-  B = 6.28
-  C = 6.28
-/
-&ELECTRONS
-  conv_thr =   8.0000000000d-09
-  electron_maxstep = 80
-  mixing_beta =   4.0000000000d-01
-/
+ &CONTROL
+       calculation = 'scf'
+      restart_mode = 'from_scratch'
+        pseudo_dir = '../../pseudo/'
+            outdir = '../tmp/'
+            prefix = 'gr2'
+ /
+ &SYSTEM
+             ibrav = 4
+                 a = 2.4623
+                 c = 10
+               nat = 2
+              ntyp = 1
+       occupations = 'smearing'
+          smearing = 'mv'
+           degauss = 0.02
+           ecutwfc = 60
+              nosym= .TRUE.
+ /
+ &ELECTRONS
+       mixing_beta = 0.7
+ /
 ATOMIC_SPECIES
-Cs     132.9054519 Cs_pbe_v1.uspp.F.UPF
-I      126.90447 I.pbe-n-kjpaw_psl.0.2.UPF
-Pb     207.2 Pb.pbe-dn-kjpaw_psl.0.2.2.UPF
-ATOMIC_POSITIONS crystal_sg
-Cs           0.5000000000       0.5000000000       0.5000000000
-Pb           0.0000000000       0.0000000000       0.0000000000 
-I            0.0000000000       0.0000000000       0.5000000000 
-K_POINTS automatic
-6 6 6 0 0 0
-
+C 12.0107 C.pbe-hgh.UPF
+ATOMIC_POSITIONS (crystal)
+C  0.333333333  0.666666666  0.500000000
+C  0.666666666  0.333333333  0.500000000
+K_POINTS (automatic)
+12 12 1 0 0 0
