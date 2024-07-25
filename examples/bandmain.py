@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
 filename = 'aiida.bands.gnu'
+
 data = np.loadtxt(filename)
 
 # Get k points and bands from imported function
@@ -45,6 +46,8 @@ colors = plt.cm.get_cmap('tab10').colors
 plt.gca().set_prop_cycle(cycler('color', colors))
 
 
+
+ 
 
 # Find the bandgap
 
