@@ -1,2 +1,6 @@
 **/*.wfc*
 **/*.hdf5
+
+**/*pychache*
+**/.ipynb_checkpoints
+**/.vscode
