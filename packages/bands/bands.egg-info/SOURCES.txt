@@ -1,0 +1,9 @@
+setup.py
+bands.egg-info/PKG-INFO
+bands.egg-info/SOURCES.txt
+bands.egg-info/dependency_links.txt
+bands.egg-info/namespace_packages.txt
+bands.egg-info/requires.txt
+bands.egg-info/top_level.txt
+my_namespace/__init__.py
+my_namespace/bands_sub.py

@@ -2,7 +2,7 @@ from module1 import process_band_structure, get_high_symmetry_positions_and_labe
 import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
-filename = 'aiida.bands.gnu'
+filename = 'CsPbBr3.bands.gnu'
 
 data = np.loadtxt(filename)
 
