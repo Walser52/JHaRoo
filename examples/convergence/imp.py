@@ -28,7 +28,10 @@ def runbash(output_file, command):
         print(e.stderr.decode())
         return
 
-def convOver(values, calc, input_file, output_file_template, energy_file, command):
+def convOver(calc, input_file, output_file_template, energy_file, command):
+    values = list(calc.items())[0][1]
+    calc = list(calc.items())[0][0]
+
     initialize_energy_file(energy_file)
 
     for val in values:
@@ -73,10 +76,13 @@ def writexy(readfrom, writeto, x):
         print(f"Value not found in the output file for {x}.")
     return
 
-def calculate_relative_errors(energies):
+def calculate_relative_errors(fromfile = None, data = None):
+
+    if fromfile is not None: data = np.loadtxt(fromfile)[:, 1]
+    
     relative_errors = []
-    for i in range(1, len(energies)):
-        rel_error = abs((energies[i] - energies[i - 1]) / energies[i])
+    for i in range(1, len(data)):
+        rel_error = abs((data[i] - data[i - 1]) / data[i])
         relative_errors.append(rel_error)
     return np.array(relative_errors)
 
