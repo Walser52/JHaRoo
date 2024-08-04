@@ -16,6 +16,7 @@ def modify_input_file(input_file, output_file, ecutwfc, ecutrho):
 
 def initialize_energy_file(energy_file):
     open(energy_file, 'w').close()
+    return
 
 def runbash(output_file, command):
     try:

@@ -6,19 +6,21 @@ from imp import modify_input_file, extract_total_energy, initialize_energy_file,
 def checkconv(datafile = None, thresh = 0.001):
   """Returns value over which convergence is achieved"""
 
-  relative_errors_wfc = calculate_relative_errors(data = energy_file_wfc)
+  y = np.loadtxt(datafile)[:, 1]
+  x = np.loadtxt(datafile)[:, 0]
 
-  converged_ecutwfc = None
-  for i, rel_error in enumerate(relative_errors_wfc):
+  relative_errors = calculate_relative_errors(data = y)
+
+  convergedVal = None
+  for i, rel_error in enumerate(relative_errors):
       if rel_error < thresh:
-          converged_ecutwfc = ecutwfc[i + 1]
+          convergedVal = x[i]
           break
 
-  if converged_ecutwfc is None:
-      converged_ecutwfc = ecutwfc[-1]
+  if convergedVal is None:
+      convergedVal = x[-1]
 
-
-  return converged_ecutwfc
+  return convergedVal
 
 #__________________________Converge ecutwfc_________________
 # List of ecutwfc values to loop over
