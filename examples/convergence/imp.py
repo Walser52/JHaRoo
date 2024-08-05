@@ -21,9 +21,6 @@ def modify_input_file(input_file, output_file, **kwargs):
                     break  # Break after updating the line for the specific parameter
             file.write(updated_line)
 
-def initialize_datafile(datafile):
-    open(datafile, 'w').close()
-    return
 
 def runbash(command):
     try:
@@ -33,34 +30,62 @@ def runbash(command):
             print(result.stderr.decode())
     except subprocess.CalledProcessError as e:
         print(e.stderr.decode())
-        return
-
-
-def convOver(calc, input_file, outfile_template, datafile_template, command):
-    for param, values in calc.items():
-        datafile = datafile_template.format(param, 'dat')
-        initialize_datafile(datafile)
-
-        for val in values:
-            # Modify the input file with the current parameter value
-            modified_input_file = f'pwscf_{param}-{val}.in'
-            modify_input_file(input_file, modified_input_file, **{param: val})
-
-            # Construct and run the command
-            output_file = outfile_template.format(param, val)
-            full_command = command.format(modified_input_file, output_file)
-            print(f"Running command: {full_command}")
-            runbash(full_command)
-            writexy(output_file, datafile, val)
-
     return
 
 
+def convOver(calc, template, command, over = 'etot'):
+    """
+    Performs convergence using input as 
+    Args:
+        calc: A dictionary
+        template: Path of input file template
+        over: Variable over which to determine convergence.
+        datafile: Writes data to this file as x,y values with x, being taken from the calc values and y from calcutions.
+        command: Command which is to be run via bash. 
+                'mpirun -n 8 --mca btl vader,self,tcp pw.x < {} > {}'
+        
+
+    Returns:
+        allwriteto: Creates a list of all filepaths and returns them. 
+                    Returns only a string if only one convergence was performed. 
+                    
+        Creates a .dat output file with x,y values with the name format being '{over}vs{param}.dat' and returns the path
+
+    """
+    allwriteto = []
+    for param, values in calc.items():
+        for val in values:
+
+            #__Make relevant name changes
+            writeto = f'{over}vs{param}.dat'
+            
+            modified_template = f'pwscf_{param}-{val}.in'
+            outfile_template = f'pwscf_{param}_{val}.out'
+            full_command = command.format(modified_template, outfile_template)
+
+            #___Modify input file with the current parameter
+            modify_input_file(template, modified_template, **{param: val})
+
+            #___Run command
+            print(f"Running command: {full_command}")
+            runbash(full_command)
+            writexy(outfile_template, writeto, val)
+            
+            #___Append file to list of files written
+            allwriteto.append(writeto)
+
+    return allwriteto[0] if len(allwriteto) == 1 else allwriteto
+
+
 def writexy(readfrom, writeto, x):
+    """
+    Read data from `readfrom` and write (x,data) to `writeto`.
+    """
+
     y = extract_total_energy(readfrom)
     if y is not None:
-        with open(writeto, 'a') as energy_fid:
-            energy_fid.write(f"{x} {y}\n")
+        with open(writeto, 'a') as f:
+            f.write(f"{x} {y}\n")
     else:
         print(f"Value not found in the output file for {x}.")
     return

@@ -10,27 +10,22 @@ def main():
 
     # ______________________Initial Parameters for code__________________________
     params = {
-        'input_file': 'pwscf.in',
-        'outfile_template': 'pwscf_{}_{}.out',  # Placeholder for param and value
+        'template': 'pwscf.in',
         'command': 'mpirun -n 8 --mca btl vader,self,tcp pw.x < {} > {}',
-        'datafile_template': 'etot_vs_{}_{}.dat'
+        'over': 'etot'
     }
 
     # ____________________________Convergence _________________________________________
     for param in calc:
-        convOver(
-            calc={param: calc[param]},
-            input_file=params['input_file'],
-            outfile_template=params['outfile_template'],
-            datafile_template=params['datafile_template'],
-            command=params['command']
-        )
+        datafile = convOver(calc={param: calc[param]},**params)
 
     # ________________________Plotting___________________________________________________
-        datafile = params['datafile_template'].format(param, 'dat')
         data = np.genfromtxt(datafile, dtype=None, encoding=None, names=True)
-        plot_filename = f'convergence_{param}.pdf'
-        plotter(data, xlabel=param, ylabel='Total Energy (Ry)', filename=plot_filename)
+
+        plotter(data, 
+                xlabel=param, 
+                ylabel='Total Energy (Ry)', 
+                filename= f'convergence_{param}.pdf')
 
 
 
@@ -44,7 +39,7 @@ def main():
             f.write(f"Converged {param}: {converged_value}\n")
 
     
-        # _______________________Determine Converged values using checkconv function____________________________
+    # _______________________Determine Converged values using checkconv function____________________________
     for param in calc:
         converged_value = checkconv(datafile=params['datafile_template'].format(param, 'dat'), thresh=0.002)
         with open(results_file, 'a') as f:
