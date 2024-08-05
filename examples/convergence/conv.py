@@ -1,83 +1,67 @@
+from imp import modify_input_file, initialize_datafile, runbash, extract_total_energy, writexy, calculate_relative_errors, checkconv, convOver, update_input_file, plotter # type: ignore
 import numpy as np
 import matplotlib.pyplot as plt
-from imp import modify_input_file, extract_total_energy, initialize_energy_file, runbash, writexy, convOver, plotter, calculate_relative_errors # type: ignore
+def main():
+    # __________________ Parameters of input file on which convergence has to run _________________________________
+    calc = {
+        'ecutwfc': [20, 24],
+        'smearing': ['mv', 'mp']
+    }
 
+    # ______________________Initial Parameters for code__________________________
+    params = {
+        'input_file': 'pwscf.in',
+        'outfile_template': 'pwscf_{}_{}.out',  # Placeholder for param and value
+        'command': 'mpirun -n 8 --mca btl vader,self,tcp pw.x < {} > {}',
+        'datafile_template': 'etot_vs_{}_{}.dat'
+    }
 
-def checkconv(datafile = None, thresh = 0.001):
-  """Returns value over which convergence is achieved"""
+    # ____________________________Convergence _________________________________________
+    for param in calc:
+        convOver(
+            calc={param: calc[param]},
+            input_file=params['input_file'],
+            outfile_template=params['outfile_template'],
+            datafile_template=params['datafile_template'],
+            command=params['command']
+        )
 
-  y = np.loadtxt(datafile)[:, 1]
-  x = np.loadtxt(datafile)[:, 0]
-
-  relative_errors = calculate_relative_errors(data = y)
-
-  convergedVal = None
-  for i, rel_error in enumerate(relative_errors):
-      if rel_error < thresh:
-          convergedVal = x[i]
-          break
-
-  if convergedVal is None:
-      convergedVal = x[-1]
-
-  return convergedVal
-
-#__________________________Converge ecutwfc_________________
-# List of ecutwfc values to loop over
-calc = {'ecutfwfc': [16,20,24,28,32]}
-
-
-# Input and output file paths
-input_file = 'pwscf.in'
-output_file_template_wfc = 'pwscf_ecutwfc-{}.out'
-energy_file_wfc = 'etot_vs_ecutwfc.dat'
-command = 'mpirun -n 8 --mca btl vader,self,tcp pw.x < {} > {}'
-
-
-# Run convergence for ecutwfc values
-convOver(calc= calc, input_file=input_file, output_file_template=output_file_template_wfc, energy_file=energy_file_wfc, command=command)
-converged_ecutwfc = checkconv(datafile = energy_file_wfc)
-print(f"Converged ecutwfc: {converged_ecutwfc}")
+    # ________________________Plotting___________________________________________________
+        datafile = params['datafile_template'].format(param, 'dat')
+        data = np.genfromtxt(datafile, dtype=None, encoding=None, names=True)
+        plot_filename = f'convergence_{param}.pdf'
+        plotter(data, xlabel=param, ylabel='Total Energy (Ry)', filename=plot_filename)
 
 
 
-#calc = {'ecutfwfc': [16,20,24,28,32]}
-#params = {
-#'input_file': 'pwscf.in', 
-#  'output_file_template' : 'pwscf_ecutwfc-{}.out', 
-#  'energy_file' : 'etot_vs_ecutwfc.dat',
-#  'command' : 'mpirun -n 8 --mca btl vader,self,tcp pw.x < {} > {}'}
-#convOver(calc= calc, params = params)
-#
+        # __________________________Create a file to Store Converged Values____________________________________
+        converged_value = checkconv(datafile=params['datafile_template'].format(param, 'dat'), thresh=0.002)
+        print(f"Converged {param}: {converged_value}")
 
-# Append converged ecutwfc to the energy file
-with open(energy_file_wfc, 'a') as f:
-    f.write(f"Converged ecutwfc: {converged_ecutwfc}\n")
+        # Write the converged value to a separate file
+        results_file = f'converged_{param}.dat'
+        with open(results_file, 'a') as f:
+            f.write(f"Converged {param}: {converged_value}\n")
 
+    
+        # _______________________Determine Converged values using checkconv function____________________________
+    for param in calc:
+        converged_value = checkconv(datafile=params['datafile_template'].format(param, 'dat'), thresh=0.002)
+        with open(results_file, 'a') as f:
+            f.write(f"Converged {param}: {converged_value}\n")
 
+        # ____________________Update Input file with converged value of previous convergence_________________________
+        update_input_file(params['input_file'], {param: converged_value})
 
+        # _______________Converegnce for ecutrho__________________________________________
+        if param == 'ecutwfc':
+            ecutrho_values = [factor * converged_value for factor in [4, 6, 8, 10, 12]]
+            calc['ecutrho'] = ecutrho_values
 
+    # ____________________ Append Converged values___________________________________________
+    for param in calc:
+        with open(f'converged_{param}.dat', 'a') as f:
+            f.write(f"Converged {param}: {converged_value}\n")
 
-#________________________Converge ecutrho_____________________
-
-# Run convergence for ecutrho values
-ecutrho_values = [factor * converged_ecutwfc for factor in [4, 6, 8, 10, 12]]
-calc = {'ecutrho': ecutrho_values}
-output_file_template_rho = 'pwscf_ecutrho-{}.out'
-energy_file_rho = 'etot_vs_ecutrho.dat'
-convOver(calc= calc, input_file=input_file, output_file_template=output_file_template_rho, energy_file=energy_file_rho, command=command)
-
-# Load data and calculate relative errors for ecutrho
-converged_ecutrho = checkconv(datafile = energy_file_rho)
-print(f"Converged ecutwfc: {converged_ecutrho}")
-
-# Append converged ecutrho to the energy file
-with open(energy_file_rho, 'a') as f:
-    f.write(f"Converged ecutrho: {converged_ecutrho}\n")
-
-
-
-
-#__________________________Plot__________________________
-plotter(data_wfc, 'Ecutwfc (Ry)', 'Total Energy (Ry)', 'ecutwfc.pdf')
-plotter(data_rho, 'Ecutrho (Ry)', 'Total Energy (Ry)', 'ecutrho.pdf')
+if __name__ == "__main__":
+    main()
