@@ -1,0 +1,5 @@
+
+- Install aiida-pseudo
+
+- Install QE plugin
+    pip install aiida-quantumespresso
