@@ -5,7 +5,7 @@ def main():
     # __________________ Parameters of input file on which convergence has to run _________________________________
     calc = {
         'ecutwfc': [20, 24],
-        'smearing': ['mv', 'mp']
+        'degauss': [0.02, 0.03, 0.04]
     }
 
     # ______________________Initial Parameters for code__________________________

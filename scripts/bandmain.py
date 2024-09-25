@@ -12,11 +12,11 @@ data = np.loadtxt(data_file)
 k, bands = process_band_structure(data)
 
 # Define fermi energy and the range for valence and conduction band to find the bandgap
-efermi = 3.6711
+efermi = 3.4938
 range_for_homo = efermi + 0.3
-range_for_lumo = efermi + 0.1
+range_for_lumo = efermi + 1.5
 #Title
-title = 'CsPbI3'
+title = 'CsbBBr3'
 #Define High Symmetry Points
 high_symmetry_points = {
     'gG1'   : 0,
@@ -39,13 +39,20 @@ define_plot_settings = {
     'axes.labelsize'    : 14,
     'xtick.labelsize'   : 12,
     'ytick.labelsize'   : 12,
-    'grid.linestyle'    : '-.'
+    'grid.linestyle'    : '-.',
+   
 }
+
+# x_limits = (k_points[0], k_points[-1])
+y_limits = (-8, 8) 
 
 plot_settings(**define_plot_settings)
 #Define Colors
 colors = plt.cm.get_cmap('tab10').colors
 plt.gca().set_prop_cycle(cycler('color', colors))
+
+# plt.xlim(x_limits)  
+plt.ylim(y_limits)
 
 
 
@@ -62,5 +69,9 @@ else:
     bandgap_info = None
     # Plot the bandstructure using imported function
 plot_bandstructure(k, bands, positions, labels, efermi, title=title, bandgap_info=bandgap_info)
+svg_file = os.path.join(base_dir, '..', 'data', f"{title}.svg")
+
+# Save the figure as SVG
+plt.savefig(svg_file, format='svg')
 plt.show()
 

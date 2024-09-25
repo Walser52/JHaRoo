@@ -2,7 +2,7 @@ from module1 import process_band_structure, get_high_symmetry_positions_and_labe
 import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
-filename = 'CsPbBr3.bands.gnu'
+filename = 'relCsPbBr3.bands.gnu'
 
 data = np.loadtxt(filename)
 
@@ -14,7 +14,7 @@ efermi = 3.6711
 range_for_homo = efermi + 0.3
 range_for_lumo = efermi + 0.1
 #Title
-title = 'CsPbI3'
+title = 'relCsPbBr3'
 #Define High Symmetry Points
 high_symmetry_points = {
     'gG1'   : 0,

@@ -30,6 +30,7 @@ def plot_bandstructure(k, bands, positions, labels, efermi, title=None, bandgap_
     plt.axhline(y=0, color='r', linestyle='--')
     plt.xlabel("High Symmetry Points")
     plt.ylabel("Energy (eV)")
+    plt.xlim(positions[0], positions[-1])
     plt.xticks(positions, labels)
     if title:
         plt.title(title)
@@ -45,7 +46,8 @@ def plot_bandstructure(k, bands, positions, labels, efermi, title=None, bandgap_
     
 def plot_settings(**kwargs):
     for key, value in kwargs.items():
-        plt.rcParams[key] = value
+        if key in plt.rcParams:  # Only set rcParams for valid keys
+            plt.rcParams[key] = value
 
 def find_bandgap(bands, range_for_homo, range_for_lumo):
     # Flatten the bands array to easily find the HOMO and LUMO
