@@ -1,0 +1,76 @@
+
+---
+label: "localhost"
+description: "My machine"
+hostname: "localhost"
+transport: "core.local"
+scheduler: "core.direct"
+work_dir: "/home/fes33/Documents/Temp/max/.aiida_run"
+mpirun_command: "mpirun -np {tot_num_mpiprocs}"
+mpiprocs_per_machine: "2"
+# prepend_text: |
+#     conda activate espresso
+#     module load mymodule
+#     export NEWVAR=1
+
+
+
+# Options:
+#   -L, --label LABEL               Unique, human-readable label for this
+#                                   computer.  [required]
+#   -H, --hostname HOSTNAME         The fully qualified hostname of the computer
+#                                   (e.g. daint.cscs.ch). Use "localhost" when
+#                                   setting up the computer that AiiDA is
+#                                   running on.  [required]
+#   -D, --description DESCRIPTION   A human-readable description of this
+#                                   computer.
+#   -T, --transport PLUGIN          A transport plugin (as listed in `verdi
+#                                   plugin list aiida.transports`).  [required]
+#   -S, --scheduler PLUGIN          A scheduler plugin (as listed in `verdi
+#                                   plugin list aiida.schedulers`).  [required]
+#   --shebang SHEBANGLINE           Specify the first line of the submission
+#                                   script for this computer (only the bash
+#                                   shell is supported).
+#   -w, --work-dir TEXT             The absolute path of the directory on the
+#                                   computer where AiiDA will run the
+#                                   calculations (often a "scratch"
+#                                   directory).The {username} string will be
+#                                   replaced by your username on the remote
+#                                   computer.
+#   -m, --mpirun-command MPIRUNCOMMANDSTRING
+#                                   The mpirun command needed on the cluster to
+#                                   run parallel MPI programs. The
+#                                   {tot_num_mpiprocs} string will be replaced
+#                                   by the total number of cpus. See the
+#                                   scheduler docs for further scheduler-
+#                                   dependent template variables.
+#   --mpiprocs-per-machine INTEGER  The default number of MPI processes that
+#                                   should be executed per machine (node), if
+#                                   not otherwise specified.
+#   --default-memory-per-machine INTEGER
+#                                   The default amount of RAM (kB) that should
+#                                   be allocated per machine (node), if not
+#                                   otherwise specified.
+#   --use-double-quotes / --not-use-double-quotes
+#                                   Whether the command line arguments before
+#                                   and after the executable in the submission
+#                                   script should be escaped with single or
+#                                   double quotes.
+#   --prepend-text TEXT             Bash commands that should be prepended to
+#                                   the executable call in all submit scripts
+#                                   for this computer.
+#   --append-text TEXT              Bash commands that should be appended to the
+#                                   executable call in all submit scripts for
+#                                   this computer.
+#   -n, --non-interactive / -I, --interactive
+#                                   In non-interactive mode, the CLI never
+#                                   prompts for options but simply uses default
+#                                   values for options that define one. In
+#                                   interactive mode, the CLI will prompt for
+#                                   each interactive option.   [default:
+#                                   (--interactive)]
+#   --config FILEORURL              Load option values from configuration file
+#                                   in yaml format (local path or URL).
+#   -v, --verbosity [notset|debug|info|report|warning|error|critical]
+#                                   Set the verbosity of the output.
+#   -h, --help                      Show this message and exit.

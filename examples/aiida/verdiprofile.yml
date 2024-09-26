@@ -1,0 +1,23 @@
+Profile: puccini
+default_user_email: puccini@turandot.com
+options: {}
+process_control:
+  backend: core.rabbitmq
+  config:
+    broker_host: 127.0.0.1
+    broker_password: guest
+    broker_port: 5672
+    broker_protocol: amqp
+    broker_username: guest
+    broker_virtual_host: ''
+storage:
+  backend: core.psql_dos
+  config:
+    database_engine: postgresql_psycopg2
+    database_hostname: localhost
+    database_name: turandot
+    database_password: puccini
+    database_port: 5432
+    database_username: puccini
+    repository_uri: file:///home/fes33/.aiida/repository/puccini
+test_profile: false
