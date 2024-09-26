@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from cycler import cycler
 base_dir = os.path.dirname(os.path.abspath(__file__))  # Directory of the current script
 data_file = os.path.join(base_dir, '..', 'data', 'CsPbBr3.bands.gnu')
-
 data = np.loadtxt(data_file)
 
 # Get k points and bands from imported function
@@ -16,7 +15,7 @@ efermi = 3.4938
 range_for_homo = efermi + 0.3
 range_for_lumo = efermi + 1.5
 #Title
-title = 'CsbBBr3'
+title = 'CsbBBr3_wann'
 #Define High Symmetry Points
 high_symmetry_points = {
     'gG1'   : 0,
