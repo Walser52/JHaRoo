@@ -89,5 +89,6 @@ plot_energy_bands(k_points, bands, high_symmetry_points, efermi, title=title, ba
 svg_file = os.path.join(base_dir, '..', 'plots', f"{title}.svg")
 
 # Save the figure as SVG
-plt.savefig(svg_file, format='svg')
+plt.savefig(svg_file, format='svg', transparent=True)
+plt.savefig(svg_file, format='png', transparent=True)
 plt.show()
