@@ -87,6 +87,45 @@ def plot_bandstructure(k, bands, positions, labels, efermi, title=None, bandgap_
         #              arrowprops=dict(arrowstyle='<->', color='blue'))
         # plt.text(positions[-1], (lumo + homo) / 2 - efermi, f'Bandgap: {lumo - homo:.4f} eV', 
         #          ha='left', va='center', color='blue')
+
+
+def plot_bands(k, bands, positions, labels, efermi, skip = []):
+    
+    for band in range(len(bands)):
+        if band not in skip: 
+
+          plt.plot(k,bands[band, :] - efermi, label=f'{band}')
+
+          # Get the midpoint for placing the text
+          pos = np.random.randint(0,60)
+
+          midpoint_x = (k[pos])  # Adjust as needed for positioning
+          midpoint_y = bands[band, pos] - efermi  # Mean value of the band for text positioning
+
+          # Add text label for the band
+          plt.text(midpoint_x, midpoint_y, str(band), fontsize=12, ha='center', va='center')
+
+
+    plt.axhline(y=0, color='r', linestyle='--')
+    plt.xticks(positions, labels)
+
+    plt.ylabel("Energy (eV)")
+
+
+
+#    if title:
+#        plt.title(title)
+    #plt.grid(True)
+#    if bandgap_info:
+#        homo, lumo = bandgap_info
+#        plt.axhline(y=homo - efermi, color='g', linestyle='-')
+#        plt.axhline(y=lumo - efermi, color='g', linestyle='-')
+        # plt.annotate('', xy=(positions[-1], lumo - efermi), xytext=(positions[-1], homo - efermi),
+        #              arrowprops=dict(arrowstyle='<->', color='blue'))
+        # plt.text(positions[-1], (lumo + homo) / 2 - efermi, f'Bandgap: {lumo - homo:.4f} eV', 
+        #          ha='left', va='center', color='blue')
+
+
     
 def plot_settings(**kwargs):
     for key, value in kwargs.items():
@@ -102,7 +141,8 @@ def find_bandgap(bands, range_for_homo, range_for_lumo):
     
     # Calculate the bandgap
     bandgap = lumo - homo
-    return homo, lumo, bandgap
+    print(f"Bandgap: {bandgap:.4f} eV")
+    return (homo, lumo), bandgap
     
 
     
