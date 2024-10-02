@@ -4,18 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
 base_dir = os.path.dirname(os.path.abspath(__file__))  # Directory of the current script
-data_file = os.path.join(base_dir, '..', 'data', 'band_files', 'relCsPbBr2I.bands.gnu')
+data_file = os.path.join(base_dir, '..', 'data', 'band_files', 'CsPbBr3.bands.gnu')
 data = np.loadtxt(data_file)
 
 # Get k points and bands from imported function
 k, bands = process_band_structure(data)
 
 # Define fermi energy and the range for valence and conduction band to find the bandgap
-efermi = 4.6092
+efermi =1.9671
+
 range_for_homo = efermi - 0.1
 range_for_lumo = efermi - 0.1
 #Title
-title = 'relCsPbBr2I'
+title = 'CsPbBr3'
 #Define High Symmetry Points
 high_symmetry_points = {
     'gG1'   : 0,
@@ -43,7 +44,7 @@ define_plot_settings = {
 }
 
 # x_limits = (k_points[0], k_points[-1])
-y_limits = (-6, 15) 
+y_limits = (-4, 10) 
 
 plot_settings(**define_plot_settings)
 #Define Colors
@@ -72,6 +73,6 @@ svg_file = os.path.join(base_dir, '..', 'plots', 'DFT_bands', f"{title}")
 
   # Save the figure as SVG
 plt.savefig(svg_file+'.svg', format='svg', transparent=True)
-plt.savefig(svg_file+'.png', format='png', transparent=True)
+plt.savefig(svg_file+'.png', format='png', transparent=True, dpi = 300)
 plt.show()
 
