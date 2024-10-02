@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 base_dir = os.path.dirname(os.path.abspath(__file__))
 # define fermi energy
-efermi = 5.7132
-title='CsPBBrI2'
+efermi = 1.9671
+
+title='CsPBBr3'
 
 # Open and read the aiida.dos file
-data_file_DOS = os.path.join(base_dir, '..', 'data', 'dos_files', 'CsPBBrI2.dos')
+data_file_DOS = os.path.join(base_dir, '..', 'data', 'dos_files', 'CsPBBr3.dos')
 data = np.loadtxt(data_file_DOS)
 energy, dos, idos = data.T
 
@@ -19,8 +20,8 @@ plt.axhline(y=efermi-efermi, c='gray', linestyle='--', linewidth=1)
 plt.xlabel('DOS (eV)')
 plt.ylabel('Energy (eV)')
 
-plt.xlim (0, 20)
-plt.ylim (-6, 12)
+plt.xlim (0, 45)
+plt.ylim (-4, 10)
 
 svg_file = os.path.join(base_dir, '..', 'plots', 'DFT_DOS', f"{title}")
 plt.savefig(svg_file+'.svg', format='svg', transparent=True)
