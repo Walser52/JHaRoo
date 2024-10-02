@@ -15,12 +15,12 @@ gnu_file_wann = os.path.join(base_dir, '..', 'data', 'wann_band_files', 'relCsPB
 
 
 #Title
-title = 'CsPbBr3_SOC_wann'
+title = 'relCsPBBr3_band_wann'
 
 # Define fermi energy and the range for valence and conduction band to find the bandgap
-efermi = 1.9271
-range_for_homo = efermi + 0.3
-range_for_lumo = efermi + 0.1
+efermi = 1.9272
+range_for_homo = efermi - 0.5
+range_for_lumo = efermi + 0.3
 
 with open(gnu_file_wann, 'r') as file:
     gnu_content = file.read()  # Read the content of the .gnu file
@@ -86,9 +86,9 @@ else:
     # Plot the bandstructure using imported function
 
 plot_energy_bands(k_points, bands, high_symmetry_points, efermi, title=title, bandgap_info = bandgap_info)
-svg_file = os.path.join(base_dir, '..', 'plots', f"{title}.svg")
+svg_file = os.path.join(base_dir, '..', 'plots', 'wannier_bands', f"{title}")
 
 # Save the figure as SVG
-plt.savefig(svg_file, format='svg', transparent=True)
-plt.savefig(svg_file, format='png', transparent=True)
+plt.savefig(svg_file+'.svg', format='svg', transparent=True)
+plt.savefig(svg_file+'.png', format='png', transparent=True)
 plt.show()

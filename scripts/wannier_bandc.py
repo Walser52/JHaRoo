@@ -43,7 +43,8 @@ def plotwannier(data_dat,gnu_file_wann,title, show = False, **kwargs):
     range_for_lumo = homolumo[1]
 
   #++++++++++++++++++++++++++++++++++++
-  with open(gnu_file_wann, 'r') as file:
+  for i in range(len(files)):
+    with open(gnu_file_wann, 'r') as file:
       gnu_content = file.read()  # Read the content of the .gnu file
 
   # Use the content directly (no need for a path)

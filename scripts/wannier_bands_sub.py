@@ -145,7 +145,7 @@ def plot_energy_bands(k_points, bands, high_symmetry_points, efermi, title=None,
     plt.ylabel('Energy (eV)')
     if title:
         plt.title(title)
-    plt.legend()
+    # plt.legend()
 
 
 

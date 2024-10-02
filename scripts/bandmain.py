@@ -1,21 +1,21 @@
 import os
-from my_namespace.bands_sub import process_band_structure, get_high_symmetry_positions_and_labels, plot_bandstructure, plot_settings, find_bandgap
+from bands_sub import process_band_structure, get_high_symmetry_positions_and_labels, plot_bandstructure, plot_settings, find_bandgap
 import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
 base_dir = os.path.dirname(os.path.abspath(__file__))  # Directory of the current script
-data_file = os.path.join(base_dir, '..', 'data', 'CsPbBr3.bands.gnu')
+data_file = os.path.join(base_dir, '..', 'data', 'band_files', 'relCsPbBr2I.bands.gnu')
 data = np.loadtxt(data_file)
 
 # Get k points and bands from imported function
 k, bands = process_band_structure(data)
 
 # Define fermi energy and the range for valence and conduction band to find the bandgap
-efermi = 3.4938
-range_for_homo = efermi + 0.3
-range_for_lumo = efermi + 1.5
+efermi = 4.6092
+range_for_homo = efermi - 0.1
+range_for_lumo = efermi - 0.1
 #Title
-title = 'CsbBBr3_wann'
+title = 'relCsPbBr2I'
 #Define High Symmetry Points
 high_symmetry_points = {
     'gG1'   : 0,
@@ -43,7 +43,7 @@ define_plot_settings = {
 }
 
 # x_limits = (k_points[0], k_points[-1])
-y_limits = (-8, 8) 
+y_limits = (-6, 15) 
 
 plot_settings(**define_plot_settings)
 #Define Colors
@@ -52,7 +52,7 @@ plt.gca().set_prop_cycle(cycler('color', colors))
 
 # plt.xlim(x_limits)  
 plt.ylim(y_limits)
-
+plt.xlim(min(positions), max(positions))
 
 
  
@@ -68,9 +68,10 @@ else:
     bandgap_info = None
     # Plot the bandstructure using imported function
 plot_bandstructure(k, bands, positions, labels, efermi, title=title, bandgap_info=bandgap_info)
-svg_file = os.path.join(base_dir, '..', 'data', f"{title}.svg")
+svg_file = os.path.join(base_dir, '..', 'plots', 'DFT_bands', f"{title}")
 
-# Save the figure as SVG
-plt.savefig(svg_file, format='svg')
+  # Save the figure as SVG
+plt.savefig(svg_file+'.svg', format='svg', transparent=True)
+plt.savefig(svg_file+'.png', format='png', transparent=True)
 plt.show()
 

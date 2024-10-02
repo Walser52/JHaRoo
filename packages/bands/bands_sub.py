@@ -83,8 +83,8 @@ def plot_bandstructure(k, bands, positions, labels, efermi, title=None, bandgap_
         homo, lumo = bandgap_info
         plt.axhline(y=homo - efermi, color='g', linestyle='-')
         plt.axhline(y=lumo - efermi, color='g', linestyle='-')
-        plt.annotate('', xy=(positions[-1], lumo - efermi), xytext=(positions[-1], homo - efermi),
-                     arrowprops=dict(arrowstyle='<->', color='blue'))
+        # plt.annotate('', xy=(positions[-1], lumo - efermi), xytext=(positions[-1], homo - efermi),
+        #              arrowprops=dict(arrowstyle='<->', color='blue'))
         plt.text(positions[-1], (lumo + homo) / 2 - efermi, f'Bandgap: {lumo - homo:.4f} eV', 
                  ha='left', va='center', color='blue')
     
