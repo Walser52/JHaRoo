@@ -3,12 +3,12 @@ import numpy as np
 import os
 import glob
 
-title = 'CsPbBr2I'
+title = 'CsPbBr3'
 # Define the fermi energy
-efermi = 3.1106
+efermi = 1.9671
 
 # Define folder path to load data from
-pdos_folder = r'D:\Research\DFT_main\DFt\Data\CsPBBr2I\PDOS'
+pdos_folder = r'E:\CsPbBr3\5_Nscf'
 
 # Define the function to read multiple PDOS files
 def r_dos(name):
@@ -73,8 +73,8 @@ plt.xlabel('DOS (states/eV)')
 plt.ylabel('Energy (eV)')
 plt.axhline(y=0, c='gray', linestyle='--', linewidth=1)
 
-plt.xlim(0, 20)
-plt.ylim(-6, 10)
+plt.xlim(0, 45)
+plt.ylim(-4, 10)
 plt.legend()
 
 # Save the plots
