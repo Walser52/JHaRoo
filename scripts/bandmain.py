@@ -70,6 +70,8 @@ if __name__ == '__main__':
   savefile = os.path.join(savefolder, f"{title}")
   plt.savefig(savefile+'.svg', format='svg', transparent=True)
   plt.savefig(savefile+'.png', format='png', transparent=True, dpi = 300)
+
+  print(savefile)
   plt.show()
 
 
