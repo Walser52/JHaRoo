@@ -1,0 +1,5 @@
+&DOS
+outdir = '../out/'
+prefix = 'aiida'
+fildos = 'CsPBBr3.dos'
+/
