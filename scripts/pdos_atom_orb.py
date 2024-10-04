@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import glob
-from QEplots import readfolder, allDOS, plotDOS
+from QEplots import readfolder, prepareDOS, plotDOS
 
 
 #================= DOS=======================
-title = 'CsPbBr3'
+title = 'CsPbI3'
 pdos_folder = r'../data/pdos_files/CsPBBr3_PDOS'
 totaldosfile = 'aiida.pdos_tot'
 saveto = '../plots/DFT_PDOS_atom_orb'
@@ -22,14 +22,13 @@ yrange = [-4,10]
 plotTDOS = False
 #===============================================
 
+
 if __name__ == '__main__':
 
-  # Consolidate DOS DATA
-  all_pdos = readfolder(pdos_folder, contains = 'pdos')
-  pdos_data, energy_tot, dos_tot = allDOS(all_pdos, pdos_folder, totaldosfile, toskip, plotTotal = plotTDOS)
 
- 
-  #Plot DOS
+  all_pdos = reader(pdos_folder, contains = 'pdos')
+
+  pdos_data, energy_tot, dos_tot = prepareDOS(all_pdos, pdos_folder, totaldosfile, toskip, plotTotal = plotTDOS)
   plotDOS(pdos_data, energy_tot, dos_tot, efermi, xrange, yrange, title, saveto, plotTDOS = plotTDOS)
 
 

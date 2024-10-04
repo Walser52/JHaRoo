@@ -1,24 +1,9 @@
-import matplotlib.pyplot as plt
+# High level module which handles:
+#     plot what (DOS, bands>)
+#     which code is being used (QE, W90, Siesta)
+#     which backend to use      (matplotlib, plotly?)
 
-print("abc")
+# Calls code specific plotting files (e.g QEplots.py)
 
-def bands(a, b, savefile = 'test.pdf'):
 
-    plt.plot(a,b, color = 'pink')
-    plt.savefig(savefile, format = 'pdf')
-#    plt.show()
 
-    return 
-
-#if __name__ == '__main__':
-#    plt.figure()    
-#    a = [1,2,3]
-#    b = [1,2,4]
-#
-#    bands(a, b, 'test1')
-#    plt.show()
-#
-#    a = [1,2,3]
-#    b = [4,3,2]
-#    bands(a,b, 'test2')
-#    plt.show()

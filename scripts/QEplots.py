@@ -6,7 +6,6 @@ import glob
 
 
 
-
 #++++++++++++++++++++++ PDOS ATOM ORB ROUTINES++++++++++++++++++++++++++
 # Define the function to read multiple PDOS files
 def r_dos(name):
@@ -15,7 +14,7 @@ def r_dos(name):
     energy, dos = data.T
     return energy, dos
 
-def readfolder(folder, contains = 'all'):
+def reader(folder, contains = 'all'):
   """Generate list of files subject to criteria"""
   files = glob.glob(os.path.join(folder, f'*{contains}*'))
 
@@ -71,7 +70,7 @@ def aggregateDOS(pdos_data, energy, dos, parsed, method = 'atom-orb'):
 
   return pdos_data
   
-def allDOS(all_pdos, pdos_folder, totaldosfile, toskip, plotTotal=True):
+def prepareDOS(all_pdos, pdos_folder, totaldosfile, toskip, plotTotal=True):
   """
   Calls aggregateDOS one by one to create a complete dataset for all the files in the folder.
   """
