@@ -28,6 +28,28 @@ high_symmetry_points = {
 
 
 
+def plotBands(k, bands, positions, labels, efermi, settings, savefolder, toskip = []):
+  #Define Colors
+  colors = plt.cm.get_cmap('tab10').colors
+  plt.gca().set_prop_cycle(cycler('color', colors))
+   
+  plot_bands(k, bands, positions, labels, efermi, skip = toskip)
+
+
+  plot_settings(**settings)
+
+
+
+#  # Save figure
+  savefile = os.path.join(savefolder, f"{title}")
+  plt.savefig(savefile+'.svg', format='svg', transparent=True)
+  plt.savefig(savefile+'.png', format='png', transparent=True, dpi = 300)
+
+
+
+
+  return 
+
 if __name__ == '__main__':
 
   data = np.loadtxt(data_file)
@@ -50,18 +72,11 @@ if __name__ == '__main__':
    
   }
 
-  #Define Colors
-  colors = plt.cm.get_cmap('tab10').colors
-  plt.gca().set_prop_cycle(cycler('color', colors))
-   
-
-#  plot_bandstructure(k, bands, positions, labels, efermi, title=title, bandgap_info=homolumo)
-  toskip = list(range(0, 14))
   toskip = list(range(0, 12)) + []
-  plot_bands(k, bands, positions, labels, efermi, skip = toskip)
+
+  plotBands(k, bands, positions, labels, efermi, settings, savefolder, toskip = toskip)
 
 
-  plot_settings(**settings)
   plt.ylim([-4,10])
   plt.xlim(min(positions), max(positions))
 
@@ -71,7 +86,8 @@ if __name__ == '__main__':
   plt.savefig(savefile+'.svg', format='svg', transparent=True)
   plt.savefig(savefile+'.png', format='png', transparent=True, dpi = 300)
 
-  print(savefile)
+
+
   plt.show()
 
 
