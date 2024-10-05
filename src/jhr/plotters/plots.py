@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 from cycler import cycler
 import os
 import numpy as np
-
 from jhr.plotters._base import makeplot
 
 
@@ -46,3 +45,16 @@ def plotDOS(settings):
 def plot(what = 'Bands'):
   return 
 
+
+
+
+#____________________wannBands_______________________
+def plotwannbands(settings, efermi):
+  if efermi is not None:
+     settings['plot']['y'] -= efermi
+
+  # for band in range(len(bands)):
+  #       plt.plot(k_points, bands[band, :] - efermi)
+  makeplot(plt.plot, settings)
+
+  return

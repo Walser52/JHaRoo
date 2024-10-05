@@ -1,0 +1,1 @@
+export PYTHONPATH="D:\Research\DFT_main\Codes\abinit_codes\src:$PYTHONPATH"

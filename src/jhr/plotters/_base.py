@@ -83,6 +83,7 @@ def makeplot(fun, plotsettings):
     if 'yaxis.set_major_locator' in plotsettings.keys():ax.yaxis.set_major_locator(**plotsettings['yaxis.set_major_locator'])
 
     if 'axvline' in plotsettings.keys(): ax.axvline(**plotsettings['axvline'])
+    if 'axhline' in plotsettings.keys(): ax.axvline(**plotsettings['axhline'])
     if 'annotate' in plotsettings.keys(): ax.annotate(**plotsettings['annotate'])
     if 'colorbar' in plotsettings.keys(): plt.colorbar(**plotsettings['colorbar'])
     if 'savefig' in plotsettings.keys(): plt.savefig(**plotsettings['savefig'])

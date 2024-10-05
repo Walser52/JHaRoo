@@ -4,6 +4,9 @@ from jhr.cleaners.DOS import DOShandler
 from jhr.plotters.plots import plotBands
 from jhr.plotters.plots import plotDOS
 
+from jhr.cleaners.wannier import wannbandhandler
+from jhr.plotters.plots import plotwannbands
+
 #____________Express functions_____________
 
 def bandsExpress(data_file, high_symmetry_points, efermi, toskip, settings, code='QE'):
@@ -17,7 +20,7 @@ def bandsExpress(data_file, high_symmetry_points, efermi, toskip, settings, code
 
   #_____________Process Data_____________
   if code == 'QE':
-    k, bands, positions, labels, homolumo, bandgap = bandhandler(data_file, high_symmetry_points, efermi)
+    k, bands, positions, labels, (homo, lumo), bandgap = bandhandler(data_file, high_symmetry_points, efermi)
   if code == 'W90':
     pass
 
@@ -33,7 +36,7 @@ def bandsExpress(data_file, high_symmetry_points, efermi, toskip, settings, code
 
   return
 
-
+#_______________________________DOS_________________________________
 def DOSExpress(pdos_folder, totaldosfile, toskip, plotTDOS, efermi, settings):
 
   x,y,labels = DOShandler(pdos_folder, totaldosfile, toskip, plotTDOS, efermi)
@@ -44,4 +47,16 @@ def DOSExpress(pdos_folder, totaldosfile, toskip, plotTDOS, efermi, settings):
 
   plotDOS(settings)
   return
+#_______________________________________WannBands_____________________
+def wannbandsExpress(dat_file_wann, gnu_file_wann, efermi, settings):
+    
+  k_points, bands, high_symmetry_points, other_settings, positions, labels, (homo, lumo), bandgap = wannbandhandler(dat_file_wann, gnu_file_wann, efermi)
+  settings['plot']['x'] = k_points
+  settings['plot']['y'] = bands.T
+  settings['xlim'] = [min(positions), max(positions)]
+  settings['xticks'] = {'ticks': positions, 'labels':  labels}
 
+# plotBands(high_symmetry_points, settings, toskip = toskip, efermi = efermi)
+
+  plotwannbands(settings, efermi)
+  return
