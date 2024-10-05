@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import glob
-from QEplots import reader, prepareDOS, plotDOS
+#from QEplots import reader, prepareDOS#, plotDOS
+from jhr.plotters.express import DOSExpress
+
 
 
 #================= DOS=======================
@@ -19,25 +21,28 @@ toskip = {'Cs': ['s', 'p', 'd'], 'Pb': ['d'], 'Br':['s'], 'I':['s']}
 efermi = 3.6711 # CsPbI3
 
 #___________plotsettings
-xrange = [0,10]
-yrange = [-4,10]
 
 plotTDOS = True
 #===============================================
 
 
+settings = {
+    'figure': {'figsize': (4,8)},
+    'plot':{'x':[], 'y': [], 'label': [], 'alpha': 0.8}, 
+    'xlabel': 'DOS (states/eV)', 
+    'ylabel': 'Energy (eV)',
+    'xlim': [0,5],      
+    'ylim': [-4,10],
+    'legend': {'frameon': False},
+#      'savefig': {'fname':savefile+'.png', 'format':'png', 'transparent':True, 'dpi': 300}
+  
+}
+
+
+
+
 if __name__ == '__main__':
 
-
-  all_pdos = reader(pdos_folder, contains = 'pdos')
-
-  pdos_data, energy_tot, dos_tot = prepareDOS(all_pdos, pdos_folder, totaldosfile, toskip, plotTotal = plotTDOS)
-  plt.figure(figsize = [4,8])
-  plotDOS(pdos_data, energy_tot, dos_tot, efermi, xrange, yrange, title, saveto, plotTDOS = plotTDOS)
-
-
-
-
-
-#  plt.show()
+  DOSExpress(pdos_folder, totaldosfile, toskip, plotTDOS, efermi, settings)
+  plt.show()
   

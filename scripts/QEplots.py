@@ -106,34 +106,3 @@ def prepareDOS(all_pdos, pdos_folder, totaldosfile, toskip, plotTotal=True):
 
   return pdos_data, energy_tot, dos_tot
 
-def plotDOS(pdos_data, energy_tot, dos_tot, efermi, xrange, yrange, title, saveto, plotTDOS = True):
-  #_________________PLOT________________________
-# Create figure
-#  plt.figure()
-
-  # Plot total DOS
-  if plotTDOS:
-    plt.plot(dos_tot, energy_tot - efermi, c='blue', label='Total DOS')
-
-  # Plot PDOS for each atom and orbital type
-  for key, data in pdos_data.items():
-    plt.plot(data['dos'], data['energy'] - efermi, label=f'{key} orbitals')
-
-  # Add labels and save the figure
-  plt.title(title)
-  plt.xlabel('DOS (states/eV)')
-  plt.ylabel('Energy (eV)')
-  plt.axhline(y=0, c='gray', linestyle='--', linewidth=1)
-
-  plt.xlim(xrange)
-  plt.ylim(yrange)
-  plt.legend(frameon = False)
-
-  # Save the plots
-  #base_dir = os.path.dirname(os.path.abspath(__file__))
-  svg_file = os.path.join(saveto, f"{title}")
-  plt.savefig(svg_file + '.svg', format='svg', transparent=True)
-  plt.savefig(svg_file + '.png', format='png', transparent=True, dpi=350)
-
-
-  return
