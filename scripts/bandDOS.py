@@ -6,8 +6,23 @@ import glob
 from jhr.plotters.express import DOSExpress
 from jhr.plotters.express import bandsExpress
 
+CsPbBr3 = {'efermi':1.9671,  }
+
+CsPbBr2I = {}
+
+CsPbBrI2 = {}
+
+CsPbI3 = {}
+
+mats = {'CsPbBr3': CsPbBr3,
+        'CsPbBr2I':CsPbBr2I,
+        'CsPbBrI2':CsPbBrI2,
+        'CsPbI3': CsPbI3
+}
+
 
 #=====================PLOT 1=======================
+
 
 #================= DOS=======================
 title = 'CsPbI3'
@@ -27,6 +42,11 @@ efermi = 3.6711 # CsPbI3
 plotTDOS = True
 #===============================================
 
+#key = 'CsPbBr3'
+#
+#
+#efermi = mats[key]['efermi']
+#saveto = mats[key]['saveto']
 
 settings = {
     #'figure': {'figsize': (4,8)},
