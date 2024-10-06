@@ -37,7 +37,7 @@ def makeplot(fun, plotsettings):
     ax = plt.gca()
 
     if 'inset_axes' in plotsettings.keys(): inset_axes(ax, **plotsettings['inset_axes'])
-    
+    if 'set_prop_cycle' in plotsettings.keys(): ax.set_prop_cycle(plotsettings['set_prop_cycle'])   
     
     #_________Make plot and set defaults___________
     if 'plot' in plotsettings.keys(): 
@@ -62,12 +62,11 @@ def makeplot(fun, plotsettings):
     ax.xaxis.set_major_locator(MaxNLocator(integer=False, prune='both', nbins=4))
     ax.yaxis.set_major_locator(MaxNLocator(integer=False, prune='both', nbins=4))
 
-    #____________cycler___________    
-    if 'set_prop_cycle' in plotsettings.keys(): ax.set_prop_cycle(plotsettings['set_prop_cycle'])
+
    
     #_____Changes to defaults____
 
-    
+    if 'title' in plotsettings.keys(): plt.title(plotsettings['title']) 
     if 'xlim' in plotsettings.keys(): plt.xlim(plotsettings['xlim'])
     if 'ylim' in plotsettings.keys(): plt.ylim(plotsettings['ylim'])
     if 'xlabel' in plotsettings.keys(): plt.xlabel(plotsettings['xlabel'])
@@ -83,7 +82,7 @@ def makeplot(fun, plotsettings):
     if 'yaxis.set_major_locator' in plotsettings.keys():ax.yaxis.set_major_locator(**plotsettings['yaxis.set_major_locator'])
 
     if 'axvline' in plotsettings.keys(): ax.axvline(**plotsettings['axvline'])
-    if 'axhline' in plotsettings.keys(): ax.axvline(**plotsettings['axhline'])
+    if 'axhline' in plotsettings.keys(): ax.axhline(**plotsettings['axhline'])
     if 'annotate' in plotsettings.keys(): ax.annotate(**plotsettings['annotate'])
     if 'colorbar' in plotsettings.keys(): plt.colorbar(**plotsettings['colorbar'])
     if 'savefig' in plotsettings.keys(): plt.savefig(**plotsettings['savefig'])
@@ -91,3 +90,40 @@ def makeplot(fun, plotsettings):
     
 
     return 
+
+
+def createTag(pos = (0.017, 1.005), name = None, box_clr = 'red', edgecolor = 'black', alpha = 0.6, boxstyle = 'round', fontcolor = 'black', alignment = ('left', 'bottom')):
+    """
+    Purpose: 
+        Create a tag at the top left corner of an axis. Use position to change x and y.
+    """
+    ax = plt.gca()
+    ax.text(pos[0], pos[1], s = name, 
+                bbox=dict(facecolor=box_clr, edgecolor = edgecolor, alpha=alpha, boxstyle=boxstyle), 
+                color = fontcolor, horizontalalignment=alignment[0], verticalalignment=alignment[1],transform=ax.transAxes, )
+    
+    return
+
+
+def annotate(fig = None, labels = 'abc', style = 'lower', parenthesis = False, size = 12, weight = 'bold', loc = (-0.13, 1.04), append = "", label_by = 'all '):
+    """
+    Annotate with a, b, c
+    
+    Args:
+        label_by: 'row', 'col', 'all'
+    """
+    import string
+    
+    if fig == None: 
+        fig = plt.gcf()
+        
+    if labels == 'abc':
+        abc = list(string.ascii_lowercase)
+        #abc = list(string.ascii_uppercase)
+        labels = abc[:len(fig.axes)]
+   
+    for index, (label, ax) in enumerate(zip(labels, fig.axes)):
+        ax.text(loc[0], loc[1], label+append,
+        transform=ax.transAxes,
+        size=size, weight=weight)
+    return

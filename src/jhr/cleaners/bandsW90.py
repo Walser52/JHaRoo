@@ -62,7 +62,7 @@ def read_gnu_file_wann(gnu_content):
 
     return high_symmetry_points, {}
 
-def wannbandhandler(dat_file_wann, gnu_file_wann, efermi):
+def bandHandlerW90(dat_file_wann, gnu_file_wann, efermi):
     #==========TO REMOVE==========
     range_for_homo = efermi - 0.1
     range_for_lumo = efermi - 0.1

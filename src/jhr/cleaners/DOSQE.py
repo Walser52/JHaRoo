@@ -3,17 +3,22 @@ import matplotlib.pyplot as plt
 import os
 import glob
 
-def DOShandler(pdos_folder, totaldosfile, toskip, plotTDOS, efermi):
+def DOSHandlerQE(pdos_folder, totaldosfile, toskip = {}, plotTDOS = False, efermi = 0):
+  """
+  Density of States Handler for Quantum Espresso (QE)
+  """
+
   all_pdos = reader(pdos_folder, contains = 'pdos')
 
   pdos_data, energy_tot, dos_tot = prepareDOS(all_pdos, pdos_folder, totaldosfile, toskip, plotTotal = plotTDOS)
 
-
+  #____Also plot TDOS_____
   if plotTDOS == True:
     pdos_data['Total DOS'] = {}
     pdos_data['Total DOS']['energy'] = energy_tot
     pdos_data['Total DOS']['dos'] = dos_tot
 
+  #_____Convert pdos_data (dictionary) to makeplot format_____
   x = []
   y = []
   labels = []

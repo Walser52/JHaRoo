@@ -3,7 +3,7 @@ import numpy as np
 
 
 
-def bandhandler(data_file, high_symmetry_points, efermi):
+def bandHandlerQE(data_file, high_symmetry_points, efermi):
   #==========TO REMOVE==========
   range_for_homo = efermi - 0.1
   range_for_lumo = efermi - 0.1

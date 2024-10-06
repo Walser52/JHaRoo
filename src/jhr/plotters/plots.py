@@ -7,9 +7,6 @@ from jhr.plotters._base import makeplot
 
 
 
-
-
-
 #_____________Mid level plotting functions______________
 
 def plotBands(symmpoints, settings, toskip = [], efermi = None):

@@ -47,7 +47,7 @@ toskip = list(range(0, 12)) + []
 #-------------------------------------------
 
 if __name__ == '__main__':
-  bandsExpress(data_file, high_symmetry_points, efermi, toskip, settings)
+  bandsExpress(data_file, settings, code = 'QE', toskip = toskip, efermi = efermi, symmPoints = high_symmetry_points)
   plt.show()
 
 

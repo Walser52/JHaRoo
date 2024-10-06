@@ -1,14 +1,14 @@
 import os
 import sys
-from jhr.plotters.express import wannbandsExpress
+from jhr.plotters.express import bandsExpress
 import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
 
 
 title = 'CsPbBr3_wann'
-dat_filename = 'CsPbBr3_band_wann.dat'
-gnu_filename = 'CsPbBr3_band_wann.gnu'
+dat_filename = 'CsPBBr3_band_wann.dat'
+gnu_filename = 'CsPBBr3_band_wann.gnu'
 savefolder = '../plots/wannier_bands'
 # Load .dat file for Wannier bands
 dat_file_wann = os.path.join('..', 'data', 'wann_band_files', dat_filename)
@@ -28,7 +28,7 @@ settings = {
     'xlabel': 'k points', 
     'ylabel': 'Energy (eV)',
     'ylim': [-4,6],
-    #'axhline': {'y': [0], 'color': 'r', 'linestyle': '--'},
+    'axhline': {'y': 0, 'color': 'r', 'linestyle': '--'},
     # 'legend': {'frameon': False},
     'savefig': {'fname':savefile+'.png', 'format':'png', 'transparent':True, 'dpi': 300}
   
@@ -37,6 +37,6 @@ settings = {
 #________________________________________________
 
 if __name__ == '__main__':
-  wannbandsExpress(dat_file_wann, gnu_file_wann, efermi, settings)
+  bandsExpress((dat_file_wann, gnu_file_wann), settings, toskip = [], code = 'W90', efermi = efermi)
   plt.show()
 
