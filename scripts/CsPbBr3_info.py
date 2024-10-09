@@ -6,10 +6,10 @@ efermi = 3.6711
 #DOS Data
 pdos_folder = r'../data/pdos_files/CsPBBr3_PDOS'
 totaldosfile = 'aiida.pdos_tot'
-toskipDOS = {'Cs': ['s', 'p', 'd'], 'Pb': ['d'], 'Br':['s'], 'I':['s']}
+toskipDOS = {'Cs': [], 'Pb': ['d'], 'Br':['s'], 'I':['s']}
 plotTDOS = True
 
-xlimDOS = [0,5]
+xlimDOS = [0,10]
 ylimDOS = [-4,10]
 
 #Bands Data

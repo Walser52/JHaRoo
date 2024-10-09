@@ -11,7 +11,10 @@ from jhr.plotters._base import createTag, annotate
 
 from cycler import cycler
 
-from CsPbBr3 import *
+#from CsPbBr3_info import *
+#from CsPbI3_info import *
+#from CsPbBr2I_info import *
+#from CsPbBrI2_info import *
 
 
 #custom_cycler = cycler(color=['blue']*36)
@@ -91,7 +94,7 @@ mat = {'DOS': dict(pdos_folder = pdos_folder, totaldosfile = totaldosfile,
 
 #============PLOTTER==============
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(4, 4), sharey = True)  # 2 rows, 1 column
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 8), sharey = True)  # 2 rows, 1 column
 
 plt.sca(ax2)
 DOSExpress(**mat['DOS'])

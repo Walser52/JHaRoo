@@ -6,10 +6,10 @@ efermi = 3.6711
 #DOS Data
 pdos_folder = r'../data/pdos_files/CsPBI3_PDOS'
 totaldosfile = 'aiida.pdos_tot'
-toskipDOS = {'Cs': ['s', 'p', 'd'], 'Pb': ['d'], 'Br':['s'], 'I':['s']}
+toskipDOS = {'Cs': [], 'Pb': ['d'], 'Br':['s'], 'I':['s']}
 plotTDOS = True
 
-xlimDOS = [0,5]
+xlimDOS = [0,10]
 ylimDOS = [-4,10]
 
 #Bands Data
@@ -19,8 +19,8 @@ toskipbands = list(range(0, 12)) + []
 ylimBands = [-6,10]
 
 #W90 Bands Data
-dat_file_wann = '../data/wann_band_files/CsPBBr3_band_wann.dat'
-gnu_file_wann = '../data/wann_band_files/CsPBBr3_band_wann.gnu'
+dat_file_wann = '../data/wann_band_files/CsPBI3_band_wann.dat'
+gnu_file_wann = '../data/wann_band_files/CsPBI3_band_wann.gnu'
 
 
 
