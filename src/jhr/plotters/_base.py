@@ -63,7 +63,6 @@ def makeplot(fun, plotsettings):
     ax.yaxis.set_major_locator(MaxNLocator(integer=False, prune='both', nbins=4))
 
 
-   
     #_____Changes to defaults____
 
     if 'title' in plotsettings.keys(): plt.title(plotsettings['title']) 
@@ -78,8 +77,15 @@ def makeplot(fun, plotsettings):
     if 'tick_params' in plotsettings.keys(): ax.tick_params(**plotsettings['tick_params'])
     if 'xticks' in plotsettings.keys(): plt.xticks(**plotsettings['xticks'])
     if 'yticks' in plotsettings.keys(): plt.yticks(**plotsettings['yticks'])
+
     if 'xaxis.set_major_locator' in plotsettings.keys():ax.xaxis.set_major_locator(**plotsettings['xaxis.set_major_locator'])
     if 'yaxis.set_major_locator' in plotsettings.keys():ax.yaxis.set_major_locator(**plotsettings['yaxis.set_major_locator'])
+    if 'xaxis.set_minor_locator' in plotsettings.keys():
+        if 'AutoMinorLocator' in plotsettings['xaxis.set_minor_locator'].keys():      
+          ax.xaxis.set_minor_locator(AutoMinorLocator(plotsettings['xaxis.set_minor_locator']['AutoMinorLocator']))
+    if 'yaxis.set_minor_locator' in plotsettings.keys():
+        if 'AutoMinorLocator' in plotsettings['yaxis.set_minor_locator'].keys():      
+          ax.yaxis.set_minor_locator(AutoMinorLocator(plotsettings['yaxis.set_minor_locator']['AutoMinorLocator']))
 
     if 'axvline' in plotsettings.keys(): ax.axvline(**plotsettings['axvline'])
     if 'axhline' in plotsettings.keys(): ax.axhline(**plotsettings['axhline'])
@@ -92,15 +98,18 @@ def makeplot(fun, plotsettings):
     return 
 
 
-def createTag(pos = (0.017, 1.005), name = None, box_clr = 'red', edgecolor = 'black', alpha = 0.6, boxstyle = 'round', fontcolor = 'black', alignment = ('left', 'bottom')):
+def createTag(pos = (0.017, 1.005), name = None, fontcolor = 'black', alignment = ('left', 'bottom'), weight='normal', bboxsettings = None):
     """
     Purpose: 
         Create a tag at the top left corner of an axis. Use position to change x and y.
     """
+    settings_def = dict(facecolor='red', edgecolor = 'black', alpha=0.6, boxstyle='round')
+    if bboxsettings is not None: settings_def.update(bboxsettings)
+
+
     ax = plt.gca()
-    ax.text(pos[0], pos[1], s = name, 
-                bbox=dict(facecolor=box_clr, edgecolor = edgecolor, alpha=alpha, boxstyle=boxstyle), 
-                color = fontcolor, horizontalalignment=alignment[0], verticalalignment=alignment[1],transform=ax.transAxes, )
+    ax.text(pos[0], pos[1], s = name, bbox=settings_def, weight = weight, 
+                color = fontcolor, horizontalalignment=alignment[0], verticalalignment=alignment[1],transform=ax.transAxes)
     
     return
 
@@ -129,5 +138,21 @@ def annotate(fig = None, labels = 'abc', style = 'lower', parenthesis = False, s
     return
 
 
+
+def arrowDouble(xyfrom,xyto,text='', arrowstyle = '<->', xytext = None, textsettings = None):
+    """
+    By default: Create a double arrow and put a text on it. Maybe used to create other arrows. 
+    """
+
+    settings = dict(fontsize=16, va = 'center', ha = 'center', backgroundcolor = 'white')
+    if textsettings is not None: settings.update(textsettings)
+
+
+    # xy coordinates for text. Use middle of arrow by default.
+    if xytext is None: xytext = [(xyto[0]+xyfrom[0])/2, (xyto[1]+xyfrom[1])/2]
+
+    ax = plt.gca()
+    ax.annotate("",xyfrom, xyto, arrowprops=dict(arrowstyle=arrowstyle))
+    ax.text(xytext[0],xytext[1],text,**settings)
 
 

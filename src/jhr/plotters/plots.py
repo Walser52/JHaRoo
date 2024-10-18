@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 from cycler import cycler
 import os
 import numpy as np
-from jhr.plotters._base import makeplot
+from jhr.plotters._base import makeplot, arrowDouble
 
 from matplotlib import ticker
 
-
+from jhr._helpers import trunc
 
 #_____________Mid level plotting functions______________
 
@@ -40,9 +40,52 @@ def plotDOS(settings):
   return
 
 
-def plot(what = 'Bands'):
-  return 
+def plotHomoLumo(homolumo, show = None, efermi = None, linesettings = None, textsettings = None, annotate = True):
+  """
+  Plots homo-lumo lines.
+  Args:
+    homolumo: list of values at which to plot. 
+    show: 
+        - list e.g. [1,2]. Plot both 1 and 2 indices. 
+        - int e.g. 2. Plot lines for bandgap 2 only. 
+        - 'all'. Draw lines for all. 
+    annotate:     Whether to add bandgap text and double headed arrows to plot. True by default.
+    linesettings: Settings for horizontal lines. Passed to plt.plot
+    textsettings: Settings for bandgap text. Passed to plt.text
+  """
 
+
+  if efermi is not None: 
+    homolumo[:, 0] = homolumo[:, 0] - efermi
+    homolumo[:, 1] = homolumo[:, 1] - efermi
+
+
+  if type(show) is int: show = [show]
+  if show == 'all': show = range(len(homolumo))
+
+  if linesettings is None: linesettings = {'c': 'k', 'lw': 0.8, 'ls':'--'}
+
+  #__Settings for printing bandgap___
+  bandgaps = homolumo[:, 1] - homolumo[:, 0]
+  textsettings_def = {'fontsize': '10', 'ha': 'center', 'va': 'center'}
+  if textsettings is not None: textsettings_def.update(textsettings)
+
+
+
+  #___Show bandgaps____
+  if show is not None:
+    for i in show:
+      #____Create horizontal lines_____      
+      ly, hy, lx, hx = homolumo[i]
+      plt.plot([lx-0.5, lx+0.5], [ly, ly], **linesettings)
+      plt.plot([hx-0.5, hx+0.5], [hy, hy], **linesettings)
+
+      #____Add text showing bandgap with arrows____    
+      if annotate: 
+        bg = trunc(bandgaps[i],3)
+        arrowDouble(xyfrom = [lx,ly], xyto = [hx, hy], text = f"{bg} eV", textsettings = textsettings)
+
+  return 
 
 
 

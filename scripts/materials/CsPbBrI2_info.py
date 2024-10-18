@@ -6,7 +6,7 @@ efermi = 5.7132
 #DOS Data
 pdos_folder = r'../data/pdos_files/CsPBBrI2_PDOS'
 totaldosfile = 'aiida.pdos_tot'
-toskipDOS = {'Cs': [], 'Pb': ['d'], 'Br':['s'], 'I':['s']}
+toskipDOS =  {'Cs': ['s', 'p', 'd'], 'Pb': ['d'], 'Br':['s'], 'I':['s']}
 plotTDOS = True
 
 xlimDOS = [0,10]
@@ -24,3 +24,4 @@ gnu_file_wann = '../data/wann_band_files/CsPBBrI2_band_wann.gnu'
 
 
 
+showhomolumo = 5

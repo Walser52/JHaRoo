@@ -23,4 +23,4 @@ dat_file_wann = '../data/wann_band_files/CsPbBr2I_band_wann.dat'
 gnu_file_wann = '../data/wann_band_files/CsPbBr2I_band_wann.gnu'
 
 
-
+showhomolumo = 5

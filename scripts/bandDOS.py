@@ -83,7 +83,7 @@ range_for_lumo = efermi - 0.1
 
 #Define High Symmetry Points
 high_symmetry_points = {
-    'gG1'   : 0,
+    '$\Gamma$'   : 0,
     'X1'    : 30,
     'M1'    : 60,
     'gG2'   : 90,
@@ -108,11 +108,16 @@ settings = {
   
 }
 
+homolumo_textsettings = {'fontsize': 10}
+
 toskip = list(range(0, 12)) + []
 #-------------------------------------------
 
 plt.sca(ax1)
-bandsExpress(data_file, settings, code = 'QE', toskip = toskip, efermi = efermi, symmPoints = high_symmetry_points)
+bandsExpress(data_file, settings, code = 'QE', toskip = toskip, efermi = efermi, 
+            symmPoints = high_symmetry_points, 
+            showhomolumo = 4, homolumosettings = homolumo_textsettings
+            )
 plt.show()
 
   

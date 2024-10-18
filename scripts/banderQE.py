@@ -1,3 +1,5 @@
+# Plots bands for Quantum Espresso (QE)
+
 import os
 from jhr.plotters.express import bandsExpress
 import numpy as np
