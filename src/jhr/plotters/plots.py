@@ -26,6 +26,11 @@ def plotBands(symmpoints, settings, toskip = [], efermi = None):
 
   makeplot(plt.plot, settings)  
 
+
+  kpoints = settings['plot']['x']
+  for sp in symmpoints.values():
+    plt.axvline(kpoints[sp], ls = '--', dashes=(5, 5),color = '#CCCCCC', zorder = 1)
+
   return 
 
 
@@ -77,13 +82,15 @@ def plotHomoLumo(homolumo, show = None, efermi = None, linesettings = None, text
     for i in show:
       #____Create horizontal lines_____      
       ly, hy, lx, hx = homolumo[i]
-      plt.plot([lx-0.5, lx+0.5], [ly, ly], **linesettings)
-      plt.plot([hx-0.5, hx+0.5], [hy, hy], **linesettings)
-
       #____Add text showing bandgap with arrows____    
       if annotate: 
         bg = trunc(bandgaps[i],3)
-        arrowDouble(xyfrom = [lx,ly], xyto = [hx, hy], text = f"{bg} eV", textsettings = textsettings)
+        arrowDouble(xyfrom = [lx,ly], xyto = [hx, hy], xytext = None, text = f"{bg} eV", textsettings = textsettings)
+
+
+      plt.plot([lx-0.5, lx+0.5], [ly, ly], **linesettings)
+      plt.plot([hx-0.5, hx+0.5], [hy, hy], **linesettings)
+
 
   return 
 

@@ -1,6 +1,8 @@
 # Sample data file for bandsDOSW90.py
 
 title = 'CsPbBr3'
+plottag = '$CsPbBr_{3}$'
+
 efermi = 3.6711
 
 #DOS Data
@@ -16,12 +18,12 @@ ylimDOS = [-6,8.5]
 bandsQEFile = '../data/band_files/CsPbBr3.bands.gnu'
 toskipbands = list(range(0, 12)) + []
 #xlimBands = []      
-ylimBands = [-6,8.5]
+ylimBands = ylimDOS
 
 #W90 Bands Data
 dat_file_wann = '../data/wann_band_files/CsPBBr3_band_wann.dat'
 gnu_file_wann = '../data/wann_band_files/CsPBBr3_band_wann.gnu'
 
-
-
 showhomolumo = 4
+
+

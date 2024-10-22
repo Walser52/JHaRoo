@@ -137,7 +137,34 @@ def annotate(fig = None, labels = 'abc', style = 'lower', parenthesis = False, s
         size=size, weight=weight)
     return
 
+def ax_divider(ax, divisions = 4, size =(1.5, 1), direction = "bottom", pad = 0, share = True):
+    """
+    Divides vertically if no zip.
+    Usage:
+        axs = pm.ax_divider(ax0, divisions = 5)
 
+
+    Args:
+        direction: direction in which to add axes: "top", "bottom", "right", "left"
+    Returns:
+        Axes
+    """
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    from mpl_toolkits.axes_grid1 import Divider
+    divider = make_axes_locatable(ax)
+
+    axes = [ax]
+    for i in range(divisions-1):
+        if share == True:
+          if direction in ['bottom', 'top']:         
+            ax2 = divider.append_axes(direction, size="100%", pad=pad, sharex = ax)
+          else: 
+            ax2 = divider.append_axes(direction, size="100%", pad=pad, sharey = ax)
+        else:
+          ax2 = divider.append_axes(direction, size="100%", pad=pad)
+        axes.append(ax2)
+
+    return axes 
 
 def arrowDouble(xyfrom,xyto,text='', arrowstyle = '<->', xytext = None, textsettings = None):
     """
@@ -152,7 +179,7 @@ def arrowDouble(xyfrom,xyto,text='', arrowstyle = '<->', xytext = None, textsett
     if xytext is None: xytext = [(xyto[0]+xyfrom[0])/2, (xyto[1]+xyfrom[1])/2]
 
     ax = plt.gca()
-    ax.annotate("",xyfrom, xyto, arrowprops=dict(arrowstyle=arrowstyle))
-    ax.text(xytext[0],xytext[1],text,**settings)
+    ax.annotate("",xyfrom, xyto, zorder=1, arrowprops=dict(arrowstyle=arrowstyle))
+    ax.text(xytext[0],xytext[1],text, zorder=2,**settings)
 
 

@@ -2,6 +2,7 @@
 
 title = 'CsPbI3'
 efermi = 3.6711
+plottag = '$CsPbI_{3}$'
 
 #DOS Data
 pdos_folder = r'../data/pdos_files/CsPBI3_PDOS'
@@ -16,7 +17,7 @@ ylimDOS = [-4,10]
 bandsQEFile = '../data/band_files/CsPbI3.bands.gnu'
 toskipbands = list(range(0, 12)) + []
 #xlimBands = []      
-ylimBands = [-6,10]
+ylimBands = ylimDOS
 
 #W90 Bands Data
 dat_file_wann = '../data/wann_band_files/CsPBI3_band_wann.dat'

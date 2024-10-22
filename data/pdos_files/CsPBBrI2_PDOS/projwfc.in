@@ -1,5 +1,4 @@
 &projwfc
-prefix  = 'aiida'
-outdir  = '../out/'
+prefix = 'aiida'
+outdir = '../out/'
 /
-

@@ -1,6 +1,7 @@
 # Sample data file for bandsDOSW90.py
 
 title = 'CsPbBr2I'
+plottag = '$CsPbBr_{2}I$'
 efermi =3.1106
 
 #DOS Data
@@ -16,7 +17,7 @@ ylimDOS = [-6,10]
 bandsQEFile = '../data/band_files/CsPbBr2I.bands.gnu'
 toskipbands = list(range(0, 12)) + []
 #xlimBands = []      
-ylimBands = [-6,10]
+ylimBands = ylimDOS
 
 #W90 Bands Data
 dat_file_wann = '../data/wann_band_files/CsPbBr2I_band_wann.dat'

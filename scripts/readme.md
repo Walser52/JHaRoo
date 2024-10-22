@@ -1,6 +1,8 @@
 # Description of scripts
 
+## Workflow
 
+## Plotting 
 _bandDos.py_ [Deprecated: Use]
 Plots bands and DOS.
 
