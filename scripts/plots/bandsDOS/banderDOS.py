@@ -11,7 +11,7 @@ from matplotlib.gridspec import GridSpec
 
 from cycler import cycler
 
-# from materials.CsPbBr3_info import *
+from materials.CsPbBr3_info import *
 # from materials.CsPbI3_info import *
 # from materials.CsPbBr2I_info import *
 # from materials.CsPbBrI2_info import *
@@ -29,7 +29,7 @@ print(title)
 title = 'grid'
 #________Data settings___________
 
-savefile = f'../plots/Grids/{title}'
+savefile = f'../../../plots/Grids/{title}'
 DOS_cycler = cycler(color=['#003049', '#f77f00', '#B028C6', '#f2542d', '#562c2c'])
 
 high_symmetry_points = {#Define High Symmetry Points
