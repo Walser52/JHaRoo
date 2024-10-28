@@ -1,5 +1,5 @@
 import numpy as np
-
+from jhr.cleaners._bands import _findBandgap
 
 def read_datfile_wannier(data_dat, scale_k = 1):
     """
@@ -30,7 +30,6 @@ def read_gnu_file_wann(gnu_content, scale_k = 1):
 
     Returns:
         high_symmetry_points (dict): Dictionary of symmetry points and their positions.
-        other_settings (dict): Placeholder for other settings if needed.
     """
     high_symmetry_points = {}
     lines = gnu_content.splitlines()
@@ -62,9 +61,9 @@ def read_gnu_file_wann(gnu_content, scale_k = 1):
                     else:
                         high_symmetry_points[label] = [position]
 
-    return high_symmetry_points, {}
+    return high_symmetry_points
 
-def bandHandlerW90(dat_file_wann, gnu_file_wann, efermi, scale_k = 1):
+def bandHandlerW90(dat_file_wann, gnu_file_wann, efermi, scale_k = 1, printall = True, sort = False, threshold = 0.1, window = [], index = []):
     #==========TO REMOVE==========
     range_for_homo = efermi - 0.1
     range_for_lumo = efermi - 0.1
@@ -75,12 +74,11 @@ def bandHandlerW90(dat_file_wann, gnu_file_wann, efermi, scale_k = 1):
 
     with open(gnu_file_wann, 'r') as file:
         gnu_content = file.read()  # Read the content of the .gnu file
-        high_symmetry_points, other_settings = read_gnu_file_wann(gnu_content, scale_k)  # Pass the content, not the file path
-
-        positions = []
-        labels = []
+        high_symmetry_points = read_gnu_file_wann(gnu_content, scale_k)  # Pass the content, not the file path
 
     # Iterate through high symmetry points
+    positions = []
+    labels = []
     for label, pos_list in high_symmetry_points.items():
     # Append all positions for the current label
         for position in pos_list:
@@ -89,15 +87,10 @@ def bandHandlerW90(dat_file_wann, gnu_file_wann, efermi, scale_k = 1):
     # positions = [pos for pos_list in high_symmetry_points.values() for pos in pos_list]
     # labels = [label for label, pos_list in high_symmetry_points.items() for _ in pos_list]
 
-    (homo, lumo), bandgap = find_bandgap(bands, range_for_homo, range_for_lumo)
-    if bandgap is not None:
-        print(f"Bandgap: {bandgap:.4f} eV")
-        bandgap_info = (homo, lumo)
-    else:
-        print("No bands found near eFermi to calculate bandgap.")
-        bandgap_info = None
 
-    return k_points, bands, high_symmetry_points, other_settings, positions, labels, (homo, lumo), bandgap
+    homolumo, bandgap = _findBandgap(bands,printall = printall, sort = sort, threshold = threshold, window = window, index = index)
+
+    return k_points, bands, positions, labels, homolumo, bandgap
 
 
 def find_bandgap(bands, range_for_homo, range_for_lumo):

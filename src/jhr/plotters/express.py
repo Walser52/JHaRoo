@@ -41,7 +41,7 @@ def bandsExpress(data_file, plotsettings, toskip = [], code='QE', scale_k = 1, h
 
   #_____________Process Data_____________
   if code.lower() == 'qe':
-    k, bands, positions, labels, homolumo, bandgap = bandHandlerQE(data_file, high_symmetry_points, efermi, **bandgapDict)
+    k, bands, hi_symm_pos, hi_symm_lab, homolumo, bandgap = bandHandlerQE(data_file, high_symmetry_points, efermi, **bandgapDict)
 
   if code.lower() == 'w90':
     if len(data_file) == 2:
@@ -51,8 +51,7 @@ def bandsExpress(data_file, plotsettings, toskip = [], code='QE', scale_k = 1, h
           elif os.path.splitext(f)[1] == '.dat':
               data_file_wann = f
 
-      k, bands, high_symmetry_points, other_settings, positions, labels, homolumo, bandgap = bandHandlerW90(data_file_wann, gnu_file_wann, efermi, scale_k = scale_k)
-
+      k, bands, hi_symm_pos, hi_symm_lab, homolumo, bandgap = bandHandlerW90(data_file_wann, gnu_file_wann, efermi, scale_k = scale_k)
 
   #_______________PLOT___________________
   homolumo[:, 2] = k[homolumo[:, 2].astype(int)]
@@ -60,11 +59,10 @@ def bandsExpress(data_file, plotsettings, toskip = [], code='QE', scale_k = 1, h
 
   plotsettings['plot']['x'] = k
   plotsettings['plot']['y'] = bands.T
-  plotsettings['xlim'] = [min(positions), max(positions)]
-  plotsettings['xticks'] = {'ticks': positions, 'labels':  labels}
+  plotsettings['xlim'] = [min(hi_symm_pos), max(hi_symm_pos)]
+  plotsettings['xticks'] = {'ticks': hi_symm_pos, 'labels':  hi_symm_lab}
 
-
-  plotBands(high_symmetry_points, plotsettings, toskip = toskip, efermi = efermi)
+  plotBands(plotsettings, toskip = toskip, efermi = efermi)
 
   plotHomoLumo(homolumo, show = showhomolumo, efermi = efermi, textsettings = homolumosettings)
   return

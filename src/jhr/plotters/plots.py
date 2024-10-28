@@ -10,7 +10,7 @@ from jhr._helpers import trunc
 
 #_____________Mid level plotting functions______________
 
-def plotBands(symmpoints, settings, toskip = [], efermi = None):
+def plotBands(settings, toskip = [], efermi = None):
   """
   Plots bands
 
@@ -28,8 +28,9 @@ def plotBands(symmpoints, settings, toskip = [], efermi = None):
 
 
   kpoints = settings['plot']['x']
-  for sp in symmpoints.values():
-    plt.axvline(kpoints[sp], ls = '--', dashes=(5, 5),color = '#CCCCCC', zorder = 1)
+
+  for sp in settings['xticks']['ticks']:
+    plt.axvline(sp, ls = '--', dashes=(5, 5),color = '#CCCCCC', zorder = 1)
 
   return 
 
