@@ -11,7 +11,7 @@ import os
 
 #____________Express functions_____________
 
-def bandsExpress(data_file, plotsettings, toskip = [], code='QE', homolumosettings = None, bandgapDict = None, showhomolumo = None, **kwargs):
+def bandsExpress(data_file, plotsettings, toskip = [], code='QE', scale_k = 1, homolumosettings = None, bandgapDict = None, showhomolumo = None, **kwargs):
   """
   High level, one line function to plot bands quickly. 
 
@@ -51,7 +51,7 @@ def bandsExpress(data_file, plotsettings, toskip = [], code='QE', homolumosettin
           elif os.path.splitext(f)[1] == '.dat':
               data_file_wann = f
 
-      k, bands, high_symmetry_points, other_settings, positions, labels, homolumo, bandgap = bandHandlerW90(data_file_wann, gnu_file_wann, efermi)
+      k, bands, high_symmetry_points, other_settings, positions, labels, homolumo, bandgap = bandHandlerW90(data_file_wann, gnu_file_wann, efermi, scale_k = scale_k)
 
 
   #_______________PLOT___________________

@@ -1,25 +1,27 @@
 import numpy as np
 
 
-def read_datfile_wannier(data_dat):
+def read_datfile_wannier(data_dat, scale_k = 1):
     """
     Reads the .dat file and returns k-points and energy values.
     
     Args:
         data_dat (ndarray): Numpy array containing the .dat file data.
+        scale_k: Rescale k_points. Technically a hack in case bands are misaligned. 
     
     Returns:
         k_points (ndarray): Array of k-points.
         bands (ndarray): Array of energy values.
+
     """
     
     nbnd = len(np.where(np.diff(data_dat[:, 0]) < 0)[0]) + 1
     lenk = int(data_dat.shape[0] / nbnd)
-    k_points = data_dat[:lenk, 0]
+    k_points = data_dat[:lenk, 0] * scale_k
     bands = np.reshape(data_dat[:, 1], (-1, lenk))
     return k_points, bands
 
-def read_gnu_file_wann(gnu_content):
+def read_gnu_file_wann(gnu_content, scale_k = 1):
     """
     Reads the .gnu file content and extracts high symmetry points.
 
@@ -49,7 +51,7 @@ def read_gnu_file_wann(gnu_content):
                     position_str = parts[-1].strip()  # Keep it as string for debugging
 
                     try:
-                        position = float(position_str)  # Convert to float
+                        position = float(position_str)*scale_k  # Convert to float and rescale if necessary
                     except ValueError as e:
                         print(f"Could not convert position '{position_str}' for label '{label}': {e}")
                         continue
@@ -62,18 +64,18 @@ def read_gnu_file_wann(gnu_content):
 
     return high_symmetry_points, {}
 
-def bandHandlerW90(dat_file_wann, gnu_file_wann, efermi):
+def bandHandlerW90(dat_file_wann, gnu_file_wann, efermi, scale_k = 1):
     #==========TO REMOVE==========
     range_for_homo = efermi - 0.1
     range_for_lumo = efermi - 0.1
     #==============================
     data_dat = np.loadtxt(dat_file_wann)
     # Use the content directly (no need for a path)
-    k_points, bands = read_datfile_wannier(data_dat)
+    k_points, bands = read_datfile_wannier(data_dat, scale_k = scale_k)
 
     with open(gnu_file_wann, 'r') as file:
         gnu_content = file.read()  # Read the content of the .gnu file
-        high_symmetry_points, other_settings = read_gnu_file_wann(gnu_content)  # Pass the content, not the file path
+        high_symmetry_points, other_settings = read_gnu_file_wann(gnu_content, scale_k)  # Pass the content, not the file path
 
         positions = []
         labels = []
