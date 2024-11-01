@@ -51,7 +51,7 @@ def bandsExpress(data_file, plotsettings, toskip = [], code='QE', scale_k = 1, h
           elif os.path.splitext(f)[1] == '.dat':
               data_file_wann = f
 
-      k, bands, hi_symm_pos, hi_symm_lab, homolumo, bandgap = bandHandlerW90(data_file_wann, gnu_file_wann, efermi, scale_k = scale_k)
+      k, bands, hi_symm_pos, hi_symm_lab, homolumo, bandgap = bandHandlerW90(data_file_wann, gnu_file_wann, efermi, scale_k = scale_k, **bandgapDict)
 
   #_______________PLOT___________________
   homolumo[:, 2] = k[homolumo[:, 2].astype(int)]

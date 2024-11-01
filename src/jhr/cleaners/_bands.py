@@ -55,8 +55,11 @@ def _findBandgap(bands, printall = False, sort = False, threshold = 0.1, window 
     homolumo.append(row)
 
 
+#  import inspect
+#  print("HERE: ", inspect.stack()[1][3])
+#  print("FROM: ", inspect.stack()[2][3])
 
-  if printall: 
+  if printall is True: 
     print("Lumo (eV), Homo (eV), Lumo (k), Homo(k) \n")
     print(homolumo)
     print("-------------")

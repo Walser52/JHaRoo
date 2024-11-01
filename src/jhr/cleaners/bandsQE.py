@@ -20,7 +20,7 @@ def bandHandlerQE(data_file, high_symmetry_points, efermi, printall = True, sort
   data = np.loadtxt(data_file)
   k, bands = _process_band_structure(data) # Get k points and bands 
   positions, labels = _get_high_symmetry_positions_and_labels(k, high_symmetry_points)
- 
+
   homolumo, bandgap = _findBandgap(bands,printall = printall, sort = sort, threshold = threshold, window = window, index = index)
 
   return k, bands, positions, labels, homolumo, bandgap
