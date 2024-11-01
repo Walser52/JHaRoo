@@ -61,8 +61,8 @@ def makeplot(fun, plotsettings):
     ax.tick_params(axis='both', which = 'both', direction='in')
     ax.xaxis.set_major_locator(MaxNLocator(integer=False, prune='both', nbins=4))
     ax.yaxis.set_major_locator(MaxNLocator(integer=False, prune='both', nbins=4))
-
-
+    ax.xaxis.set_minor_locator(AutoMinorLocator(n=2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(n=2))
     #_____Changes to defaults____
 
     if 'title' in plotsettings.keys(): plt.title(plotsettings['title']) 
