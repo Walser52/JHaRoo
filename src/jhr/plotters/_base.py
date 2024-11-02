@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator, AutoMinorLocator, LogLocator
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib import ticker 
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1 import Divider
 
 def makeplot(fun, plotsettings):
     """
@@ -137,7 +139,7 @@ def annotate(fig = None, labels = 'abc', style = 'lower', parenthesis = False, s
         size=size, weight=weight)
     return
 
-def ax_divider(ax, divisions = 4, size =(1.5, 1), direction = "bottom", pad = 0, share = True):
+def ax_divider(ax, divisions = 4,  size = "100%", direction = "bottom", pad = 0, share = True):
     """
     Divides vertically if no zip.
     Usage:
@@ -149,19 +151,18 @@ def ax_divider(ax, divisions = 4, size =(1.5, 1), direction = "bottom", pad = 0,
     Returns:
         Axes
     """
-    from mpl_toolkits.axes_grid1 import make_axes_locatable
-    from mpl_toolkits.axes_grid1 import Divider
+
     divider = make_axes_locatable(ax)
 
     axes = [ax]
     for i in range(divisions-1):
         if share == True:
           if direction in ['bottom', 'top']:         
-            ax2 = divider.append_axes(direction, size="100%", pad=pad, sharex = ax)
+            ax2 = divider.append_axes(direction, size=size, pad=pad, sharex = ax)
           else: 
-            ax2 = divider.append_axes(direction, size="100%", pad=pad, sharey = ax)
+            ax2 = divider.append_axes(direction, size=size, pad=pad, sharey = ax)
         else:
-          ax2 = divider.append_axes(direction, size="100%", pad=pad)
+          ax2 = divider.append_axes(direction, size=size, pad=pad)
         axes.append(ax2)
 
     return axes 

@@ -111,7 +111,7 @@ def plotwannbands(settings, efermi):
 
 #________________Heat Maps_____________
 def heatmap(data, row_labels, col_labels, ax=None,
-            cbar_kw=None, cbarlabel="", **kwargs):
+            cbar_kw=None, cbarlabel="", ticks = True, **kwargs):
     """
     Create a heatmap from a numpy array and two lists of labels.
 
@@ -154,6 +154,12 @@ def heatmap(data, row_labels, col_labels, ax=None,
     # Let the horizontal axes labeling appear on top.
     ax.tick_params(top=True, bottom=False,
                    labeltop=True, labelbottom=False)
+
+    if not ticks:
+      ax.set_xticks([])
+      ax.set_yticks([])
+
+
 
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=-30, ha="right",
@@ -228,7 +234,7 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
 
     return texts
 
-def tbHeat(H, num_basis = 12, ax = None, cbar_kw = None ):
+def tbHeat(H, num_basis = 12, ax = None, cbar_kw = None, ticks = True ):
   """
   Plot a tight binding heat map.
   """
@@ -240,6 +246,7 @@ def tbHeat(H, num_basis = 12, ax = None, cbar_kw = None ):
                     cmap="YlGn", 
                     #  cmap="Blues_r", 
                     cbarlabel="Log of Absolute Hopping strength",
-                    cbar_kw = cbar_kw)
+                    cbar_kw = cbar_kw, 
+                    ticks = ticks)
   texts = annotate_heatmap(im, valfmt="{x:.2f}")
   return

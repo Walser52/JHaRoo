@@ -1,32 +1,45 @@
 #Routines for Wannier 90
 import numpy as np
 
-def readSpread(file_path):
-    """Read wannier function spread from W90 output file."""
+def readSpread(files):
+    """Read wannier function spread from W90 output file.
+    Args:
+      files: List of files. Could be one file path as well.
+
+    Returns: 
+      spreads_All: List of spreads. 
+
+    """
+    if type(files) is not list: files = [files]
+
 
     start_marker = 'Final State' 
     end_marker = 'Sum of centres'
 
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
+    spreads_all = []
 
-    collecting = False
-    last_numbers = []
+    for file_path in files:
+      with open(file_path, 'r') as file:
+          lines = file.readlines()
 
-    for line in lines:
-        if start_marker in line:
-            collecting = True
-            continue  # Skip the start marker line
-        if end_marker in line:
-            collecting = False
-            continue  # Stop before the end marker
+      collecting = False
+      spreads = []
 
-        if collecting:
-            # Split the line and get the last element, which is the number
-            last_number = line.strip().split()[-1]  # Get the last element
-            last_numbers.append(float(last_number))
+      for line in lines:
+          if start_marker in line:
+              collecting = True
+              continue  # Skip the start marker line
+          if end_marker in line:
+              collecting = False
+              continue  # Stop before the end marker
 
-    return last_numbers
+          if collecting:
+              # Split the line and get the last element, which is the number
+              last_number = line.strip().split()[-1]  # Get the last element
+              spreads.append(float(last_number))
+      spreads_all.append(spreads)
+
+    return spreads_all
 
 # This reads the hamiltonian elements for a specific unit cell coordinate.  
 # Wannier90 reports them by unit cell (x,y,z, i,j) where (1,0,0, 1,1) is the overlap of
@@ -71,5 +84,35 @@ def GetAllContributions(hr, num_basis = 12):
 #    print(eig(H)[0])
 
     return H
+
+def GetTBHam(datfiles, num_basis, getfor = 'neighbors', verbose = False):
+  """
+  Convenience function for processing a list of hr.dat files. 
+  Args:
+    datfiles: List of _hr.dat files from W90.
+    getfor (str) or list/tuple: 'neighbors', 'all'. Note that 'neighbors' is going to include [0,0,0] too. 
+                                For home or any other cell, just pass [0,0,0] or corresponding cell list. 
+    verbose (bool): Prints eigenvalues.
+  Returns: 
+    H_all: list of hamiltonians for datfiles passed. 
+  """
+  
+  H_all = []
+  for f in datfiles:
+    hr = np.genfromtxt(f, skip_header=52)
+    if type(getfor) is not str: H = GetOneCell(hr, getfor[0],getfor[1],getfor[2], num_basis = num_basis)
+    elif getfor == 'neighbors': H = GetHomePlusNeighbors(hr, num_basis = num_basis)
+    elif getfor == 'all': H = GetAllContributions(hr, num_basis = num_basis)
+
+    if getfor == 'home': H = GetOneCell(hr, 0,0,0, num_basis = num_basis)
+
+    if verbose: 
+      print("Hamiltonian shape: ", hr.shape)
+      print("Eigenvalues: ", eig(H)[0])
+
+    H_all.append(H)
+
+
+  return H_all 
 
 
