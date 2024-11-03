@@ -100,17 +100,17 @@ def makeplot(fun, plotsettings):
     return 
 
 
-def createTag(pos = (0.017, 1.005), name = None, fontcolor = 'black', alignment = ('left', 'bottom'), weight='normal', bboxsettings = None):
+def createTag(pos = (0.017, 1.005), name = None, fontcolor = 'black', alignment = ('left', 'bottom'), weight='normal', fontsize = 12, bboxsettings = None):
     """
     Purpose: 
         Create a tag at the top left corner of an axis. Use position to change x and y.
     """
-    settings_def = dict(facecolor='red', edgecolor = 'black', alpha=0.6, boxstyle='round')
+    settings_def = dict(facecolor='#D54799', edgecolor = 'black', alpha=0.6, boxstyle='round')
     if bboxsettings is not None: settings_def.update(bboxsettings)
 
 
     ax = plt.gca()
-    ax.text(pos[0], pos[1], s = name, bbox=settings_def, weight = weight, 
+    ax.text(pos[0], pos[1], s = name, bbox=settings_def, weight = weight, fontsize = fontsize,
                 color = fontcolor, horizontalalignment=alignment[0], verticalalignment=alignment[1],transform=ax.transAxes)
     
     return
