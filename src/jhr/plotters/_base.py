@@ -5,6 +5,9 @@ from matplotlib import ticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import Divider
 
+from PIL import Image
+
+
 def makeplot(fun, plotsettings):
     """
     Pass a dictionary plotsettings to create a generic plot. 
@@ -182,5 +185,34 @@ def arrowDouble(xyfrom,xyto,text='', arrowstyle = '<->', xytext = None, textsett
     ax = plt.gca()
     ax.annotate("",xyfrom, xyto, zorder=1, arrowprops=dict(arrowstyle=arrowstyle))
     ax.text(xytext[0],xytext[1],text, zorder=2,**settings)
+
+
+def gridder(files = [], saveto = ''):
+  """
+  Makes a 2x2 grid for files given. 
+  """
+
+  # _____________MAKE A GRID____________
+  img = []
+  grid = (2,2)
+
+  for ind, d in enumerate(files):
+    img.append(Image.open(d))
+
+  # Assuming all images are the same size
+  width, height = img[0].size
+
+  grid_image = Image.new('RGB', (width * grid[0], height * grid[1]))
+
+
+  grid_image.paste(img[0], (0, 0))  # Top-left
+  grid_image.paste(img[1], (width, 0))  # Top-right
+  grid_image.paste(img[2], (0, height))  # Bottom-left
+  grid_image.paste(img[3], (width, height))  # Bottom-right
+
+  # Save the resulting image
+  grid_image.save(saveto)
+
+  return
 
 
