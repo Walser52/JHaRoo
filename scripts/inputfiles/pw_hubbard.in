@@ -1,0 +1,54 @@
+&CONTROL
+   calculation      = 'relax'
+   restart_mode     = 'from_scratch'
+   tprnfor          = .true.
+   etot_conv_thr    = 1e-05
+   forc_conv_thr    = 0.0001
+/
+&SYSTEM
+   ecutwfc          = 60
+   ecutrho          = 480
+   occupations      = 'smearing'
+   degauss          = 0.01
+   smearing         = 'cold'
+   input_dft        = 'rpbe'
+   vdw_corr         = 'dft-d3'
+   ntyp             = 2
+   nat              = 2
+   ibrav            = 0
+/
+&ELECTRONS
+   conv_thr         = 1e-08
+   mixing_mode      = 'local-TF'
+   mixing_beta      = 0.35
+   diagonalization  = 'david'
+   startingwfc      = 'random'
+/
+&IONS
+   ion_dynamics     = 'bfgs'
+   bfgs_ndim        = 6
+/
+&CELL
+/
+&FCP
+/
+&RISM
+/
+ATOMIC_SPECIES
+C 12.011 def
+O 15.999 abc
+
+K_POINTS gamma
+
+CELL_PARAMETERS angstrom
+0.00000000000000 0.00000000000000 0.00000000000000
+0.00000000000000 0.00000000000000 0.00000000000000
+0.00000000000000 0.00000000000000 0.00000000000000
+
+ATOMIC_POSITIONS angstrom
+C 0.0000000000 0.0000000000 0.0000000000  
+O 0.0000000000 0.0000000000 1.1000000000  
+
+HUBBARD (ortho-atomic)
+U Mn-3d 5.0
+U Ni-3d 6.0

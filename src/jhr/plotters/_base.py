@@ -103,6 +103,18 @@ def makeplot(fun, plotsettings):
     return 
 
 
+def useplotdefaults(fontsize = 12):
+  plt.rcParams.update({'font.size': fontsize})
+
+  ax = plt.gca()
+  ax.tick_params(axis='both', which = 'both', direction='in')
+  ax.xaxis.set_major_locator(MaxNLocator(integer=False, prune='both', nbins=4))
+  ax.yaxis.set_major_locator(MaxNLocator(integer=False, prune='both', nbins=4))
+  ax.xaxis.set_minor_locator(AutoMinorLocator(n=2))
+  ax.yaxis.set_minor_locator(AutoMinorLocator(n=2))
+
+  return
+
 def createTag(pos = (0.017, 1.005), name = None, fontcolor = 'black', alignment = ('left', 'bottom'), weight='normal', fontsize = 12, bboxsettings = None):
     """
     Purpose: 
