@@ -1,0 +1,9 @@
+&INPUT
+   fildyn           = 'prefix.dyn'
+   zasr             = 'crystal'
+   flfrc            = 'prefix.fc'
+/
+EXTERNAL_CHARGES (bohr)
+-0.5 0. 0. 25.697 1.0 2 3
+-0.5 0. 0. 20.697 1.0 2 3
+EOF

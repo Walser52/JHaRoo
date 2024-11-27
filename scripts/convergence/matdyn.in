@@ -1,0 +1,6 @@
+&INPUT
+   asr              = 'crystal'
+   flfrc            = 'prefix.fc'
+   flfrq            = 'prefix.freq'
+/
+EOF

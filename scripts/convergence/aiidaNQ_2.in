@@ -1,0 +1,11 @@
+&INPUTPH
+   prefix           = 'pwscf'
+   tr2_ph           = 1e-12
+   alpha_mix(1)     = 0.1
+   verbosity        = 'high'
+   qplot            = .false.
+   ldisp            = .true.
+   nq1              = 3
+   nq2              = 3
+   nq3              = 3
+/
