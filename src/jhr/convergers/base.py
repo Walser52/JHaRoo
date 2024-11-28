@@ -1,6 +1,7 @@
 from typing import Union, Optional
 from typing import List, Tuple
-from ase.io.espresso import write_espresso_ph, read_espresso_ph, write_espresso_in, read_espresso_in
+from ase.io.espresso import write_espresso_ph, read_espresso_ph, read_espresso_in, write_espresso_in
+#from jhr.convergers.espresso import write_espresso_in
 
 
 class BaseConverger:
@@ -45,6 +46,7 @@ class QEConverger(BaseConverger):
         files_data: input variables. 
         ase_dict: other parameters such as additional cards which are passed to ase. 
       """
+#      print(ase_dict)
       #phonon files write
       for i, data in enumerate(files_data):
         file = f'{prefix}_{i}.{ext}'

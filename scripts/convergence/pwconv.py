@@ -4,6 +4,8 @@
 from ase import Atoms
 from ase.io import read, write
 from ase.build import make_supercell
+from ase.io.espresso import ffloat
+
 
 #_____________Create supercell______________
 # Load the CIF file into an ASE Atoms object
@@ -20,14 +22,14 @@ from ase.build import make_supercell
 #-------------------------------
 
 
-
+import numpy as np
 # 1. Create input file (template) using ase:
 
 input = dict(calculation = 'scf',
             pseudo_dir   = '../pseudo/',
             outdir       = '../tmp/',
             prefix       = 'gr',
-#            ibrav        = 4,
+            
             a            = 2.4623,
             c            = 10.0,
             nat          = 2,
@@ -37,15 +39,23 @@ input = dict(calculation = 'scf',
             degauss      = 0.02,
             ecutwfc      = None,
             mixing_beta  = 0.7,
-            conv_thr     = 1.0e-6
+            conv_thr     = 1e-6
 )
 
 pseudopotentials = {'C': 'C.pbe-n-rrkjus_psl.0.1.UPF'}
 kpts = (12,12,1)
-atoms = Atoms('CC', positions=[(0.333333333,  0.666666666,  0.500000000), (0.666666666,  0.333333333,  0.500000000)])
+cell = [1, 1, 1]
+pbc  = [1, 1, 1]
+atoms = Atoms('CC', positions=[(0.333333333,  0.666666666,  0.500000000), (0.666666666,  0.333333333,  0.500000000)], 
+        cell = cell, 
+        pbc = pbc
+        )
+#print(atoms.a, atoms.b)
+#print(atoms.position)
+
 crystal_coordinates = True
 
-ase_dict = dict(atoms = atoms, crystal_coodrinates = crystal_coordinates, pseudopotentials = pseudopotentials, kpts = kpts)
+ase_dict = dict(atoms = atoms, crystal_coordinates = crystal_coordinates, pseudopotentials = pseudopotentials, kpts = kpts)
 
 from jhr.convergers.base import QEConverger
 
