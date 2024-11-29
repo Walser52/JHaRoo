@@ -1,12 +1,30 @@
 from typing import Union, Optional
 from typing import List, Tuple
 from ase.io.espresso import write_espresso_ph, read_espresso_ph, read_espresso_in, write_espresso_in
-#from jhr.convergers.espresso import write_espresso_in
-
+import re
 
 class BaseConverger:
-    def __init__(self):
+    def __init__(self, parameters = None, valuesets = None):
         # Initialize any attributes or settings if needed
+        """
+        Base converger that others use by inheritance. 
+
+        Args:
+          parameter (list): parameters which to converge.
+          valuesets (list(tuple)): values. Length of each valuesets should be the same as the length of parameter.
+
+        """
+
+        self.parameters = parameters
+        self.valuesets = valuesets
+        
+
+        for eachset in valuesets:
+          if not isinstance(eachset, (list, tuple)): 
+            eachset = [eachset]
+          if len(eachset) != len(parameters):
+            raise ValueError(f"Length of at least one value set does not match the number of parameters.")
+
         return
 
     @staticmethod
@@ -37,13 +55,51 @@ class BaseConverger:
 
         return all_files
 
+    @staticmethod
+    def check_convergence(values, tolerance=0.01):
+        """
+        Check if the successive values in the list have converged based on relative error.
+
+        Args:
+            values (list): A list of numerical values.
+            tolerance (float): The convergence tolerance in percentage (default is 0.01%).
+
+        Returns:
+            bool: True if converged, False otherwise.
+        """
+        converged = False
+
+        if len(values) > 1: 
+
+#          for i in range(1, len(values)):
+              # Calculate the relative error between successive values
+          relative_error = abs(values[-1] - values[-2]) / abs(values[-2]) * 100
+          
+          # Check if the relative error is within the tolerance
+          if relative_error < tolerance:
+              print("Convergence achieved")
+              converged = True
+
+        return converged  
+
+
+    @property
+    def converged_val(self):
+        """Getter for the converged_val attribute"""
+        return self._radius
+
+    @converged_val.setter
+    def converged_val(self, value: float):
+        """Setter for the converged_val attribute to enforce a condition"""
+        self._converged_val = value
 
 
 class QEConverger(BaseConverger):
     def savefiles(self, prefix: str = '', files_data: List[dict] = [], ext: str = 'in', code: str = 'ph', ase_dict: dict = {}) -> None:
       """
+      Use ase's espresso module to save files.
       Args:
-        files_data: input variables. 
+        files_data (List[dict]): List of dictionaries containing the input variables. 
         ase_dict: other parameters such as additional cards which are passed to ase. 
       """
 #      print(ase_dict)
@@ -54,4 +110,31 @@ class QEConverger(BaseConverger):
           if code == 'pw': write_espresso_in(f, input_data = data, **ase_dict)
           if code == 'ph': write_espresso_ph(f, data, **ase_dict)
       return
+
+    @staticmethod
+    def read_total_energy(file):
+      total_energy = extract_number(file, starts_with = '!')
+      return total_energy
       
+
+
+
+def extract_number(file_path, starts_with = '!') -> float:
+    """
+    Finds the line starting with '!' and extracts the number from it.
+    
+    Args:
+        file_path (str): Path to the file to be read.
+
+    Returns:
+        float: The number found in the comment line, or None if not found.
+    """
+    with open(file_path, 'r') as file:
+        for line in file:
+            if line.lstrip().startswith(starts_with):
+                # Using regular expression to find numbers (integers or floating-point)
+                match = re.search(r'!.*\s*(-?\d+(\.\d+)?)', line)
+                if match:
+                    return float(match.group(1))  # Return the number as a float
+    return None  # If no line starting with '!' is found
+
