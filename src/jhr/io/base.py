@@ -1,3 +1,6 @@
+import subprocess
+import json
+from ase import Atoms
 #def modify_input_file(input_file, output_file, **kwargs):
 #    """Update the input file with various parameter values."""
 #    with open(input_file, 'r') as file:
@@ -19,9 +22,80 @@
 #  return
 #
 
+class Basher():
+  """Class for running commands on shell"""
+  def __init__():
+    return
+
+  @classmethod
+  def checkerror(cls, result):
+    if result.returncode == 0: print("Command executed successfully.")
+    else: print(f"Command failed with return code {result.returncode}")
+    return 
+
+  @classmethod
+  def runcommand(cls, command, shell = True, text = True):
+    print(f"Running: {command}")
+    result = subprocess.run(command, shell=True, text=True)
+    cls.checkerror(result)
+    return   
+  
+
+
+
+def from_JSON(file):
+  """
+  Create ase.Atoms object from a json file and a dictionary of settings. The dict is used to create a template which may be used to perform convergence.
+
+  Args: json file with structure.
+
+        {"template": 
+          {"calculation": "scf", 
+            "pseudo_dir": "../pseudo/", 
+            "outdir": "../tmp/", 
+            "prefix": "gr", 
+            "a": 2.4623, "c": 10.0, 
+            "nat": 2, "ntyp": 1, 
+            "occupations": "smearing", 
+            "smearing": "mv", 
+            "degauss": 0.02, 
+            "ecutwfc": null, 
+            "mixing_beta": 0.7, 
+            "conv_thr": 1e-06}, 
+        "atoms": "CC", 
+        "pseudopotentials": {"C": "C.pbe-n-rrkjus_psl.0.1.UPF"}, 
+        "kpts": [12, 12, 1], 
+        "cell": [1, 1, 1], 
+        "pbc": [1, 1, 1], 
+        "positions": [[0.333333333, 0.666666666, 0.5], [0.666666666, 0.333333333, 0.5]], 
+        "crystal_coordinates": true
+      }
+
+
+  """
+  #Create input files
+  with open(file) as json_file:
+      matdict = json.load(json_file)
+
+
+  atoms = Atoms(matdict['atoms'], 
+          positions = matdict['positions'], 
+          cell  = matdict['cell'], 
+          pbc   = matdict['pbc']
+          )
+
+  ase_dict = dict(atoms = atoms, 
+                  crystal_coordinates = matdict['crystal_coordinates'], 
+                  pseudopotentials   = matdict['pseudopotentials'], 
+                  kpts               = matdict['kpts'])
+
+
+  return atoms, ase_dict, matdict['template']
+
+
 def load_variables_from_file(file_path):
   """
-
+  DEPRECATE
   """
   variables = {}
   with open(file_path) as f:
@@ -30,6 +104,8 @@ def load_variables_from_file(file_path):
 
 def get_vars(file_path, var_names):
   """
+  DEPRECATE?
+
   Usage: 
     mats[0] = filepath
     requested_vars = ['efermi', 'title', 'xlimDOS']

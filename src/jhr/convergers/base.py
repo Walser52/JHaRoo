@@ -1,10 +1,12 @@
 from typing import Union, Optional
 from typing import List, Tuple
 from ase.io.espresso import write_espresso_ph, read_espresso_ph, read_espresso_in, write_espresso_in
+from jhr.io.modifiers import QEModifier
 import re
 
+
 class BaseConverger:
-    def __init__(self, parameters = None, valuesets = None):
+    def __init__(self, parameters = None, valuesets = None, template = {}):
         # Initialize any attributes or settings if needed
         """
         Base converger that others use by inheritance. 
@@ -17,7 +19,7 @@ class BaseConverger:
 
         self.parameters = parameters
         self.valuesets = valuesets
-        
+        self.template = template
 
         for eachset in valuesets:
           if not isinstance(eachset, (list, tuple)): 
@@ -27,8 +29,8 @@ class BaseConverger:
 
         return
 
-    @staticmethod
-    def conv_on(template=None, parameters=None, valuesets=None):
+
+    def conv_on(self, template=None, parameters=None, valuesets=None):
         """
         Create convergence files changing parameters according to values sets.
 
@@ -39,6 +41,9 @@ class BaseConverger:
 
         all_files = []
 
+        if parameters is None:  parameters = self.parameters
+        if valuesets is None:   valuesets = self.valuesets
+        if template is None:    template = self.template
         # Loop over the valuesets and adjust the template
 
         for values in valuesets:
@@ -116,6 +121,39 @@ class QEConverger(BaseConverger):
       total_energy = extract_number(file, starts_with = '!')
       return total_energy
       
+
+    def conv_express(self, prefix: str = 'convfile', ext:str = 'in', code:str = 'pw', ase_dict:dict = {}, ase_hacks:bool = True, atomic_positions:str = 'crystal_sg', template = None, parameters = None, valuesets = None):
+      """
+      Express method for performing convergence. Use with care. The method:
+
+      - Creates dicts for convergence which is to be carried out. 
+      - Saves files 
+      - Performs some ase hacks. using QEModifier class methods. 
+
+      Args:
+        prefix (str): File name prefix which to save. 
+
+      """
+
+      if valuesets is None: valuesets = self.valuesets
+
+      all_files = self.conv_on(template = template, parameters = parameters, valuesets = valuesets) #No arguments passed, uses object parameters for inputs.
+      self.savefiles(prefix = prefix, files_data = all_files, ext = ext, code = code, ase_dict = ase_dict) 
+
+      #_____ASE Espresso hacks: Work arounds for modifying ASE output_______
+      if ase_hacks: 
+        for i in range(len(valuesets)):
+          file = f'{prefix}_{i}.in'
+
+          QEModifier.modify_file(QEModifier.remove_ibrav, file)
+          QEModifier.modify_file(QEModifier.remove_cell_parameters, file)
+          QEModifier.modify_file(QEModifier.modify_atomic_positions, file, atomic_positions = atomic_positions)
+
+      return
+
+
+
+
 
 
 

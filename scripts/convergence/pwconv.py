@@ -5,138 +5,69 @@ from ase import Atoms
 from ase.io import read, write
 from ase.build import make_supercell
 from ase.io.espresso import ffloat
-
-
-#_____________Create supercell______________
-# Load the CIF file into an ASE Atoms object
-#structure = read("../../data/cif/CsPbI3.cif")  # Replace 'structure.cif' with your file name
-#transformation_matrix = [
-#    [1, 0, 0],  # Scale in the x-direction
-#    [0, 1, 0],  # Scale in the y-direction
-#    [0, 0, 1]   # Scale in the z-direction
-#]
-#supercell = make_supercell(structure, transformation_matrix)
-#write("supercell.cif", supercell)
-#
-
-#-------------------------------
-
-
-import numpy as np
-# 1. Create input file (template) using ase:
-
-input = dict(calculation = 'scf',
-            pseudo_dir   = '../pseudo/',
-            outdir       = '../tmp/',
-            prefix       = 'gr',
-            
-            a            = 2.4623,
-            c            = 10.0,
-            nat          = 2,
-            ntyp         = 1,
-            occupations  = 'smearing',
-            smearing     = 'mv',
-            degauss      = 0.02,
-            ecutwfc      = None,
-            mixing_beta  = 0.7,
-            conv_thr     = 1e-6
-)
-
-pseudopotentials = {'C': 'C.pbe-n-rrkjus_psl.0.1.UPF'}
-kpts = (12,12,1)
-cell = [1, 1, 1]
-pbc  = [1, 1, 1]
-atoms = Atoms('CC', positions=[(0.333333333,  0.666666666,  0.500000000), (0.666666666,  0.333333333,  0.500000000)], 
-        cell = cell, 
-        pbc = pbc
-        )
-#print(atoms.a, atoms.b)
-#print(atoms.position)
-
-crystal_coordinates = True
-
-ase_dict = dict(atoms = atoms, crystal_coordinates = crystal_coordinates, pseudopotentials = pseudopotentials, kpts = kpts)
-
 from jhr.convergers.base import QEConverger
+import json 
+from jhr.io.modifiers import QEModifier
+from jhr.io.base import from_JSON
+import matplotlib.pyplot as plt
 
 
-def checkerror(result):
-  if result.returncode == 0: print("Command executed successfully.")
-  else: print(f"Command failed with return code {result.returncode}")
-  return 
 
-def runcommand(command, shell = True, text = True):
-  print(f"Running: {command}")
-  result = subprocess.run(command, shell=True, text=True)
-  checkerror(result)
-  return  
+mat_file = 'sample2.json'
+prefix = 'CsPbI3'
+
+
+
+#Convergence parameters 1
+label = 'ECUT'
+parameters = ['ecutwfc']
+valuesets=[5,6,8]
+code = 'pw'
+ext = 'in'
+name = f'{prefix}{label}'
+
+
+
+#Perform convergence. 
+
+atoms, ase_dict, template = from_JSON(mat_file)
+
+
+all_conv_parameters = [['ecutwfc'], ['ecutrho'], ['k-points']]
+all_conv_valuesets = [[1,2,3], [4,5,6], [7,8,9]]
+
 
 #======Create convergence files
-label = 'ECUT'
-
-c = QEConverger()
-all_files = c.conv_on(template=input, parameters=['ecutwfc'], valuesets=[5,6,8])
-c.savefiles(prefix = f'aiida{label}', files_data = all_files, ext = 'in', code = 'pw', ase_dict = ase_dict) 
+conv = QEConverger(parameters = parameters, valuesets = valuesets, template = template)
+conv.conv_express(prefix = name, ext = ext, code = code, ase_dict = ase_dict, ase_hacks = True, atomic_positions = 'crystal_sg')
 
 
 
-# 2. Perform convergence on a parameter (e.g. k-point grid).
-#
-#import subprocess
-#from pathlib import Path
-#files = ['aiidaNQ_0.in', 'aiidaNQ_0.in', 'aiidaNQ_0.in']
-#
-#convergence_param = []
-#for f_in in files:
-#
-#  f_out = Path(f_in).stem
-#  command = f"ph.x < {f_in} > {f_out}.out"
-#  runcommand(command)
-#
-#  command = f"q2r.x < {q2r_in} > {q2r_out}"
-#  runcommand(command)
-#
-#  command = f"matdyn.x < {matdyn_in} > {matdyn_out}"
-#  runcommand(command)
-# 
-#  print("===Checking Convergence====")
-#
-#  # param = convergence value read from file
-#  converged_param.append(param)
-#  #check criteria 
-#
-#  print("=========")
-#
-  # Find the converged parameter
-  # Check if criteria met.
-
-  # Take all files with label in name
+#======Perform convergence on a parameter (e.g. k-point grid).
+from pathlib import Path
+files = list(Path('.').glob(f'{name}*{ext}')) # Find files starting with 'name' and ending with '.in'
+files = sorted(files, key=lambda f: int(f.stem.split(f'{name}_')[-1]))
 
 
+from jhr.io.base import Basher
+convergence_param = []
+for f_in, vals in zip(files, conv.valuesets):
 
-# 3. Check if converged?
+  stem, f_out = Path(f_in).stem, (Path(f_in).stem + '.out')
+
+  command = f"pw.x < {f_in} > {f_out}"
+  Basher.runcommand(command)
+  convergence_param.append(conv.read_total_energy(f'{f_out}'))
 
 
 
 
 
-#____________Symmetry reduction_________ (Delete unnecessary atoms)
-
-
-
-#___________Create espresso input/Relaxation/Convergence_______
-    #_________Create input______
-    #_________Verify threshold met or not_____
-
-
-
-
-
-
-
-## Create QE file
-## Relaxation
-## Convergence tests
-
+  plt.plot(convergence_param, marker = 's')
+  plt.savefig('energy_conv.pdf')
+  
+  #check convergence criteria
+  converged   = conv.check_convergence(convergence_param)
+  if converged: conv.converged_val = vals
 
 

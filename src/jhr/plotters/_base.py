@@ -70,9 +70,9 @@ def makeplot(fun, plotsettings):
     ax.yaxis.set_minor_locator(AutoMinorLocator(n=2))
     #_____Changes to defaults____
 
-    if 'title' in plotsettings.keys(): plt.title(plotsettings['title']) 
-    if 'xlim' in plotsettings.keys(): plt.xlim(plotsettings['xlim'])
-    if 'ylim' in plotsettings.keys(): plt.ylim(plotsettings['ylim'])
+    if 'title'  in plotsettings.keys(): plt.title(plotsettings['title']) 
+    if 'xlim'   in plotsettings.keys(): plt.xlim(plotsettings['xlim'])
+    if 'ylim'   in plotsettings.keys(): plt.ylim(plotsettings['ylim'])
     if 'xlabel' in plotsettings.keys(): plt.xlabel(plotsettings['xlabel'])
     if 'ylabel' in plotsettings.keys(): plt.ylabel(plotsettings['ylabel'])
     if 'xscale' in plotsettings.keys(): plt.xscale(plotsettings['xscale'])
@@ -92,11 +92,12 @@ def makeplot(fun, plotsettings):
         if 'AutoMinorLocator' in plotsettings['yaxis.set_minor_locator'].keys():      
           ax.yaxis.set_minor_locator(AutoMinorLocator(plotsettings['yaxis.set_minor_locator']['AutoMinorLocator']))
 
-    if 'axvline' in plotsettings.keys(): ax.axvline(**plotsettings['axvline'])
-    if 'axhline' in plotsettings.keys(): ax.axhline(**plotsettings['axhline'])
+    if 'axvline'  in plotsettings.keys(): ax.axvline(**plotsettings['axvline'])
+    if 'axhline'  in plotsettings.keys(): ax.axhline(**plotsettings['axhline'])
+    if 'axvspan'  in plotsettings.keys(): ax.axvspan(**plotsettings['axvspan'])
     if 'annotate' in plotsettings.keys(): ax.annotate(**plotsettings['annotate'])
     if 'colorbar' in plotsettings.keys(): plt.colorbar(**plotsettings['colorbar'])
-    if 'savefig' in plotsettings.keys(): plt.savefig(**plotsettings['savefig'])
+    if 'savefig'  in plotsettings.keys(): plt.savefig(**plotsettings['savefig'])
    
     
 

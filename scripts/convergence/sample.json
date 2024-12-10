@@ -1,0 +1,21 @@
+{"template": 
+  {"calculation": "scf", 
+    "pseudo_dir": "../pseudo/", 
+    "outdir": "../tmp/", 
+    "prefix": "gr", 
+    "a": 2.4623, "c": 10.0, 
+    "nat": 2, "ntyp": 1, 
+    "occupations": "smearing", 
+    "smearing": "mv", 
+    "degauss": 0.02, 
+    "ecutwfc": null, 
+    "mixing_beta": 0.7, 
+    "conv_thr": 1e-06}, 
+"atoms": "CC", 
+"pseudopotentials": {"C": "C.pbe-n-rrkjus_psl.0.1.UPF"}, 
+"kpts": [12, 12, 1], 
+"cell": [1, 1, 1], 
+"pbc": [1, 1, 1], 
+"positions": [[0.333333333, 0.666666666, 0.5], [0.666666666, 0.333333333, 0.5]], 
+"crystal_coordinates": true
+}
