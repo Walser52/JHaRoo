@@ -27,9 +27,9 @@ template = QEio.from_flat_JSON(mat_file)
 
 #Convergence ecutwfc
 conv = QEConverger(parameters = parameters, valuesets = valuesets, template = template)
-conv.prepare_variants(template, parameters, valuesets, code)
-#saved_files = conv.prepare_inputs(prefix = name, ext = ext, code = code, ase_dict = ase_dict, ase_hacks = True, atomic_positions = 'crystal_sg')
-#conv.run_conv_one(files = saved_files, code = 'pw.x')
+saved_files = conv.prepare_variants(template, parameters, valuesets, code)
+conv_val = conv.run_conv_one(files = saved_files, code = 'pw.x')
+print(conv_val)
 
 #find converged value
 

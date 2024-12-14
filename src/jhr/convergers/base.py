@@ -23,7 +23,7 @@ class BaseConverger:
         self.parameters = parameters
         self.valuesets = valuesets
         self.template = template
-
+        self.converged_val = None
         for eachset in valuesets:
           if not isinstance(eachset, (list, tuple)): 
             eachset = [eachset]
@@ -69,7 +69,7 @@ class BaseConverger:
         return all_files, all_filenames
 
     @staticmethod
-    def check_convergence(values, tolerance=0.01):
+    def check_convergence(values, tolerance=0.01, relative = True):
         """
         Check if the successive values in the list have converged based on relative error.
 
@@ -99,7 +99,7 @@ class BaseConverger:
     @property
     def converged_val(self):
         """Getter for the converged_val attribute"""
-        return self._radius
+        return self._converged_val
 
     @converged_val.setter
     def converged_val(self, value: float):
@@ -108,7 +108,7 @@ class BaseConverger:
 
 
 class QEConverger(BaseConverger):
-    def _save_file(self, filename, template, ase_dict: dict = {}, code: str = 'ph'):
+    def _save_file(self, filename, template, ase_dict: dict = {}, code: str = 'ph', ase_hacks = True, atomic_positions:str = 'crystal_sg'):
       """
       Save one file
       Args: 
@@ -119,23 +119,28 @@ class QEConverger(BaseConverger):
       
       """
       with open(filename, "w") as f:
-        print(code)
         if code == 'pw': write_espresso_in(f, input_data = template, **ase_dict)
         if code == 'ph': write_espresso_ph(f, template, **ase_dict)
+
+      if ase_hacks: 
+        QEModifier.modify_file(QEModifier.remove_ibrav, filename)
+        QEModifier.modify_file(QEModifier.remove_cell_parameters, filename)
+        QEModifier.modify_file(QEModifier.modify_atomic_positions, filename, atomic_positions = atomic_positions)
+
       return
 
 
 
     def _separate_args(self, templates:Union[Dict, List[Dict]]):
       """
-      Sifts flattened dictionary template into a format for ase. The file template is separated from other arguments.
+      Sifts dictionary template into a format for ase. The file template is separated from other arguments.
 
       Args: 
         templates 
 
       Returns:
-        template: modified by popping out unnecessary keys. Accepts a single dict or a list of dicts. 
-        ase_dict: other options to be passed to ase. 
+        mod_templates: modified by popping out unnecessary keys. Accepts a single dict or a list of dicts. 
+        ase_dicts: other options to be passed to ase. 
       """
       
       if isinstance(templates, dict): templates = [templates]
@@ -146,18 +151,17 @@ class QEConverger(BaseConverger):
 
 
         #Create atoms object from template
-        atoms = Atoms(template['atoms'], 
-                positions = template['positions'], 
-                cell  = template['cell'], 
-                pbc   = template['pbc']
-                )
-        
-        #Create ase_dict and modified template
+        atoms_dict = {}
+        for key in ['positions', 'cell', 'pbc']:
+          if key in template.keys(): atoms_dict[key] = template.pop(key)
+        symbols = template.pop('atoms')
+
+        atoms = Atoms(symbols, **atoms_dict)
+
+        #Create ase dict for other options
         ase_dict = {'atoms': atoms}
-        keys = list(template.keys())
-        for key in keys:
-          if key in ['pseudopotentials', 'kpts', 'crystal_coordinates']:
-            ase_dict[key] = template.pop(key)
+        for key in ['pseudopotentials', 'kpts', 'crystal_coordinates', 'additional_cards', 'koffset', 'kspacing']:
+            if key in template.keys(): ase_dict[key] = template.pop(key)
 
 
         mod_templates.append(template)
@@ -167,80 +171,111 @@ class QEConverger(BaseConverger):
 
       
 
-    def prepare_variants(self, template, parameters, valuesets, code = 'pw', label = 'Conv'):
+    def prepare_variants(self, template: dict, parameters: list, valuesets, code = 'pw', label = 'Conv', ase_hacks = True, atomic_positions:str = 'crystal_sg'):
+      """
+      Prepare variants of the template for convergence. 
+
+      Args:
+        template: Dictionary
+        ase_hacks: Removes ibrav and cell_paramters. Also modifies atomic positions by adding 'atomic_positions'
+
+      Example:
+        template = {"calculation": "scf", 
+                    "pseudo_dir": "../pseudo/", 
+                    "outdir": "../tmp/", 
+                    "prefix": "CsPbI3", 
+                    "a": 6.27514229,
+                    "nat": 3, "ntyp": 3, 
+                    "space_group": 221, 
+                    "occupations": "smearing", 
+                    "smearing": "cold", 
+                    "degauss": 0.0146997236, 
+                    "ecutwfc": 5, 
+                    "conv_thr": 1e-06, 
+
+                    "atoms": "CsPbI", 
+                    "pseudopotentials": {"Cs": "Cs.pbe-n-rrkjus_psl.0.1.UPF", 
+                                      "Pb": "Pb.pbe-n-rrkjus_psl.0.1.UPF", 
+                                      "I": "I.pbe-n-rrkjus_psl.0.1.UPF"}, 
+                    "kpts": [2,2,2], 
+                    "cell": [1, 1, 1], 
+                    "pbc": [1, 1, 1], 
+                    "positions": [[0.5, 0.5, 0.5], 
+                              [0,   0,  0],
+                              [0,   0,  0.5]], 
+                    "crystal_coordinates": true
+                }
+      Returns: 
+        List of saved files
+      """
       all_data, all_names = self.conv_on(template, parameters, valuesets, label = label) #Flat template variants.
       mod_templates, ase_dicts = self._separate_args(all_data)
 
-      with open('abc.in', "w") as f:
-        
-        write_espresso_in(f, input_data = mod_templates[0], **ase_dicts[0])
-#        if code == 'ph': write_espresso_ph(f, template, **ase_dict)
+      for template, ase_dict, name in zip(mod_templates, ase_dicts, all_names):
+        self._save_file(name, template, ase_dict, code = code, ase_hacks = ase_hacks, atomic_positions = atomic_positions)
 
-#      [print(d) for d in ase_dicts]
-#      for template, ase_dict, name in zip(all_data, ase_dicts, all_names):
-#        self._save_file(name, template, ase_dict, code = code)
-      return
+      return all_names
 
 
 
 
 
-    def savefiles(self, prefix: str = '', files_data: List[dict] = [], ext: str = 'in', code: str = 'ph', ase_dict: dict = {}):
-      """
-      Use ase's espresso module to save files.
-
-      Args:
-        files_data (List[dict]): List of dictionaries containing the input variables. 
-        ase_dict: other parameters such as additional cards which are passed to ase. 
-
-      Returns:
-        saved_files: List of saved files.
-      """
-      saved_files = []
-      for i, data in enumerate(files_data):
-        file = f'{prefix}_{i}.{ext}'
-        with open(file, "w") as f:
-          if code == 'pw': write_espresso_in(f, input_data = data, **ase_dict)
-          if code == 'ph': write_espresso_ph(f, data, **ase_dict)
-        saved_files.append(file)
-      return saved_files
-
-
-    def prepare_inputs(self, prefix: str = 'convfile', ext:str = 'in', code:str = 'pw', ase_dict:dict = {}, 
-                        ase_hacks:bool = True, atomic_positions:str = 'crystal_sg', 
-                        template = None, parameters = None, valuesets = None):
-      """
-      Express method for performing convergence. Use with care. The method:
-
-      - Creates dicts for convergence which is to be carried out. 
-      - Saves files 
-      - Performs some ase hacks. using QEModifier class methods. 
-
-      Args:
-        prefix (str): File name prefix which to save. 
-
-      Returns:
-        saved_files (list): List of files saved. 
-
-      """
-
-      if valuesets is None: valuesets = self.valuesets
-      
-      all_files = self.conv_on(template = template, parameters = parameters, valuesets = valuesets) #No arguments passed, uses object parameters for inputs.
-      print(ase_dict)
-#      create another line for ase_dicts. Make the function check if parameter is in the template------------
-      saved_files = self.savefiles(prefix = prefix, files_data = all_files, ext = ext, code = code, ase_dict = ase_dict) 
-
-      #_____ASE Espresso hacks: Work arounds for modifying ASE output_______
-      if ase_hacks: 
-        for i in range(len(valuesets)):
-          file = f'{prefix}_{i}.in'
-
-          QEModifier.modify_file(QEModifier.remove_ibrav, file)
-          QEModifier.modify_file(QEModifier.remove_cell_parameters, file)
-          QEModifier.modify_file(QEModifier.modify_atomic_positions, file, atomic_positions = atomic_positions)
-
-      return saved_files
+#    def savefiles(self, prefix: str = '', files_data: List[dict] = [], ext: str = 'in', code: str = 'ph', ase_dict: dict = {}):
+#      """
+#      Use ase's espresso module to save files.
+#
+#      Args:
+#        files_data (List[dict]): List of dictionaries containing the input variables. 
+#        ase_dict: other parameters such as additional cards which are passed to ase. 
+#
+#      Returns:
+#        saved_files: List of saved files.
+#      """
+#      saved_files = []
+#      for i, data in enumerate(files_data):
+#        file = f'{prefix}_{i}.{ext}'
+#        with open(file, "w") as f:
+#          if code == 'pw': write_espresso_in(f, input_data = data, **ase_dict)
+#          if code == 'ph': write_espresso_ph(f, data, **ase_dict)
+#        saved_files.append(file)
+#      return saved_files
+#
+#
+#    def prepare_inputs(self, prefix: str = 'convfile', ext:str = 'in', code:str = 'pw', ase_dict:dict = {}, 
+#                        ase_hacks:bool = True, atomic_positions:str = 'crystal_sg', 
+#                        template = None, parameters = None, valuesets = None):
+#      """
+#      DEPRECATE. Use prepare_variants
+#      Express method for performing convergence. Use with care. The method:
+#
+#      - Creates dicts for convergence which is to be carried out. 
+#      - Saves files 
+#      - Performs some ase hacks. using QEModifier class methods. 
+#
+#      Args:
+#        prefix (str): File name prefix which to save. 
+#
+#      Returns:
+#        saved_files (list): List of files saved. 
+#
+#      """
+#
+#      if valuesets is None: valuesets = self.valuesets
+#      
+#      all_files = self.conv_on(template = template, parameters = parameters, valuesets = valuesets) #No arguments passed, uses object parameters for inputs.
+#
+#      saved_files = self.savefiles(prefix = prefix, files_data = all_files, ext = ext, code = code, ase_dict = ase_dict) 
+#
+#      #_____ASE Espresso hacks: Work arounds for modifying ASE output_______
+#      if ase_hacks: 
+#        for i in range(len(valuesets)):
+#          file = f'{prefix}_{i}.in'
+#
+#          QEModifier.modify_file(QEModifier.remove_ibrav, file)
+#          QEModifier.modify_file(QEModifier.remove_cell_parameters, file)
+#          QEModifier.modify_file(QEModifier.modify_atomic_positions, file, atomic_positions = atomic_positions)
+#
+#      return saved_files
 
     @staticmethod
     def read_total_energy(file):
@@ -249,21 +284,28 @@ class QEConverger(BaseConverger):
       
 
 
-    def run_conv_one(self, files = [], folder = '.', prefix = '', ext = '.in', code = 'pw.x'):
+    def run_conv_one(self, files = [], folder = '.', prefix = '', ext = '.in', code = 'pw.x', tolerance = 0.1, relative = True):
       """
       Run convergence on one variable.
 
       Args:
-        files = List of files on which to run convergence. 
+        files = List of files on which to run convergence. Uses prefix and ext to find files if none are given.
+        tolerance   = threshold to use for convergence
+        relative = Relative or absolute tolerance.
+      Returns: 
+        converged: Whether converged or not
+        vals: values on which convergence was achieved
       """
-     
+      
+      # If no files given then use the prefix
       if len(files) == 0: 
         files = list(Path(folder).glob(f'{prefix}*{ext}')) # Find files starting with 'name' and ending with '.in'
         files = sorted(files, key=lambda f: int(f.stem.split(f'{prefix}_')[-1]))
 
 
-
+      # Run convergence tests on files. 
       convergence_param = []
+      converged = False
       for f_in, vals in zip(files, self.valuesets):
 
         stem, f_out = Path(f_in).stem, (Path(f_in).stem + '.out')
@@ -276,11 +318,13 @@ class QEConverger(BaseConverger):
         plt.savefig('energy_conv.pdf')
         
         #check convergence criteria
-        converged   = self.check_convergence(convergence_param)
-        if converged: self.converged_val = vals
+        converged = self.check_convergence(convergence_param, tolerance, relative)
+        if converged: 
+          self.converged_val = vals
+          break;
 
-      
-      return
+      return self.converged_val
+
 
 
 #====================
