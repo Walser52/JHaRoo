@@ -6,7 +6,7 @@ class Modifiers():
     Convenience class for removing unnecessary stuff.
     """
     @staticmethod
-    def modify_file(func, file, *args, **kwargs):
+    def modify_file(func, file, verbose = True, *args, **kwargs):
         """
         A wrapper which opens and closes a `file` and passes the arguments to 'func'
         """
@@ -15,7 +15,7 @@ class Modifiers():
 
         new_lines = func(lines, *args, **kwargs)
 
-        print(f"Called {func.__name__} on {file} with args {args} and kwargs {kwargs}")
+        if verbose: print(f"Called {func.__name__} on {file} with args {args} and kwargs {kwargs}")
 
         with open(file, 'w') as f:
             f.writelines(new_lines)

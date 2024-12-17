@@ -8,6 +8,31 @@ from jhr.io.base import Basher
 import matplotlib.pyplot as plt
 from ase import Atoms
 
+import logging 
+
+
+logging.basicConfig(
+  filename = "app.log",
+  format="{message} - {asctime} - {levelname}",
+   style="{",
+   datefmt="%Y-%m-%d %H:%M",
+   level=logging.INFO)
+
+
+#name = "Samara"
+#logging.debug(f"{name=}")
+#logging.warning(f"{name=}")
+
+
+class Converter():
+  
+  def VASP2QE(self):
+#  VASP2JSON template
+    return
+
+
+
+
 class BaseConverger:
     def __init__(self, parameters = None, valuesets = None, template = {}):
         # Initialize any attributes or settings if needed
@@ -24,11 +49,12 @@ class BaseConverger:
         self.valuesets = valuesets
         self.template = template
         self.converged_val = None
-        for eachset in valuesets:
-          if not isinstance(eachset, (list, tuple)): 
-            eachset = [eachset]
-          if len(eachset) != len(parameters):
-            raise ValueError(f"Length of at least one value set does not match the number of parameters.")
+
+#        for eachset in valuesets:
+#          if not isinstance(eachset, (list, tuple)): 
+#            eachset = [eachset]
+#          if len(eachset) != len(parameters):
+#            raise ValueError(f"Length of at least one value set does not match the number of parameters.")
 
         return
 
@@ -108,7 +134,7 @@ class BaseConverger:
 
 
 class QEConverger(BaseConverger):
-    def _save_file(self, filename, template, ase_dict: dict = {}, code: str = 'ph', ase_hacks = True, atomic_positions:str = 'crystal_sg'):
+    def _save_file(self, filename, template, ase_dict: dict = {}, code: str = 'ph.x', ase_hacks = True, atomic_positions:str = 'crystal_sg', verbose = False):
       """
       Save one file
       Args: 
@@ -119,14 +145,15 @@ class QEConverger(BaseConverger):
       
       """
       with open(filename, "w") as f:
-        if code == 'pw': write_espresso_in(f, input_data = template, **ase_dict)
-        if code == 'ph': write_espresso_ph(f, template, **ase_dict)
+        if code == 'pw.x': write_espresso_in(f, input_data = template, **ase_dict)
+        if code == 'ph.x': write_espresso_ph(f, template, **ase_dict)
 
       if ase_hacks: 
-        QEModifier.modify_file(QEModifier.remove_ibrav, filename)
-        QEModifier.modify_file(QEModifier.remove_cell_parameters, filename)
-        QEModifier.modify_file(QEModifier.modify_atomic_positions, filename, atomic_positions = atomic_positions)
+        QEModifier.modify_file(QEModifier.remove_ibrav, filename, verbose = verbose)
+        QEModifier.modify_file(QEModifier.remove_cell_parameters, filename,verbose = verbose)
+        QEModifier.modify_file(QEModifier.modify_atomic_positions, filename, atomic_positions = atomic_positions, verbose = verbose)
 
+      logging.info(f"Saved {filename=}")
       return
 
 
@@ -171,7 +198,7 @@ class QEConverger(BaseConverger):
 
       
 
-    def prepare_variants(self, template: dict, parameters: list, valuesets, code = 'pw', label = 'Conv', ase_hacks = True, atomic_positions:str = 'crystal_sg'):
+    def prepare_variants(self, template: dict, parameters: list, valuesets, code = 'pw', label = 'Conv', ase_hacks = True, atomic_positions:str = 'crystal_sg', verbose = False):
       """
       Prepare variants of the template for convergence. 
 
@@ -212,78 +239,16 @@ class QEConverger(BaseConverger):
       mod_templates, ase_dicts = self._separate_args(all_data)
 
       for template, ase_dict, name in zip(mod_templates, ase_dicts, all_names):
-        self._save_file(name, template, ase_dict, code = code, ase_hacks = ase_hacks, atomic_positions = atomic_positions)
+        self._save_file(name, template, ase_dict, code = code, ase_hacks = ase_hacks, atomic_positions = atomic_positions, verbose = verbose)
 
       return all_names
 
-
-
-
-
-#    def savefiles(self, prefix: str = '', files_data: List[dict] = [], ext: str = 'in', code: str = 'ph', ase_dict: dict = {}):
-#      """
-#      Use ase's espresso module to save files.
-#
-#      Args:
-#        files_data (List[dict]): List of dictionaries containing the input variables. 
-#        ase_dict: other parameters such as additional cards which are passed to ase. 
-#
-#      Returns:
-#        saved_files: List of saved files.
-#      """
-#      saved_files = []
-#      for i, data in enumerate(files_data):
-#        file = f'{prefix}_{i}.{ext}'
-#        with open(file, "w") as f:
-#          if code == 'pw': write_espresso_in(f, input_data = data, **ase_dict)
-#          if code == 'ph': write_espresso_ph(f, data, **ase_dict)
-#        saved_files.append(file)
-#      return saved_files
-#
-#
-#    def prepare_inputs(self, prefix: str = 'convfile', ext:str = 'in', code:str = 'pw', ase_dict:dict = {}, 
-#                        ase_hacks:bool = True, atomic_positions:str = 'crystal_sg', 
-#                        template = None, parameters = None, valuesets = None):
-#      """
-#      DEPRECATE. Use prepare_variants
-#      Express method for performing convergence. Use with care. The method:
-#
-#      - Creates dicts for convergence which is to be carried out. 
-#      - Saves files 
-#      - Performs some ase hacks. using QEModifier class methods. 
-#
-#      Args:
-#        prefix (str): File name prefix which to save. 
-#
-#      Returns:
-#        saved_files (list): List of files saved. 
-#
-#      """
-#
-#      if valuesets is None: valuesets = self.valuesets
-#      
-#      all_files = self.conv_on(template = template, parameters = parameters, valuesets = valuesets) #No arguments passed, uses object parameters for inputs.
-#
-#      saved_files = self.savefiles(prefix = prefix, files_data = all_files, ext = ext, code = code, ase_dict = ase_dict) 
-#
-#      #_____ASE Espresso hacks: Work arounds for modifying ASE output_______
-#      if ase_hacks: 
-#        for i in range(len(valuesets)):
-#          file = f'{prefix}_{i}.in'
-#
-#          QEModifier.modify_file(QEModifier.remove_ibrav, file)
-#          QEModifier.modify_file(QEModifier.remove_cell_parameters, file)
-#          QEModifier.modify_file(QEModifier.modify_atomic_positions, file, atomic_positions = atomic_positions)
-#
-#      return saved_files
 
     @staticmethod
     def read_total_energy(file):
       total_energy = extract_number(file, starts_with = '!')
       return total_energy
       
-
-
     def run_conv_one(self, files = [], folder = '.', prefix = '', ext = '.in', code = 'pw.x', tolerance = 0.1, relative = True):
       """
       Run convergence on one variable.
@@ -317,12 +282,13 @@ class QEConverger(BaseConverger):
         plt.plot(convergence_param, marker = 's')
         plt.savefig('energy_conv.pdf')
         
+        print(convergence_param)
         #check convergence criteria
         converged = self.check_convergence(convergence_param, tolerance, relative)
         if converged: 
           self.converged_val = vals
           break;
-
+      logging.info(f"Conv achieved/not {vals=}")
       return self.converged_val
 
 
