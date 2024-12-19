@@ -200,14 +200,15 @@ def arrowDouble(xyfrom,xyto,text='', arrowstyle = '<->', xytext = None, textsett
     ax.text(xytext[0],xytext[1],text, zorder=2,**settings)
 
 
-def gridder(files = [], saveto = ''):
+def gridder(files = [], saveto = '', grid = (2,2)):
   """
   Makes a 2x2 grid for files given. 
   """
 
   # _____________MAKE A GRID____________
   img = []
-  grid = (2,2)
+
+  if grid[0]*grid[1] != len(files): raise ValueError('Grid size not commensurate with number of files.')
 
   for ind, d in enumerate(files):
     img.append(Image.open(d))
@@ -217,11 +218,24 @@ def gridder(files = [], saveto = ''):
 
   grid_image = Image.new('RGB', (width * grid[0], height * grid[1]))
 
+  for row in range(grid[1]):  # For each row
+    for col in range(grid[0]):  # For each column
+      # Calculate the position for this image
+      x_offset = col * width
+      y_offset = row * height
+      
+      # Get the index of the image to paste (row * columns + col)
+      img_index = row * grid[0] + col
+      
+      # Paste the image into the grid at the calculated position
+      if img_index < len(img):  # Ensure we don't go out of bounds
+          grid_image.paste(img[img_index], (x_offset, y_offset))
 
-  grid_image.paste(img[0], (0, 0))  # Top-left
-  grid_image.paste(img[1], (width, 0))  # Top-right
-  grid_image.paste(img[2], (0, height))  # Bottom-left
-  grid_image.paste(img[3], (width, height))  # Bottom-right
+
+#  grid_image.paste(img[0], (0, 0))  # Top-left
+#  grid_image.paste(img[1], (width, 0))  # Top-right
+#  grid_image.paste(img[2], (0, height))  # Bottom-left
+#  grid_image.paste(img[3], (width, height))  # Bottom-right
 
   # Save the resulting image
   grid_image.save(saveto)

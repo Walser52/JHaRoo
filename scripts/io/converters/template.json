@@ -1,0 +1,17 @@
+
+{"calculation": "scf", 
+  "pseudo_dir": "../pseudo/", 
+  "outdir": "../tmp/", 
+  "prefix": "gr", 
+  "nat": 2, "ntyp": 1, 
+  "occupations": "smearing", 
+  "smearing": "mv", 
+  "degauss": 0.02, 
+  "ecutwfc": 40, 
+  "mixing_beta": 0.7, 
+  "conv_thr": 1e-06, 
+  "atoms": "CC", 
+  "kpts": [4, 4, 1], 
+  "pbc": [1, 1, 1], 
+  "crystal_coordinates": false
+}
