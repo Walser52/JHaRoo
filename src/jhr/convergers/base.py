@@ -249,7 +249,7 @@ class QEConverger(BaseConverger):
       total_energy = extract_number(file, starts_with = '!')
       return total_energy
       
-    def run_conv_one(self, files = [], folder = '.', prefix = '', ext = '.in', code = 'pw.x', tolerance = 0.1, relative = True):
+    def run_conv_one(self, files = [], folder = '.', prefix = '', ext = '.in', code = 'pw.x', tolerance = 0.1, relative = True, check_convergence = True, output_file = None):
       """
       Run convergence on one variable.
 
@@ -257,11 +257,17 @@ class QEConverger(BaseConverger):
         files = List of files on which to run convergence. Uses prefix and ext to find files if none are given.
         tolerance   = threshold to use for convergence
         relative = Relative or absolute tolerance.
+        check_convergence = Checks if convergence is met in parallel. Breaks convergence loop when threshold is met. 
+        output_file = Output file for writing convergence resutls .
       Returns: 
         converged: Whether converged or not
         vals: values on which convergence was achieved
       """
-      
+      if output_file is None:
+        raise ValueError("Provide output file name")
+
+
+
       # If no files given then use the prefix
       if len(files) == 0: 
         files = list(Path(folder).glob(f'{prefix}*{ext}')) # Find files starting with 'name' and ending with '.in'
@@ -269,7 +275,7 @@ class QEConverger(BaseConverger):
 
 
       # Run convergence tests on files. 
-      convergence_param = []
+      convergence_params = []
       converged = False
       for f_in, vals in zip(files, self.valuesets):
 
@@ -277,18 +283,31 @@ class QEConverger(BaseConverger):
 
         command = f"{code} < {f_in} > {f_out}"
         Basher.runcommand(command)
-        convergence_param.append(self.read_total_energy(f'{f_out}'))
+        
+        conv_param = self.read_total_energy(f'{f_out}')
 
-        plt.plot(convergence_param, marker = 's')
+        convergence_params.append(conv_param)
+
+        plt.plot(convergence_params, marker = 's')
         plt.savefig('energy_conv.pdf')
         
-        print(convergence_param)
+        with open(output_file, 'a') as f: 
+          f.write(f'{str(vals)}\t{str(conv_param)}\n')
+        print(convergence_params)
+
         #check convergence criteria
-        converged = self.check_convergence(convergence_param, tolerance, relative)
-        if converged: 
-          self.converged_val = vals
-          break;
-      logging.info(f"Conv achieved/not {vals=}")
+        if check_convergence:
+          converged = self.check_convergence(convergence_params, tolerance, relative)
+          if converged: 
+            self.converged_val = vals
+            logging.info(f"Conv achieved {vals=}")
+            return self.converged_val
+
+
+#      TESTING
+      logging.info(f"Conv not achieved or not tests {vals=}")
+      print("TESTING: Convergence not tested. Last value being taken as converged value")
+      self.converged_val = vals
       return self.converged_val
 
 
