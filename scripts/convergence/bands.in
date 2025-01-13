@@ -1,5 +1,6 @@
 &BANDS
- outdir  = '../tmp/'
- prefix  = 'gr'
- filband = 'gr.bands'
+   outdir           = '../tmp/'
+   prefix           = 'CsPbI3'
+   filband          = 'CsPbI3.bands'
 /
+EOF

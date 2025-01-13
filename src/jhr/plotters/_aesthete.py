@@ -59,6 +59,9 @@ def select_colors_lines_markers(number = 5, solid_lines = 'first', palette = 'Na
                 'Intense': ['#E64B35FF',  '#3C5488FF', '#2E8B57', '#F7B32BFF' ],
                 'Muted': [],
                 'Bright': [],
+
+                #---- PUBLISHED
+                 'Serious': ['#d8765b','#1f6096', '#f3b010', '#827f77'],
                 
                 
 

@@ -1,0 +1,6 @@
+&BANDS
+   fildyn           = 'prefix.dyn'
+   zasr             = 'crystal'
+   flfrc            = 'prefix.fc'
+/
+EOF
