@@ -1,3 +1,4 @@
+README.rst
 pyproject.toml
 src/jhr/__init__.py
 src/jhr/_helpers.py
