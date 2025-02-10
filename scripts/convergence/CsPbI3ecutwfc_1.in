@@ -1,0 +1,41 @@
+&CONTROL
+   calculation      = 'scf'
+   outdir           = '../tmp/'
+   prefix           = 'CsPbI3'
+   pseudo_dir       = '../pseudo/'
+/
+&SYSTEM
+   a                = 6.27514229
+   nat              = 3
+   ntyp             = 3
+   ecutwfc          = 6
+   occupations      = 'smearing'
+   degauss          = 0.0146997236
+   smearing         = 'cold'
+   space_group      = 221
+/
+&ELECTRONS
+   conv_thr         = 1e-06
+/
+&IONS
+/
+&CELL
+/
+&FCP
+/
+&RISM
+/
+ATOMIC_SPECIES
+Cs 132.90545196 C.pbe-n-rrkjus_psl.0.1.UPF
+Pb 207.2 C.pbe-n-rrkjus_psl.0.1.UPF
+I 126.90447 C.pbe-n-rrkjus_psl.0.1.UPF
+
+K_POINTS automatic
+2 2 2  0 0 0
+
+
+ATOMIC_POSITIONS crystal_sg
+Cs 0.5000000000 0.5000000000 0.5000000000  
+Pb 0.0000000000 0.0000000000 0.0000000000  
+I 0.0000000000 0.0000000000 0.5000000000  
+

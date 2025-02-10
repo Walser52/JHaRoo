@@ -110,9 +110,9 @@ class QEio():
     return matdict
 
 #=================Modifiers==================
-from jhr.io.modifiers import Modifier
+from jhr.io.modifier import Modifier
 
-class QEModifier(Modifiers):
+class QEModifier(Modifier):
     """
     Class for modifiying espresso input files. 
     """

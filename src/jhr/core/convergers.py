@@ -48,7 +48,7 @@ class BaseConverger:
         self.parameters = parameters
         self.valuesets = valuesets
         self.template = template
-        self.converged_val = None
+        self.converged_val = np.nan
 
 #        for eachset in valuesets:
 #          if not isinstance(eachset, (list, tuple)): 
@@ -66,6 +66,13 @@ class BaseConverger:
         "template" (dict): Contains parameters. See ASE documentation
         "parameters" (list of strings): Parameters to change.
         "valuesets" (list of lists)   : sets of values.
+
+        Returns:
+          all_files: Content of files
+          all_file_names: File names 
+
+        Example: 
+          obj.conv_on(label = 'ecutwfc', parameters = ['ecutwfc'], output_file = 'ecutwfc_conv', valuesets=[5,6,8])
         """
 
         all_files = []
@@ -76,16 +83,19 @@ class BaseConverger:
         if template is None:    template = self.template
 
 
-        #Loop over value sets (i.e. make len(valuesets) variants with each variant changing len(parameters) number of entries. 
+        #Loop over valuesets (i.e. make len(valuesets) variants with each variant changing len(parameters) number of entries. 
         for j, values in enumerate(valuesets):
           new_template = template.copy()
-          if 'prefix' in template.keys(): prefix = template['prefix']
 
+          #Create file label
+          if 'prefix' in template.keys(): prefix = template['prefix']
           all_filenames.append(f'{prefix}{label}_{j}.in')            
+
+          #Loop over each parameter
           for i, p in enumerate(parameters):
-#                print(valuesets)
-              if isinstance(values, (list, tuple)) and len(values) > 1:
-                new_template[p] = values[i]
+              #If a valueset is a list e.g. for k-points. 
+              if isinstance(values, (list, tuple)) and len(values) > 1: 
+                new_template[p] = values
               else: 
                 values = [values]
                 new_template[p] = values[i]
@@ -104,10 +114,11 @@ class BaseConverger:
             tolerance (float): The convergence tolerance in percentage (default is 0.01%).
 
         Returns:
-            bool: True if converged, False otherwise.
+            converged (bool): True if converged, False otherwise.
+            value (convergence value): np.nan for not converged
         """
         converged = False
-
+        value = np.nan
         if len(values) > 1: 
 
 #          for i in range(1, len(values)):
@@ -119,7 +130,8 @@ class BaseConverger:
               print("Convergence achieved")
               converged = True
 
-        return converged  
+
+        return converged, value  
 
 
     @property

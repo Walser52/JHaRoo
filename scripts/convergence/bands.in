@@ -1,6 +1,0 @@
-&BANDS
-   outdir           = '../tmp/'
-   prefix           = 'CsPbI3'
-   filband          = 'CsPbI3.bands'
-/
-EOF

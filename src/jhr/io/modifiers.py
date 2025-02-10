@@ -1,6 +1,6 @@
 # For modifiying input files
 
-class Modifiers():
+class Modifier():
     """
     Modifiers is a helping class for cleaning up files after (say) ase has created the file. This 
     Convenience class for removing unnecessary stuff.

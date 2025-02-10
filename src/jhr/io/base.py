@@ -14,7 +14,7 @@ class Basher():
   @classmethod
   def runcommand(cls, command, shell = True, text = True):
     print(f"Running: {command}")
-    result = subprocess.run(command, shell=True, text=True)
+    result = subprocess.run(command, shell=shell, text=text)
     cls.checkerror(result)
     return   
   

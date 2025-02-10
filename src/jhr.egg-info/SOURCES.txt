@@ -5,6 +5,7 @@ src/jhr/_helpers.py
 src/jhr.egg-info/PKG-INFO
 src/jhr.egg-info/SOURCES.txt
 src/jhr.egg-info/dependency_links.txt
+src/jhr.egg-info/entry_points.txt
 src/jhr.egg-info/requires.txt
 src/jhr.egg-info/top_level.txt
 src/jhr/cleaners/DOSQE.py
@@ -12,11 +13,15 @@ src/jhr/cleaners/_bands.py
 src/jhr/cleaners/bandsQE.py
 src/jhr/cleaners/bandsW90.py
 src/jhr/codes/W90.py
+src/jhr/codes/__init__.py
 src/jhr/codes/doped.py
+src/jhr/codes/espresso/__init__.py
 src/jhr/codes/espresso/converger.py
 src/jhr/codes/espresso/io.py
 src/jhr/comp/phonons.py
+src/jhr/core/__init__.py
 src/jhr/core/convergers.py
+src/jhr/io/__init__.py
 src/jhr/io/base.py
 src/jhr/io/logger.py
 src/jhr/io/modifiers.py

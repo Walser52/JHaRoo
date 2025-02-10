@@ -1,7 +1,7 @@
 from typing import Union, Optional
 from typing import List, Tuple, Dict, Any
 from ase.io.espresso import write_espresso_ph, read_espresso_ph, read_espresso_in, write_espresso_in
-from jhr.io.modifiers import QEModifier
+from jhr.codes.espresso.io import QEModifier
 import re
 from pathlib import Path
 from jhr.io.base import Basher
@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from ase import Atoms
 
 from jhr.core.convergers import BaseConverger
+
+from jhr._error import Error
 
 import logging 
 
@@ -99,7 +101,8 @@ class QEConverger(BaseConverger):
       ase_dicts, mod_templates = [], []
 
       for template in templates:
-        ase_dict, template = extract_ase_dict()
+        ase_dict, template = self.extract_ase_dict(template)
+
 
 #        #Create atoms object from template
 #        atoms_dict = {}
@@ -119,8 +122,6 @@ class QEConverger(BaseConverger):
         ase_dicts.append(ase_dict)
 
       return mod_templates, ase_dicts
-
-      
 
     def prepare_variants(self, template: dict, parameters: list, valuesets, code = 'pw', label = 'Conv', ase_hacks = True, atomic_positions:str = 'crystal_sg', verbose = False):
       """
@@ -168,64 +169,76 @@ class QEConverger(BaseConverger):
       return all_names
 
 
+#    @staticmethod
+#    def read_total_energy(file):
+#      total_energy = extract_number(file, starts_with = '!')
+#      return total_energy
+
     @staticmethod
-    def read_total_energy(file):
-      total_energy = extract_number(file, starts_with = '!')
-      return total_energy
+    def read_convergence(in_file = None, what = 'total energy'):
+      if read == 'total energy':
+        total_energy = extract_number(file, starts_with = '!')
+
+      return
       
-    def run_conv_one(self, files = [], folder = '.', prefix = '', ext = '.in', code = 'pw.x', tolerance = 0.1, relative = True, check_convergence = True, output_file = None):
+    def run_conv_one(self, files = [], folder = '.', prefix = '', ext = '.in', code = 'pw.x', tolerance = 0.00001, 
+                    relative = True, check_convergence = True, break_on_converge = True,
+                    file_out = None):
       """
-      Run convergence on one variable.
+      Run convergence over 'files'. If files aren't given, look in `folder` for files starting with `prefix` and ending with `in'. 
+      Run convergence using `code` and find converged value if `check_convergence` using `relative` error. 
 
       Args:
         files = List of files on which to run convergence. Uses prefix and ext to find files if none are given.
+        folder, prefix, ext = If no files are given, then look for files starting with `prefix` and ending with `ext` in `folder`.
         tolerance   = threshold to use for convergence
         relative = Relative or absolute tolerance.
         check_convergence = Checks if convergence is met in parallel. Breaks convergence loop when threshold is met. 
-        output_file = Output file for writing convergence resutls .
+        file_out = Output file for writing convergence results.
       Returns: 
         converged: Whether converged or not
         vals: values on which convergence was achieved
       """
-      if output_file is None:
-        raise ValueError("Provide output file name")
+#      if file_out is None:
+#        raise ValueError("Provide output file name")
+      Error().no_output_file(file_out)
 
 
-
-      # If no files given then use the prefix
+      # If no files given then use the prefix and extension to find files in folder.
       if len(files) == 0: 
-        files = list(Path(folder).glob(f'{prefix}*{ext}')) # Find files starting with 'name' and ending with '.in'
-        files = sorted(files, key=lambda f: int(f.stem.split(f'{prefix}_')[-1]))
+        files = list(Path(folder).glob(f'{prefix}*{ext}')) 
+        files = sorted(files, key=lambda f: int(f.stem.split(f'{prefix}_')[-1]))  #Order files numerically?
 
 
       # Run convergence tests on files. 
       convergence_params = []
       converged = False
       for f_in, vals in zip(files, self.valuesets):
-
+        #Run commands
         stem, f_out = Path(f_in).stem, (Path(f_in).stem + '.out')
 
         command = f"{code} < {f_in} > {f_out}"
         Basher.runcommand(command)
-        
-        conv_param = self.read_total_energy(f'{f_out}')
 
+        #Read and update convergence params        
+        conv_param = self.read_convergence(in_file = f'{f_out}', what = 'total energy')
         convergence_params.append(conv_param)
 
+        #Plot convergence parameter and write to file
         plt.plot(convergence_params, marker = 's')
-        plt.savefig('energy_conv.pdf')
-        
-        with open(output_file, 'a') as f: 
+        plt.savefig(f'{file_out}.pdf')
+    
+        with open(file_out, 'a') as f: 
           f.write(f'{str(vals)}\t{str(conv_param)}\n')
         print(convergence_params)
 
-        #check convergence criteria
+        #Check if convergence has been achieved and return converged value
         if check_convergence:
-          converged = self.check_convergence(convergence_params, tolerance, relative)
+          converged, self.converged_val = self.check_convergence(convergence_params, tolerance, relative)
           if converged: 
-            self.converged_val = vals
-            logging.info(f"Conv achieved {vals=}")
-            return self.converged_val
+            logging.info(f"Conv achieved {self.converged_val=}")
+            if break_on_converge:   #break loop if convergence achieved?
+              return self.converged_val
 
 
 #      TESTING
