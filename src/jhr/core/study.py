@@ -87,7 +87,13 @@ class Calculation():
     return
 
 class BaseQEConvergenceCalculation():
-  def __init__(self, template, parameters, values):
+  def __init__(self, template, parameters, values, code = '', method = 'nested'):
+    """
+    Args:
+      template: Template to modify
+      parameters: Parameters to modify in each template.
+      convergence_style: nested/grid. 
+    """
     self.template = template
     self.parameters = parameters
     self.values = values
