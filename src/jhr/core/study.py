@@ -17,10 +17,18 @@ class Chain():
 
 
 
-class Calculation(self, kind = 'normal'):
+class Calculation(self, mode = 'normal', template = None, settings = {}):
   """
   calc_type = 'normal', 'convergence'
   """
+  def __init__():
+    self.mode = mode
+    if mode == 'normal': 
+      self.calc = BaseNormalCalculation(template, settings)
+    elif mode == 'convergence': 
+      self.calc = BaseConvergenceCalculation(template, settings)
+
+    return 
   
 
   def from_json(self, template, parameters, code = None):
@@ -56,7 +64,15 @@ class Calculation(self, kind = 'normal'):
     return
 
 class BaseConvergenceCalculation():
-  pass
+  def __init__(self, template, parameters, values):
+    self.template = template
+    self.parameters = parameters
+    self.values = values
+    return 
+
+  def _prepare_variants():
+    return
+
 
 class BaseNormalCalculation(template, update = {}, code = None, files = ('',''), run = False):
   """
