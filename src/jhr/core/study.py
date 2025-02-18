@@ -58,9 +58,13 @@ class Calculation(self, kind = 'normal'):
 class BaseConvergenceCalculation():
   pass
 
-class BaseNormalCalculation(template, update = {}, code = None):
+class BaseNormalCalculation(template, update = {}, code = None, files = ('',''), run = False):
   """
   code
+  
+  Args:
+  	stem = File stem to save. Input files 
+  	files = ('file_abc', 'file_xyz') or 'file' which becomes ('file.in', 'file.out')
   
   """
 
@@ -68,11 +72,20 @@ class BaseNormalCalculation(template, update = {}, code = None):
     self.template = template
     self.update = update
     self.code = code
+    self.result = None
 
-    if a != {}:
+	# update file
+    if update != {}:
       #update template.
       pass
+    
+    #save file?
+    #run calc?
+    if run:
+    	#Run calculation immediately.
+    	pass
     return
+    
   def update_template(update = {}):
 
     return
