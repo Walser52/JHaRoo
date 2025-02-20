@@ -1,6 +1,7 @@
 README.rst
 pyproject.toml
 src/jhr/__init__.py
+src/jhr/_error.py
 src/jhr/_helpers.py
 src/jhr.egg-info/PKG-INFO
 src/jhr.egg-info/SOURCES.txt
@@ -21,9 +22,11 @@ src/jhr/codes/espresso/io.py
 src/jhr/comp/phonons.py
 src/jhr/core/__init__.py
 src/jhr/core/convergers.py
+src/jhr/core/study.py
 src/jhr/io/__init__.py
 src/jhr/io/base.py
 src/jhr/io/logger.py
+src/jhr/io/modifier.py
 src/jhr/io/modifiers.py
 src/jhr/io/pwparser.py
 src/jhr/io/qe.py
