@@ -123,6 +123,8 @@ class BaseQEConvergenceCalculation():
         raise Exception("Sorry, no numbers below zero")
     elif mode == 'grid':
         self.convergence_combos(parameters)
+        # CREATE BASEQUENORMALCALCULATION OBJECT AND UPDATE TEMPLATE ACCORDING TO EACH CASE
+
 
 
     
@@ -228,4 +230,49 @@ class BaseQENormalCalculation():
   def update_template(update = {}):
 
     return
+
+
+    def _separate_args(self, templates:Union[Dict, List[Dict]]):
+        """
+        Sifts dictionary template into a format for ase. The file template is separated from other arguments.
+
+        Args: 
+        templates 
+
+        Returns:
+        mod_templates: modified by popping out unnecessary keys. Accepts a single dict or a list of dicts. 
+        ase_dicts: other options to be passed to ase. 
+        """
+
+        if isinstance(templates, dict): templates = [templates]
+
+        ase_dicts, mod_templates = [], []
+
+        for template in templates:
+            ase_dict, template = self.extract_ase_dict(template)
+
+        mod_templates.append(template)
+        ase_dicts.append(ase_dict)
+
+        return mod_templates, ase_dicts
+
+    def extract_ase_dict(self, template, return_atoms = False):
+        """
+        Pops out ase_dict elements from template. 
+
+        Args: template
+        Returns: 
+        ase_dict 
+        template: modified by popping ase_dict 
+        """
+        atoms, template = self.gen_atoms_from_template(template)
+
+        #Create ase dict for other options
+        ase_dict = {'atoms': atoms}
+        for key in ['pseudopotentials', 'kpts', 'crystal_coordinates', 'additional_cards', 'koffset', 'kspacing']:
+            if key in template.keys(): ase_dict[key] = template.pop(key)
+
+        if return_atoms: return ase_dict, template, atoms
+
+        return ase_dict, template
 
