@@ -89,18 +89,60 @@ class Calculation():
 class BaseQEConvergenceCalculation():
   def __init__(self, template, parameters, values, code = '', method = 'nested'):
     """
+    Convergence is performed over a grid. Nested convergence is to be done manually (for now)
+
     Args:
       template: Template to modify
-      parameters: Parameters to modify in each template.
+      parameters: Parameters dict to modify in each template.
       convergence_style: nested/grid. 
+
+    Example:
+      parameters = {'ecutwfc': [1,2,3], 'ecutrho': [4,5,6], 'nx,ny,nz':[[2,2,2],[4,4,4]]}
+
+
+
     """
     self.template = template
     self.parameters = parameters
     self.values = values
 
+    self.converged_val = np.nan
+
+    self.parameters = parameters.keys()
+
+    #Create convergence value table
+    convs = []
+    vals = []
+    for each_conv in parameters.keys():
+        convs.append(each_conv.split(','))
+        vals.append(parameters[each_conv])
+
+    if mode == 'nested':
+        [print(f"performing convergence on {c}") for c in convs ]
+        print("NOT YET IMPLEMENTED")
+        raise Exception("Sorry, no numbers below zero")
+    elif mode == 'grid':
+        self.convergence_combos(parameters)
+
+
+    
+    
+
     #Create multiple base calculations each with its own file. At the end run the calculations
 
     return 
+  def convergence_combos(self, parameters):
+    """
+    Create outer product for convergence 
+    """
+    combinations = list(product(*vals))
+    combinations_2d = [list(combo[:2]) + combo[2] for combo in combinations]
+
+    # Print the results
+#    for row in combinations_2d:
+#        print(row)
+
+    return combinations_2d
 
   def _prepare_variants():
     return
@@ -109,6 +151,7 @@ class BaseQEConvergenceCalculation():
 class BaseQENormalCalculation():
   """
   code
+  Functionality: Use json template to save QE input. Run QE input.
   
   Args:
   	stem = File stem to save. Input files 
