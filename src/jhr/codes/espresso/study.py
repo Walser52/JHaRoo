@@ -5,6 +5,7 @@ from ase.io.espresso import (read_espresso_in, read_espresso_ph,
 from ase import Atoms
 from jhr.core.study import Calculation
 from typing import Union, Dict, List
+from itertools import product
 import logging 
 
 
@@ -17,7 +18,7 @@ logging.basicConfig(
 
 
 class BaseQEConvergenceCalculation():
-    def __init__(self, template, parameters, values, code = '', method = 'grid'):
+    def __init__(self, template, parameters, code = '', method = 'grid'):
         """
         Convergence is performed over a grid. Nested convergence is to be done manually (for now)
 
@@ -34,7 +35,8 @@ class BaseQEConvergenceCalculation():
         self.template = template
     #    self.parameters = parameters
     #    self.values = values
-
+        self.prefix = template['prefix']
+        self.code = code
         self.converged_val = np.nan
 
         self.parameters = parameters.keys()
@@ -45,37 +47,40 @@ class BaseQEConvergenceCalculation():
         for each_conv in parameters.keys():
             convs.append(each_conv.split(','))
             vals.append(parameters[each_conv])
+        #        print(convs, '\n', vals)
+        convs = [x for xs in convs for x in xs]
 
-        if mode == 'nested':
+        if method == 'nested':
             [print(f"performing convergence on {c}") for c in convs ]
             print("NOT YET IMPLEMENTED")
             raise Exception("Sorry, no numbers below zero")
-        elif mode == 'grid':
-            combinations_2d = self.convergence_combos(parameters)
-            print(combinations_2d)
+        elif method == 'grid':
+            combinations = self.convergence_combos(vals)
             
             # CREATE BASEQUENORMALCALCULATION OBJECT AND UPDATE TEMPLATE ACCORDING TO EACH CASE
 
         #-------
+        calcs = []
+        name = '_'.join(convs)
+        for i, combo in enumerate(combinations):
+            update = {k:v for (k,v) in zip(convs, combo)}
+    
+            files = [f'{self.prefix}{name}{i}.in',f'{self.prefix}{name}{i}.out']
+            print(template['atoms'])
+            calcs.append([BaseQENormalCalculation(template, self.code, update=update,files=files, run=False)])
+            print(template['atoms'])
+            print("here")
+        self.calcs = calcs
 
-
-        
-
-        #Create multiple base calculations each with its own file. At the end run the calculations
 
         return 
-    def convergence_combos(self, parameters):
+    def convergence_combos(self, vals):
         """
         Create outer product for convergence 
         """
         combinations = list(product(*vals))
-        combinations_2d = [list(combo[:2]) + combo[2] for combo in combinations]
+        return combinations
 
-    
-        return combinations_2d
-
-    def _prepare_variants():
-        return
 
 
 class BaseQENormalCalculation():
@@ -91,18 +96,15 @@ class BaseQENormalCalculation():
         """
     
         """
+        template.update({k: update[k] for k in update.keys()})
         self.template = template
-        self.update = update
         self.code = code
         self.result = np.nan
 
         self.file_in = files[0]
         self.file_out = files[1]
 
-       
-        ase_dict, qe_template = self.extract_ase_dict(template)
-        #create espresso file
-
+        ase_dict, qe_template = self.extract_ase_dict(self.template)
         self._save_file(self.file_in, qe_template, ase_dict, self.code)
 
         return
@@ -116,13 +118,15 @@ class BaseQENormalCalculation():
         ase_dict 
         template: modified by popping ase_dict 
         """
+
         atoms, template = self.gen_atoms_from_template(template)
 
         #Create ase dict for other options
         ase_dict = {'atoms': atoms}
         for key in ['pseudopotentials', 'kpts', 'crystal_coordinates', 
                     'additional_cards', 'koffset', 'kspacing']:
-            if key in template.keys(): ase_dict[key] = template.pop(key)
+            if key in template.keys(): 
+                ase_dict[key] = template.pop(key)
 
         if return_atoms: return ase_dict, template, atoms
 

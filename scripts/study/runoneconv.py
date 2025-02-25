@@ -10,5 +10,6 @@ update = {}
 files = ["scf.in", "scf.out"]
 
 
-calc1 = BaseQEConvergenceCalculation(template, parameters = {'ecutwfc': [2,4,5]}, code = 'pw.x')
+calc1 = BaseQEConvergenceCalculation(template, parameters = {'ecutwfc': [2,4,5], 'ecutrho': [1,2,3]}, code = 'pw.x')
+#calc1 = BaseQEConvergenceCalculation(template, parameters = {'ecutwfc': [2,4,5]}, code = 'pw.x')
 
