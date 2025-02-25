@@ -17,62 +17,65 @@ logging.basicConfig(
 
 
 class BaseQEConvergenceCalculation():
-  def __init__(self, template, parameters, values, code = '', method = 'nested'):
-    """
-    Convergence is performed over a grid. Nested convergence is to be done manually (for now)
+    def __init__(self, template, parameters, values, code = '', method = 'grid'):
+        """
+        Convergence is performed over a grid. Nested convergence is to be done manually (for now)
 
-    Args:
-      template: Template to modify
-      parameters: Parameters dict to modify in each template.
-      convergence_style: nested/grid. 
+        Args:
+          template: Template to modify
+          parameters: Parameters dict to modify in each template.
+          convergence_style: nested/grid. 
 
-    Example:
-      parameters = {'ecutwfc': [1,2,3], 'ecutrho': [4,5,6], 'nx,ny,nz':[[2,2,2],[4,4,4]]}
+        Example:
+          parameters = {'ecutwfc': [1,2,3], 'ecutrho': [4,5,6], 'nx,ny,nz':[[2,2,2],[4,4,4]]}
 
 
-    """
-    self.template = template
-#    self.parameters = parameters
-#    self.values = values
+        """
+        self.template = template
+    #    self.parameters = parameters
+    #    self.values = values
 
-    self.converged_val = np.nan
+        self.converged_val = np.nan
 
-    self.parameters = parameters.keys()
+        self.parameters = parameters.keys()
 
-    #Create convergence value table
-    convs = []
-    vals = []
-    for each_conv in parameters.keys():
-        convs.append(each_conv.split(','))
-        vals.append(parameters[each_conv])
+        #Create convergence value table
+        convs = []
+        vals = []
+        for each_conv in parameters.keys():
+            convs.append(each_conv.split(','))
+            vals.append(parameters[each_conv])
 
-    if mode == 'nested':
-        [print(f"performing convergence on {c}") for c in convs ]
-        print("NOT YET IMPLEMENTED")
-        raise Exception("Sorry, no numbers below zero")
-    elif mode == 'grid':
-        self.convergence_combos(parameters)
-        # CREATE BASEQUENORMALCALCULATION OBJECT AND UPDATE TEMPLATE ACCORDING TO EACH CASE
+        if mode == 'nested':
+            [print(f"performing convergence on {c}") for c in convs ]
+            print("NOT YET IMPLEMENTED")
+            raise Exception("Sorry, no numbers below zero")
+        elif mode == 'grid':
+            combinations_2d = self.convergence_combos(parameters)
+            print(combinations_2d)
+            
+            # CREATE BASEQUENORMALCALCULATION OBJECT AND UPDATE TEMPLATE ACCORDING TO EACH CASE
 
-    #-------
+        #-------
+
+
+        
+
+        #Create multiple base calculations each with its own file. At the end run the calculations
+
+        return 
+    def convergence_combos(self, parameters):
+        """
+        Create outer product for convergence 
+        """
+        combinations = list(product(*vals))
+        combinations_2d = [list(combo[:2]) + combo[2] for combo in combinations]
 
     
-    
+        return combinations_2d
 
-    #Create multiple base calculations each with its own file. At the end run the calculations
-
-    return 
-  def convergence_combos(self, parameters):
-    """
-    Create outer product for convergence 
-    """
-    combinations = list(product(*vals))
-    combinations_2d = [list(combo[:2]) + combo[2] for combo in combinations]
-
-    return combinations_2d
-
-  def _prepare_variants():
-    return
+    def _prepare_variants():
+        return
 
 
 class BaseQENormalCalculation():
