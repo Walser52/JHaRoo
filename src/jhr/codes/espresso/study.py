@@ -33,8 +33,6 @@ class BaseQEConvergenceCalculation():
 
         """
         self.template = template
-    #    self.parameters = parameters
-    #    self.values = values
         self.prefix = template['prefix']
         self.code = code
         self.converged_val = np.nan
@@ -42,35 +40,52 @@ class BaseQEConvergenceCalculation():
         self.parameters = parameters.keys()
 
         #Create convergence value table
-        convs = []
-        vals = []
-        for each_conv in parameters.keys():
-            convs.append(each_conv.split(','))
-            vals.append(parameters[each_conv])
-        #        print(convs, '\n', vals)
-        convs = [x for xs in convs for x in xs]
+        def separate_params(parameters):
+            """
+            Separate parameters into convergence labels and values.
+            """
+            convs = []
+            vals = []
+            for each_conv in parameters.keys():
+                convs.append(each_conv.split(','))
+                vals.append(parameters[each_conv])
+            convs = [x for xs in convs for x in xs]
+            return convs, vals
+        
+        convs, vals = separate_params(parameters)
 
-        if method == 'nested':
-            [print(f"performing convergence on {c}") for c in convs ]
-            print("NOT YET IMPLEMENTED")
-            raise Exception("Sorry, no numbers below zero")
-        elif method == 'grid':
-            combinations = self.convergence_combos(vals)
-            
-            # CREATE BASEQUENORMALCALCULATION OBJECT AND UPDATE TEMPLATE ACCORDING TO EACH CASE
+        def conv_method(convs, vals):
+            #Whether to do nested convergence or grid?
+            """
+            Sorts values according to whether convergence is in grid or nested format.
+            """
+            if method == 'nested':
+                [print(f"performing convergence on {c}") for c in convs ]
+                print("NOT YET IMPLEMENTED")
+                raise Exception("Sorry, no numbers below zero")
+            elif method == 'grid':
+                combinations = self.convergence_combos(vals)
+            return combinations
+                
 
-        #-------
-        calcs = []
-        name = '_'.join(convs)
-        for i, combo in enumerate(combinations):
-            update = {k:v for (k,v) in zip(convs, combo)}
-    
-            files = [f'{self.prefix}{name}{i}.in',f'{self.prefix}{name}{i}.out']
-            print(template['atoms'])
-            calcs.append([BaseQENormalCalculation(template, self.code, update=update,files=files, run=False)])
-            print(template['atoms'])
-            print("here")
-        self.calcs = calcs
+        self.params = convs
+        self.vals = conv_method(convs,vals)
+
+        #----Create list of calcs---
+        def create_base_calcs(template, convs, vals):
+            """
+            Create base calcs. Returns a list of base normal calc objects.
+            """
+            calcs = []
+            name = '_'.join(convs)
+            for i, combo in enumerate(vals):
+                update = {k:v for (k,v) in zip(convs, combo)}
+        
+                files = [f'{self.prefix}{name}{i}.in',f'{self.prefix}{name}{i}.out']
+                calcs.append(BaseQENormalCalculation(template.copy(), self.code, update=update,files=files, run=False))
+            return calcs
+
+        self.calcs = create_base_calcs(template, self.params, self.vals)
 
 
         return 
@@ -81,7 +96,12 @@ class BaseQEConvergenceCalculation():
         combinations = list(product(*vals))
         return combinations
 
+    def create_calcs(self):
+        """
+        Create multiple calc objects using template. 
+        """
 
+        return
 
 class BaseQENormalCalculation():
     """
@@ -106,7 +126,6 @@ class BaseQENormalCalculation():
 
         ase_dict, qe_template = self.extract_ase_dict(self.template)
         self._save_file(self.file_in, qe_template, ase_dict, self.code)
-
         return
 
     def extract_ase_dict(self, template, return_atoms = False):
@@ -128,7 +147,8 @@ class BaseQENormalCalculation():
             if key in template.keys(): 
                 ase_dict[key] = template.pop(key)
 
-        if return_atoms: return ase_dict, template, atoms
+        if return_atoms: 
+            return ase_dict, template, atoms
 
         return ase_dict, template
 
@@ -161,7 +181,7 @@ class BaseQENormalCalculation():
           ase_dict: other options. See ase's documentation.
         
         """
-        print(filename, template, ase_dict)
+        #        print(filename, template, ase_dict)
 
         with open(filename, "w") as f:
             if code == 'pw.x': write_espresso_in(f, input_data = template, **ase_dict)
