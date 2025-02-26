@@ -16,6 +16,21 @@ logging.basicConfig(
    datefmt="%Y-%m-%d %H:%M",
    level=logging.INFO)
 
+class QEStudy():
+    """
+    Connects two or more chains. Essentially a DAG (Directed Acyclic Graph).
+    """
+    pass
+
+class QEChain():
+    """
+    Create QE computaiton chains. 
+    """
+    def __init__():
+        #Add all the QE calculations in a particular order to create a chain. 
+        pass
+
+    pass
 
 class BaseQEConvergenceCalculation():
     def __init__(self, template, parameters, code = '', method = 'grid'):
