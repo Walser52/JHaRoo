@@ -117,6 +117,23 @@ class BaseQEConvergenceCalculation():
         """
 
         return
+    def __len__(self):
+        return len(self.calcs)
+    def __iter__(self):
+        self.index = 1
+        return self
+    def __next__(self):
+        """
+        Returns next base calculation
+        """
+        if self.index >= len(self.calcs):
+            raise StopIteration
+        next_calc = self.calcs[self.index]
+        self.index +=1
+        return next_calc
+    def __str__(self):
+        return "Convergence calculation QE"
+
 
 class BaseQENormalCalculation():
     """
