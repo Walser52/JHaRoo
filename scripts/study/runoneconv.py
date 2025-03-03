@@ -1,37 +1,17 @@
 # Run a single computation using the study base classes.
 from jhr.codes.espresso.io import QEio, QEModifier
-from jhr.codes.espresso.study import BaseQEConvergenceCalculation
+from jhr.codes.espresso.study import BaseQEConvergenceCalculation as QEConv
 
 mat_file = "sample-scf.json"
-template = QEio.from_flat_JSON(mat_file)
-
 code = "pw.x"
 update = {}
-files = ["scf.in", "scf.out"]
-
-
-calc1 = BaseQEConvergenceCalculation(template, parameters = {'ecutwfc': [2,4,5], 'ecutrho': [1,2,3]}, code = 'pw.x')
-
-#======
-#Figure if convergence is done 
-# During run: check_convergence.
-# 	Pass function to check convergence 
-
-# Convergence param: 
-
-# Read_TotalEnergy(fromfile = '', code = 'pw.x')
-
-
-# Run:
-##	Loop over calculations
-##		Call calc.run()
-##		Call check-convergence(conv_func, *arguments)
 
 
 
-## conv_func(filetoread, whattoread, wheretowrite, threshold):
-##	read filetoread
-##	extract whatoread
-##	write wheretowrite
+scf_conv = QEConv(mat_file, parameters = {'ecutwfc': [2,4,5], 'ecutrho': [10,20,30]}, code = 'pw.x')
 
-##	see if threshold is met
+for each_calc in scf_conv:
+    each_calc.ase_hacks(
+        remove_ibrav=True, remove_cell_parameters=True, modify_atomic_positions=True
+    )
+scf_conv.run()

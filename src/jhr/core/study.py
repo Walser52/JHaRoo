@@ -1,7 +1,9 @@
 #study level classes.
 from ase.io.espresso import write_espresso_ph, read_espresso_ph, read_espresso_in, write_espresso_in
+from jhr.codes.espresso.io import QEio, QEModifier 
 from jhr.io.base import Basher
 import logging 
+from itertools import product
 
 
 logging.basicConfig(
@@ -51,3 +53,172 @@ class Calculation():
         return 
       
 
+
+
+class BaseConvergenceCalculation():
+    """
+    Base class for convergence calculations
+    """
+    def __init__(self,  template, parameters, code="", method="grid", update = {}):
+        """
+        Args:
+          template (dict|str|path): Read template either from a dictionary or a json file path. 
+          code (str): code to use
+          update: Global updates that maybe needed for the template.
+        """
+
+
+        self.code     = code
+        self.template = self.read_template(template, update)
+
+        self.parameters = parameters.keys()
+
+        # Create convergence value table
+        def separate_params(parameters):
+            """
+            Separate parameters into convergence labels and values.
+            """
+            convs = []
+            vals = []
+            for each_conv in parameters.keys():
+                convs.append(each_conv.split(","))
+                vals.append(parameters[each_conv])
+            convs = [x for xs in convs for x in xs]
+            return convs, vals
+
+        convs, vals = separate_params(parameters)
+
+        def conv_method(convs, vals):
+            # Whether to do nested convergence or grid?
+            """
+            Sorts values according to whether convergence is in grid or nested format.
+            """
+            if method == "nested":
+                [print(f"performing convergence on {c}") for c in convs]
+                print("NOT YET IMPLEMENTED")
+                raise Exception("Sorry, no numbers below zero")
+            elif method == "grid":
+                combinations = self.convergence_combos(vals)
+            return combinations
+
+        self.params = convs
+        self.vals = conv_method(convs, vals)
+
+        #initialize self.calcs (for creating an iterator)
+        self.calcs = [None]*len(vals)
+
+        return 
+
+    def read_template(self, template, update):
+        """
+        Read template from file depending on code. 
+        """
+        if not isinstance(template, dict):
+            if self.code in ['pw.x', 'ph.x']:
+                template = QEio.from_flat_JSON(template)
+        template.update({k: update[k] for k in update.keys()})
+
+        return template
+
+
+    def convergence_combos(self, vals):
+        """
+        Create outer product for convergence
+        """
+        combinations = list(product(*vals))
+        return combinations
+
+    def run(self, command="", prepend=""):
+        for each_calc in self.calcs:
+            each_calc.run(command, prepend)
+        return
+
+    def __iter__(self):
+        self.index = 0
+        return self
+
+    def __next__(self):
+        """
+        Returns next base calculation
+        """
+        if self.index >= len(self.calcs):
+            raise StopIteration
+        next_calc = self.calcs[self.index]
+        self.index += 1
+        return next_calc
+
+
+class BaseNormalCalculation():
+    """
+    Args:
+    calc_type = 'normal', 'convergence'
+    suite: 'QE', 'Yambo'
+    code:   'pw.x'
+    """
+    def __init__(self,  template = None, code = '', update = {}, files = None):
+        """
+        Args:
+          template (dict|str|path): Read template either from a dictionary or a json file path. 
+          code (str): code to use
+          files: Names to use for files. 
+                  If None given: Read from template['prefix']
+                  If str given: Use that (append '.in' and '.out' for input and output
+                  If list given: Use the first two as file names.
+        """
+
+
+        self.code     = code
+        self.template = self.read_template(template, update)
+        self.file_in, self.file_out    = self.figure_file_names(files, template)
+
+        return 
+
+    def read_template(self, template, update):
+        """
+        Read template from file depending on code. 
+        """
+        if not isinstance(template, dict):
+            if self.code in ['pw.x', 'ph.x']:
+                template = QEio.from_flat_JSON(template)
+        template.update({k: update[k] for k in update.keys()})
+
+        return template
+
+    def figure_file_names(self, files = None, template = None):
+        """
+        Figures out file names to use. 
+        """
+
+        if files is None:
+            if isinstance(template, str):
+              try: 
+                file_in = template + ".in"
+                file_out = template + ".out"                
+              except:
+                raise Exception("Couldn't create file name from template name.")
+            else: #if template is a dictionary
+              try:
+                  file_in = self.template["prefix"] + ".in"
+                  file_out = self.template["prefix"] + ".out"
+              except:
+                  raise Exception(
+                      "Couldn't read prefix from template. Consider adding 'prefix' to template or provide file name(s) for io files"
+                  )
+        elif isinstance(files, str):
+            file_in = files + ".in"
+            file_out = files + ".out"
+        elif isinstance(files, list):
+            file_in = files[0]
+            file_out = files[1]
+        return file_in, file_out
+
+    def run(self, command="", prepend = ""):
+        """
+        Execute command
+        """
+        if command == "":
+            command = f"{prepend} {self.code} < {self.file_in} > {self.file_out}"
+        Basher.runcommand(command)
+
+        return
+      

@@ -1,51 +1,36 @@
-from jhr.codes.espresso.study import QEChain
-from jhr.codes.espresso.study import BaseQENormalCalculation
-from jhr.codes.espresso.study import BaseQEConvergenceCalculation
 from jhr.codes.espresso.io import QEio
+from jhr.codes.espresso.study import BaseQENormalCalculation as QECalc
+from jhr.codes.espresso.study import BaseQEConvergenceCalculation as QEConv
+from jhr.codes.espresso.study import QEChain
 
 mat_file = "sample-scf.json"
-template = QEio.from_flat_JSON(mat_file)
 
-
-#Change 1: 
-#Read the template from the file or pass explicitly
-#If template is a "string" instead of dictionary then treat it as a path
-
-if not isinstance(template, dict): #template maybe a path
-    QEio.from_flat_JSON(template) 
-
-#Change 2:
-#For output
-#for files:
-# if no file is given
-if file is None:
-    try:
-        file_in = template['prefix']+'.in'
-        file_out = template['prefix']+'.out'
-    except:
-        raise Exception("Couldn't read prefix from template. Consider adding 'prefix' to template or provide file name(s) for io files")
-elif isinstance(file, str):
-    file_in = file+'.in'
-    file_out = file+'.out'
-elif isinstance(file, list):
-    file_in = file[0]
-    file_out = file[1]
-
-
-#------Calc 1-------
+# ------SCF/Relax-------
 code = "pw.x"
 update = {}
 files = ["scf.in", "scf.out"]
 
-scf = BaseQENormalCalculation(template, code, update=update, files=files, run=False) 
+#-------define calcs-------
+relax = QECalc(template=mat_file, code=code, files="scf", update=update, run=False)
+convergence = QEConv(template=mat_file, parameters={"ecutwfc": [2, 4, 5], "ecutrho": [10, 20, 30]}, code="pw.x")
 
 
-#------Calc 2-------
-convergence = BaseQEConvergenceCalculation(template, parameters = {'ecutwfc': [2,4,5], 'ecutrho': [1,2,3]}, code = 'pw.x')
+#------modifications------
+relax.ase_hacks(remove_ibrav=True, remove_cell_parameters=True, modify_atomic_positions=True)
 
-#-----Chain-------
-calcs = [scf, convergence]
+for each_calc in convergence:
+  each_calc.ase_hacks(remove_ibrav=True, remove_cell_parameters=True, modify_atomic_positions=True)
 
+#------create chain------
 
-chain = QEChain(calcs)
+chain = QEChain([relax, convergence])
 chain.run()
+
+
+
+
+
+
+
+
+
