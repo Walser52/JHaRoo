@@ -17,11 +17,15 @@ src/jhr/codes/W90.py
 src/jhr/codes/__init__.py
 src/jhr/codes/doped.py
 src/jhr/codes/espresso/__init__.py
+src/jhr/codes/espresso/calc.py
 src/jhr/codes/espresso/converger.py
 src/jhr/codes/espresso/io.py
+src/jhr/codes/espresso/study.py
+src/jhr/comp/crystals.py
 src/jhr/comp/phonons.py
 src/jhr/core/__init__.py
 src/jhr/core/convergers.py
+src/jhr/core/dag.py
 src/jhr/core/study.py
 src/jhr/io/__init__.py
 src/jhr/io/base.py
