@@ -6,18 +6,15 @@ from jhr.codes.espresso.study import QEChain
 mat_file = "sample-scf.json"
 
 # ------SCF/Relax-------
-code = "pw.x"
 update = {}
-files = ["scf.in", "scf.out"]
 
 #-------define calcs-------
-relax = QECalc(template=mat_file, code=code, files="scf", update=update, run=False)
-convergence = QEConv(template=mat_file, parameters={"ecutwfc": [2, 4, 5], "ecutrho": [10, 20, 30]}, code="pw.x")
+relax = QECalc(template=mat_file, code="pw.x", files="scf", update=update, run=False)
+convergence = QEConv(template=mat_file, parameters={"ecutwfc": [2, 4, 5], "ecutrho": [10, 20, 30]}, criteria="Total Energy", code="pw.x")
 
 
 #------modifications------
 relax.ase_hacks(remove_ibrav=True, remove_cell_parameters=True, modify_atomic_positions=True)
-
 for each_calc in convergence:
   each_calc.ase_hacks(remove_ibrav=True, remove_cell_parameters=True, modify_atomic_positions=True)
 

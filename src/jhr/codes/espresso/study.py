@@ -1,11 +1,12 @@
 import logging
 from typing import Dict, List, Union
-from jhr.codes.espresso.io import QEModifier
+
 import numpy as np
 from ase import Atoms
 from ase.io.espresso import (read_espresso_in, read_espresso_ph,
                              write_espresso_in, write_espresso_ph)
 
+from jhr.codes.espresso.io import QEModifier
 from jhr.core.study import BaseConvergenceCalculation, BaseNormalCalculation
 
 logging.basicConfig(
@@ -30,16 +31,18 @@ class QEChain:
     Create QE computaiton chains.
     """
 
-    def __init__(self, chain = []):
+    def __init__(self, chain=[]):
         self.chain = chain
 
-    def run(self, command = "", prepend = ""):
+    def run(self, command="", prepend=""):
         for each_calc in self.chain:
             each_calc.run(command, prepend)
 
 
 class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
-    def __init__(self, template, parameters, code="", method="grid", update={}):
+    def __init__(
+        self, template, parameters, criteria="", code="", method="grid", update={}
+    ):
         """
         Convergence is performed over a grid. Nested convergence is to be done manually (for now)
 
@@ -53,61 +56,32 @@ class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
 
 
         """
-        super().__init__(template, parameters, code, method, update)
+        super().__init__(template, parameters, criteria, code, method, update)
         self.prefix = self.template["prefix"]
 
-        # ----Create list of calcs---
-        def create_base_calcs(template, convs, vals):
-            """
-            Create base calcs. Returns a list of base normal calc objects.
-            """
-            calcs = []
-            name = "_".join(convs)
-            for i, combo in enumerate(vals):
-                update = {k: v for (k, v) in zip(convs, combo)}
+        self.calcs = self.create_base_calcs(template, self.params, self.vals)
 
-                files = [f"{self.prefix}{name}{i}.in", f"{self.prefix}{name}{i}.out"]
-                calcs.append(
-                    BaseQENormalCalculation(
-                        self.template.copy(),
-                        self.code,
-                        update=update,
-                        files=files,
-                        run=False,
-                    )
+        return
+
+    def create_base_calcs(self, template, convs, vals):
+        """
+        Create base calcs. Returns a list of base normal calc objects.
+        """
+        calcs = []
+        name = "_".join(convs)
+        for i, combo in enumerate(vals):
+            update = {k: v for (k, v) in zip(convs, combo)}
+
+            files = [f"{self.prefix}{name}{i}.in", f"{self.prefix}{name}{i}.out"]
+            calcs.append(
+                BaseQENormalCalculation(
+                    self.template.copy(),
+                    self.code,
+                    files=files,
+                    run=False,
                 )
-            return calcs
-
-        self.calcs = create_base_calcs(template, self.params, self.vals)
-
-        return
-
-    def create_calcs(self):
-        """
-        Create multiple calc objects using template.
-        """
-
-        return
-
-    def __len__(self):
-        return len(self.calcs)
-
-#    def __iter__(self):
-#        self.index = 1
-#        return self
-#
-#    def __next__(self):
-#        """
-#        Returns next base calculation
-#        """
-#        if self.index >= len(self.calcs):
-#            raise StopIteration
-#        next_calc = self.calcs[self.index]
-#        self.index += 1
-#        return next_calc
-
-    def __str__(self):
-        return "Convergence calculation QE"
+            )
+        return calcs
 
 
 class BaseQENormalCalculation(BaseNormalCalculation):
@@ -233,7 +207,9 @@ class BaseQENormalCalculation(BaseNormalCalculation):
         Some hacks for writing ase files for QE.
         """
         if remove_ibrav:
-            QEModifier.modify_file(QEModifier.remove_ibrav, self.file_in, verbose=verbose)
+            QEModifier.modify_file(
+                QEModifier.remove_ibrav, self.file_in, verbose=verbose
+            )
         if remove_cell_parameters:
             QEModifier.modify_file(
                 QEModifier.remove_cell_parameters, self.file_in, verbose=verbose
@@ -247,8 +223,6 @@ class BaseQENormalCalculation(BaseNormalCalculation):
             )
 
         return
-
-
 
     def update_template(update={}):
 
@@ -278,3 +252,8 @@ class BaseQENormalCalculation(BaseNormalCalculation):
         ase_dicts.append(ase_dict)
 
         return mod_templates, ase_dicts
+
+
+def QECriteriaGrep():
+    
+    pass

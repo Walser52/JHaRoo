@@ -59,18 +59,19 @@ class BaseConvergenceCalculation():
     """
     Base class for convergence calculations
     """
-    def __init__(self,  template, parameters, code="", method="grid", update = {}):
+    def __init__(self,  template, parameters, criteria="", code="", method="grid", update = {}):
         """
         Args:
           template (dict|str|path): Read template either from a dictionary or a json file path. 
           code (str): code to use
+          criteria = convergence criteria (i.e. parameter e.g. 'Total Energy')
           update: Global updates that maybe needed for the template.
         """
 
 
         self.code     = code
         self.template = self.read_template(template, update)
-
+        self.criteria = criteria
         self.parameters = parameters.keys()
 
         # Create convergence value table
@@ -127,12 +128,29 @@ class BaseConvergenceCalculation():
         """
         combinations = list(product(*vals))
         return combinations
-
-    def run(self, command="", prepend=""):
+    def run(self, command="", prepend="", check_conv = False, ):
+        """
+        Args:
+            check_conv (bool): True. Check convergence in parallel 
+        """
         for each_calc in self.calcs:
             each_calc.run(command, prepend)
+            #grep deta 
+            #Read each_calc.
+            if check_conv:
+                check_convergence()
+
+        return
+    def grep_criteria(self):
+        """
+        Look up the convergence criterion in the output file.
+        """
+        self.file_out
         return
 
+    def check_convergence(self):
+        
+        return
     def __iter__(self):
         self.index = 0
         return self
@@ -146,6 +164,15 @@ class BaseConvergenceCalculation():
         next_calc = self.calcs[self.index]
         self.index += 1
         return next_calc
+
+    def __len__(self):
+        return len(self.calcs)
+
+
+    def __str__(self):
+        return "Convergence calculation QE"
+
+
 
 
 class BaseNormalCalculation():

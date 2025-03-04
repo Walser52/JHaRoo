@@ -3,7 +3,6 @@ from jhr.codes.espresso.io import QEio, QEModifier
 from jhr.codes.espresso.study import BaseQEConvergenceCalculation as QEConv
 
 mat_file = "sample-scf.json"
-code = "pw.x"
 update = {}
 
 
