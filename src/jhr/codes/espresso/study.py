@@ -56,9 +56,17 @@ class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
 
 
         """
-        super().__init__(template, parameters, criteria, code, method, update)
+        grepper = QEGrepper(criteria)
+        super().__init__(template = template, 
+                         parameters = parameters, 
+                         code = code, 
+                         method = method, 
+                         update = update, 
+                         grepper = grepper
+                         )
         self.prefix = self.template["prefix"]
 
+        #Create calculation set for convergence.
         self.calcs = self.create_base_calcs(template, self.params, self.vals)
 
         return
@@ -224,9 +232,6 @@ class BaseQENormalCalculation(BaseNormalCalculation):
 
         return
 
-    def update_template(update={}):
-
-        return
 
     def _separate_args(self, templates: Union[Dict, List[Dict]]):
         """
@@ -254,6 +259,29 @@ class BaseQENormalCalculation(BaseNormalCalculation):
         return mod_templates, ase_dicts
 
 
-def QECriteriaGrep():
-    
-    pass
+class QEGrepper(Grepper):
+    def read_criteria(self, in_file = None, what = 'total energy'):
+        if what == 'total energy':
+            criteria = self.extract_number(in_file, starts_with = '!')
+        return criteria
+     
+
+class Grepper():
+    def extract_number(file_path, starts_with = '!') -> float:
+        """
+        Finds the line starting with '!' and extracts the number from it.
+        
+        Args:
+            file_path (str): Path to the file to be read.
+
+        Returns:
+            float: The number found in the comment line, or None if not found.
+        """
+        with open(file_path, 'r') as file:
+            for line in file:
+                if line.lstrip().startswith(starts_with):
+                    # Using regular expression to find numbers (integers or floating-point)
+                    match = re.search(r'!.*\s*(-?\d+(\.\d+)?)', line)
+                    if match:
+                        return float(match.group(1))  # Return the number as a float
+        return None  # If no line starting with '!' is found

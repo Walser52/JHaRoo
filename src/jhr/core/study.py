@@ -59,20 +59,22 @@ class BaseConvergenceCalculation():
     """
     Base class for convergence calculations
     """
-    def __init__(self,  template, parameters, criteria="", code="", method="grid", update = {}):
+    def __init__(self,  template, parameters, code="", method="grid", update = {}, grepper = None):
         """
         Args:
           template (dict|str|path): Read template either from a dictionary or a json file path. 
           code (str): code to use
           criteria = convergence criteria (i.e. parameter e.g. 'Total Energy')
           update: Global updates that maybe needed for the template.
+          grepper: Grepper class object for reading output files (to be provided by the code specific convergence class)
         """
 
 
-        self.code     = code
+        self.suite  = code.split('/')[0]
+        self.code     = code.split('/')[1]
         self.template = self.read_template(template, update)
-        self.criteria = criteria
         self.parameters = parameters.keys()
+        self.grepper = grepper
 
         # Create convergence value table
         def separate_params(parameters):
@@ -135,22 +137,14 @@ class BaseConvergenceCalculation():
         """
         for each_calc in self.calcs:
             each_calc.run(command, prepend)
-            #grep deta 
+            #grep deta
+            #self.grepper.read(each_calc)
             #Read each_calc.
             if check_conv:
                 check_convergence()
 
         return
-    def grep_criteria(self):
-        """
-        Look up the convergence criterion in the output file.
-        """
-        self.file_out
-        return
-
-    def check_convergence(self):
-        
-        return
+    
     def __iter__(self):
         self.index = 0
         return self
@@ -186,15 +180,15 @@ class BaseNormalCalculation():
         """
         Args:
           template (dict|str|path): Read template either from a dictionary or a json file path. 
-          code (str): code to use
+          code (str): suite and code to use. 'qe/pw.x'
           files: Names to use for files. 
                   If None given: Read from template['prefix']
                   If str given: Use that (append '.in' and '.out' for input and output
                   If list given: Use the first two as file names.
         """
 
-
-        self.code     = code
+        self.suite  = code.split('/')[0]
+        self.code     = code.split('/')[1]
         self.template = self.read_template(template, update)
         self.file_in, self.file_out    = self.figure_file_names(files, template)
 
