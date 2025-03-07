@@ -259,12 +259,6 @@ class BaseQENormalCalculation(BaseNormalCalculation):
         return mod_templates, ase_dicts
 
 
-class QEGrepper(Grepper):
-    def read_criteria(self, in_file = None, what = 'total energy'):
-        if what == 'total energy':
-            criteria = self.extract_number(in_file, starts_with = '!')
-        return criteria
-     
 
 class Grepper():
     def extract_number(file_path, starts_with = '!') -> float:
@@ -285,3 +279,11 @@ class Grepper():
                     if match:
                         return float(match.group(1))  # Return the number as a float
         return None  # If no line starting with '!' is found
+
+class QEGrepper(Grepper):
+    def read_criteria(self, in_file = None, what = 'total energy'):
+        if what == 'total energy':
+            criteria = self.extract_number(in_file, starts_with = '!')
+        return criteria
+     
+

@@ -1,9 +1,20 @@
 import json
 from ase import Atoms
+import tempfile
+import os
+import re
+from ase.io.espresso import read_espresso_in
+
 
 class QEio():
   def __init__():
     return 
+
+  @classmethod
+  def from_scfin(cls):
+
+    return 
+
 
   @classmethod
   def from_JSON(cls, file):
@@ -163,4 +174,39 @@ class QEModifier(Modifier):
                 new_lines.append(line)  # Keep this line if we are not skipping it
 
         return new_lines
+
+
+    @staticmethod
+    def remove_ibrav_and_read(input_filename):
+        """
+        Sets ibrav to 0 in a temp file and reads because ase does not read qe input file if ibrav != 0.
+
+        Returns;    
+          atoms
+          parameters
+        """
+        # Read the original input file
+        with open(input_filename, 'r') as f:
+            lines = f.readlines()
+        
+        # Modify lines: set any ibrav parameter to 0
+        new_lines = []
+        for line in lines:
+            if 'ibrav' in line.lower():
+                # Use a regular expression to replace the value after 'ibrav ='
+                line = re.sub(r'(ibrav\s*=\s*)\S+', r'\1 0', line, flags=re.IGNORECASE)
+            new_lines.append(line)
+        
+        # Write modified content to a temporary file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.in') as tmp:
+            temp_filename = tmp.name
+            tmp.writelines(new_lines)
+        
+        # Read the temporary file using ASE's read_espresso_in function
+        atoms, parameters = read_espresso_in(temp_filename)
+        
+        # Delete the temporary file
+        os.remove(temp_filename)
+        
+        return atoms, parameters
   
