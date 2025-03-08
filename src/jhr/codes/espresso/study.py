@@ -40,9 +40,10 @@ class QEChain:
 
 
 class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
-    def __init__(
-        self, template, parameters, criteria="", code="", method="grid", update={}
-    ):
+    """
+    QE Convergence calcualtion class
+    """
+    def __init__(self, template, parameters, criteria="", code="", method="grid", update={}):
         """
         Convergence is performed over a grid. Nested convergence is to be done manually (for now)
 
@@ -57,16 +58,17 @@ class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
 
         """
         grepper = QEGrepper(criteria)
-        super().__init__(template = template, 
-                         parameters = parameters, 
-                         code = code, 
-                         method = method, 
-                         update = update, 
-                         grepper = grepper
-                         )
+        super().__init__(
+            template=template,
+            parameters=parameters,
+            code=code,
+            method=method,
+            update=update,
+            grepper=grepper,
+        )
         self.prefix = self.template["prefix"]
 
-        #Create calculation set for convergence.
+        # Create calculation set for convergence.
         self.calcs = self.create_base_calcs(template, self.params, self.vals)
 
         return
@@ -232,7 +234,6 @@ class BaseQENormalCalculation(BaseNormalCalculation):
 
         return
 
-
     def _separate_args(self, templates: Union[Dict, List[Dict]]):
         """
         Sifts dictionary template into a format for ase. The file template is separated from other arguments.
@@ -259,29 +260,30 @@ class BaseQENormalCalculation(BaseNormalCalculation):
         return mod_templates, ase_dicts
 
 
-class QEGrepper(Grepper):
-    def read_criteria(self, in_file = None, what = 'total energy'):
-        if what == 'total energy':
-            criteria = self.extract_number(in_file, starts_with = '!')
-        return criteria
-     
-
-class Grepper():
-    def extract_number(file_path, starts_with = '!') -> float:
+class Grepper:
+    def extract_number(file_path, starts_with="!") -> float:
         """
         Finds the line starting with '!' and extracts the number from it.
-        
+
         Args:
             file_path (str): Path to the file to be read.
 
         Returns:
             float: The number found in the comment line, or None if not found.
         """
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             for line in file:
                 if line.lstrip().startswith(starts_with):
                     # Using regular expression to find numbers (integers or floating-point)
-                    match = re.search(r'!.*\s*(-?\d+(\.\d+)?)', line)
+                    match = re.search(r"!.*\s*(-?\d+(\.\d+)?)", line)
                     if match:
                         return float(match.group(1))  # Return the number as a float
         return None  # If no line starting with '!' is found
+
+class QEGrepper(Grepper):
+    def read_criteria(self, in_file=None, what="total energy"):
+        if what == "total energy":
+            criteria = self.extract_number(in_file, starts_with="!")
+        return criteria
+
+

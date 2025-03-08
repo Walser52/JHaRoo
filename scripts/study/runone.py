@@ -5,7 +5,7 @@ from jhr.codes.espresso.study import BaseQENormalCalculation as QECalc
 
 #SCF
 mat_file = "sample-scf.json"
-code = "pw.x"
+code = "qe/pw.x"
 update = {}
 
 
