@@ -263,7 +263,8 @@ class BaseConvergenceCalculation:
         return "Convergence calculation QE"
 
 
-class BaseNormalCalculation:
+
+class BaseNormalCalculation():
     """
     Args:
     calc_type = 'normal', 'convergence'
@@ -285,17 +286,19 @@ class BaseNormalCalculation:
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
         self.template = self.read_template(template, update)
-        self.file_in, self.file_out = self.figure_file_names(files, template)
 
-        return
+        self.file_in, self.file_out    = self.figure_file_names(files, template)
+        return 
 
     def read_template(self, template, update):
         """
         Read template from file depending on code.
         """
         if not isinstance(template, dict):
-            if self.suite == "qe":
+            #if extension is .json
+            if self.suite == 'qe':
                 template = QEio.from_flat_JSON(template)
+            #If extension is .in
         template.update({k: update[k] for k in update.keys()})
 
         return template
@@ -305,22 +308,22 @@ class BaseNormalCalculation:
         Figures out file names to use.
         """
 
-        if files is None:
-            if isinstance(template, str):
-                try:
-                    file_in = template + ".in"
-                    file_out = template + ".out"
-                except:
-                    raise Exception("Couldn't create file name from template name.")
-            else:  # if template is a dictionary
-                try:
-                    file_in = self.template["prefix"] + ".in"
-                    file_out = self.template["prefix"] + ".out"
-                except:
-                    raise Exception(
-                        "Couldn't read prefix from template. Consider adding 'prefix' to template or provide file name(s) for io files"
-                    )
-        elif isinstance(files, str):
+        # if files is None:
+        #     if isinstance(template, str):
+        #       try: 
+        #         file_in = template + ".in"
+        #         file_out = template + ".out"                
+        #       except:
+        #         raise Exception("Couldn't create file name from template name.")
+        #     else: #if template is a dictionary
+        #       try:
+        #           file_in = self.template["prefix"] + ".in"
+        #           file_out = self.template["prefix"] + ".out"
+        #       except:
+        #           raise Exception(
+        #               "Couldn't read prefix from template. Consider adding 'prefix' to template or provide file name(s) for io files"
+        #           )
+        if isinstance(files, str):
             file_in = files + ".in"
             file_out = files + ".out"
         elif isinstance(files, list):
