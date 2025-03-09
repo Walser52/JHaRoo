@@ -1,5 +1,5 @@
 
-     Program PWSCF v.6.7MaX starts on 25Dec2024 at 17: 3: 3 
+     Program PWSCF v.6.7MaX starts on  7Feb2025 at 15:27:11 
 
      This program is part of the open-source Quantum ESPRESSO suite
      for quantum simulation of materials; please cite
@@ -187,7 +187,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  4.14E-03,  avg # of iterations =  1.5
 
-     total cpu time spent up to now is        0.9 secs
+     total cpu time spent up to now is        0.8 secs
 
      total energy              =     -53.88226709 Ry
      estimated scf accuracy    <       0.16078423 Ry
@@ -259,7 +259,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  2.45E-04,  avg # of iterations =  1.8
 
-     total cpu time spent up to now is        1.6 secs
+     total cpu time spent up to now is        1.5 secs
 
      total energy              =     -53.96741414 Ry
      estimated scf accuracy    <       0.01207933 Ry
@@ -295,7 +295,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.97E-06,  avg # of iterations =  5.8
 
-     total cpu time spent up to now is        2.0 secs
+     total cpu time spent up to now is        1.9 secs
 
      total energy              =     -53.96679468 Ry
      estimated scf accuracy    <       0.00057619 Ry
@@ -304,7 +304,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.97E-06,  avg # of iterations =  4.2
 
-     total cpu time spent up to now is        2.1 secs
+     total cpu time spent up to now is        2.0 secs
 
      total energy              =     -53.96624695 Ry
      estimated scf accuracy    <       0.00305063 Ry
@@ -313,7 +313,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.97E-06,  avg # of iterations =  5.8
 
-     total cpu time spent up to now is        2.2 secs
+     total cpu time spent up to now is        2.1 secs
 
      total energy              =     -53.96686591 Ry
      estimated scf accuracy    <       0.00041425 Ry
@@ -322,7 +322,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.97E-06,  avg # of iterations =  4.2
 
-     total cpu time spent up to now is        2.3 secs
+     total cpu time spent up to now is        2.2 secs
 
      total energy              =     -53.96710076 Ry
      estimated scf accuracy    <       0.00509916 Ry
@@ -331,7 +331,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.97E-06,  avg # of iterations =  1.0
 
-     total cpu time spent up to now is        2.4 secs
+     total cpu time spent up to now is        2.3 secs
 
      total energy              =     -53.96684075 Ry
      estimated scf accuracy    <       0.00528941 Ry
@@ -385,7 +385,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.47E-08,  avg # of iterations =  1.0
 
-     total cpu time spent up to now is        2.9 secs
+     total cpu time spent up to now is        2.8 secs
 
      total energy              =     -53.96661854 Ry
      estimated scf accuracy    <       0.00000372 Ry
@@ -403,7 +403,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.47E-08,  avg # of iterations =  6.2
 
-     total cpu time spent up to now is        3.2 secs
+     total cpu time spent up to now is        3.1 secs
 
      total energy              =     -53.96661780 Ry
      estimated scf accuracy    <       0.00001246 Ry
@@ -412,7 +412,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.47E-08,  avg # of iterations =  3.8
 
-     total cpu time spent up to now is        3.3 secs
+     total cpu time spent up to now is        3.2 secs
 
      total energy              =     -53.96661792 Ry
      estimated scf accuracy    <       0.00000672 Ry
@@ -421,7 +421,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.47E-08,  avg # of iterations =  3.5
 
-     total cpu time spent up to now is        3.4 secs
+     total cpu time spent up to now is        3.3 secs
 
      total energy              =     -53.96661609 Ry
      estimated scf accuracy    <       0.00001011 Ry
@@ -430,7 +430,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.47E-08,  avg # of iterations =  5.8
 
-     total cpu time spent up to now is        3.5 secs
+     total cpu time spent up to now is        3.4 secs
 
      total energy              =     -53.96661845 Ry
      estimated scf accuracy    <       0.00000283 Ry
@@ -439,7 +439,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.41E-08,  avg # of iterations =  2.0
 
-     total cpu time spent up to now is        3.6 secs
+     total cpu time spent up to now is        3.5 secs
 
      total energy              =     -53.96661865 Ry
      estimated scf accuracy    <       0.00000328 Ry
@@ -457,7 +457,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  1.03E-08,  avg # of iterations =  1.0
 
-     total cpu time spent up to now is        3.7 secs
+     total cpu time spent up to now is        3.6 secs
 
      End of self-consistent calculation
 
@@ -499,7 +499,7 @@ Warning: card / ignored
      Writing output data file ../tmp/CsPbI3.save/
 
      init_run     :      0.24s CPU      0.24s WALL (       1 calls)
-     electrons    :      3.34s CPU      3.36s WALL (       1 calls)
+     electrons    :      3.28s CPU      3.29s WALL (       1 calls)
 
      Called by init_run:
      wfcinit      :      0.04s CPU      0.04s WALL (       1 calls)
@@ -507,39 +507,39 @@ Warning: card / ignored
      hinit0       :      0.19s CPU      0.19s WALL (       1 calls)
 
      Called by electrons:
-     c_bands      :      2.48s CPU      2.48s WALL (      35 calls)
-     sum_band     :      0.50s CPU      0.51s WALL (      35 calls)
-     v_of_rho     :      0.19s CPU      0.19s WALL (      36 calls)
-     newd         :      0.14s CPU      0.14s WALL (      36 calls)
+     c_bands      :      2.42s CPU      2.43s WALL (      35 calls)
+     sum_band     :      0.50s CPU      0.50s WALL (      35 calls)
+     v_of_rho     :      0.18s CPU      0.18s WALL (      36 calls)
+     newd         :      0.13s CPU      0.13s WALL (      36 calls)
      mix_rho      :      0.05s CPU      0.05s WALL (      35 calls)
 
      Called by c_bands:
      init_us_2    :      0.06s CPU      0.06s WALL (     284 calls)
-     cegterg      :      2.37s CPU      2.37s WALL (     140 calls)
+     cegterg      :      2.32s CPU      2.32s WALL (     140 calls)
 
      Called by *egterg:
-     cdiaghg      :      0.11s CPU      0.11s WALL (     568 calls)
-     h_psi        :      1.54s CPU      1.54s WALL (     572 calls)
+     cdiaghg      :      0.10s CPU      0.10s WALL (     568 calls)
+     h_psi        :      1.50s CPU      1.51s WALL (     572 calls)
      s_psi        :      0.21s CPU      0.21s WALL (     572 calls)
-     g_psi        :      0.02s CPU      0.03s WALL (     428 calls)
+     g_psi        :      0.03s CPU      0.03s WALL (     428 calls)
 
      Called by h_psi:
      h_psi:calbec :      0.20s CPU      0.20s WALL (     572 calls)
-     vloc_psi     :      1.11s CPU      1.12s WALL (     572 calls)
+     vloc_psi     :      1.08s CPU      1.08s WALL (     572 calls)
      add_vuspsi   :      0.22s CPU      0.22s WALL (     572 calls)
 
      General routines
-     calbec       :      0.28s CPU      0.28s WALL (     712 calls)
+     calbec       :      0.27s CPU      0.28s WALL (     712 calls)
      fft          :      0.07s CPU      0.07s WALL (     396 calls)
      ffts         :      0.01s CPU      0.01s WALL (      35 calls)
-     fftw         :      1.13s CPU      1.14s WALL (   12012 calls)
+     fftw         :      1.10s CPU      1.11s WALL (   12012 calls)
 
      Parallel routines
 
-     PWSCF        :      3.70s CPU      3.73s WALL
+     PWSCF        :      3.63s CPU      3.65s WALL
 
 
-   This run was terminated on:  17: 3: 7  25Dec2024            
+   This run was terminated on:  15:27:14   7Feb2025            
 
 =------------------------------------------------------------------------------=
    JOB DONE.

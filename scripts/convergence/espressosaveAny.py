@@ -4,15 +4,18 @@ from ase.io.espresso import write_fortran_namelist
 #input_data = {'outdir': '/path/to/output', 'prefix': 'prefix', 'verbosity': 'high'}
 
 input_data = {
-  'input': {'fildyn': 'prefix.dyn', 'zasr': 'crystal', 'flfrc':'prefix.fc'}
+  'bands': {'fildyn': 'prefix.dyn', 'zasr': 'crystal', 'flfrc':'prefix.fc'}
 } 
  
+#{'bands': dict(outdir  = '../tmp/', prefix  = f'{prefix}', filband = f'{prefix}.bands')}
 
 additional_cards = [
       'EXTERNAL_CHARGES (bohr)',
       '-0.5 0. 0. 25.697 1.0 2 3',
       '-0.5 0. 0. 20.697 1.0 2 3'
 ] # This will be added at the end of the file
+
+additional_cards = []
 
 with open('environ.in', 'w') as fd:
   write_fortran_namelist(fd, input_data, additional_cards = additional_cards)

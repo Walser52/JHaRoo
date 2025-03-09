@@ -5,11 +5,14 @@
 _cleaners:_
   Contains cleaning routines
 
+_codes_:
+  Builds on _core_ to create ab initio code specific routines. 
+
 _comp_:
   Internal computations. 
 
-_flow_:
-  Workflow routines for external codes. Routines that perform convergences etc in one go. 
+_core_:
+  Contains all the base classes.  
 
   _Development guide_: Should be pwtk independent. 
 

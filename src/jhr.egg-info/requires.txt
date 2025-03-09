@@ -1,0 +1,10 @@
+ase
+pandas
+matplotlib
+numpy
+
+[dev]
+check-manifest
+
+[test]
+coverage

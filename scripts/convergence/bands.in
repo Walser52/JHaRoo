@@ -1,5 +1,0 @@
-&BANDS
- outdir  = '../tmp/'
- prefix  = 'gr'
- filband = 'gr.bands'
-/
