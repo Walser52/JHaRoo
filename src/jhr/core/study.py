@@ -5,7 +5,7 @@ from itertools import product
 from ase.io.espresso import (read_espresso_in, read_espresso_ph,
                              write_espresso_in, write_espresso_ph)
 
-from jhr.codes.espresso.io import QEio, QEModifier
+from jhr.codes.espresso.io import QEFileHandler, QEModifier
 from jhr.io.base import Basher
 
 logging.basicConfig(
@@ -80,6 +80,7 @@ class BaseConvergenceCalculation:
           update: Global updates that maybe needed for the template.
           grepper: Grepper class object for reading output files (to be provided by the code specific convergence class)
         """
+        print(code)
 
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
@@ -137,7 +138,7 @@ class BaseConvergenceCalculation:
         """
         if not isinstance(template, dict):
             if self.suite == "qe":
-                template = QEio.from_flat_JSON(template)
+                template = QEFileHandler.from_flat_JSON(template)
         template.update({k: update[k] for k in update.keys()})
 
         return template
@@ -166,8 +167,8 @@ class BaseConvergenceCalculation:
             each_calc.run(command, prepend)
 
             # grep deta
-            converged_y.append(self.grepper.fetch(each_calc.file_out))
-            converged_x.append(vals)
+            #converged_y.append(self.grepper.fetch(each_calc.file_out))
+            #converged_x.append(vals)
 
             # ---plot (Remember vals might be a grid)
             # plt.plot(converged_x, converged_y, marker = 's')
@@ -196,10 +197,10 @@ class BaseConvergenceCalculation:
 
         # Check if convergence has been achieved and return converged value
         converged, self.converged_val = self.check_convergence(convergence_params, tolerance, relative)
-            if converged:
-                logging.info(f"Conv achieved {self.converged_val=}")
-                if break_on_converge:  # break loop if convergence achieved?
-                    return self.converged_val
+        if converged:
+            logging.info(f"Conv achieved {self.converged_val=}")
+            if break_on_converge:  # break loop if convergence achieved?
+                return self.converged_val
 
         return
 
@@ -297,7 +298,7 @@ class BaseNormalCalculation():
         if not isinstance(template, dict):
             #if extension is .json
             if self.suite == 'qe':
-                template = QEio.from_flat_JSON(template)
+                template = QEFileHandler.from_flat_JSON(template)
             #If extension is .in
         template.update({k: update[k] for k in update.keys()})
 

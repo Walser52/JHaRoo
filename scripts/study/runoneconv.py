@@ -7,7 +7,7 @@ update = {}
 
 
 
-scf_conv = QEConv(mat_file, parameters = {'ecutwfc': [2,4,5], 'ecutrho': [10,20,30]}, code = 'pw.x')
+scf_conv = QEConv(mat_file, parameters = {'ecutwfc': [2,4,5], 'ecutrho': [10,20,30]}, code = 'qe/pw.x')
 
 for each_calc in scf_conv:
     each_calc.ase_hacks(

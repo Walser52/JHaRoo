@@ -1,5 +1,5 @@
 
-     Program PWSCF v.6.7MaX starts on  3Mar2025 at 13:29:51 
+     Program PWSCF v.6.7MaX starts on  9Mar2025 at 13: 1: 8 
 
      This program is part of the open-source Quantum ESPRESSO suite
      for quantum simulation of materials; please cite
@@ -196,7 +196,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  4.00E-04,  avg # of iterations =  4.8
 
-     total cpu time spent up to now is        0.6 secs
+     total cpu time spent up to now is        0.7 secs
 
      total energy              =     -53.15821382 Ry
      estimated scf accuracy    <       0.03093059 Ry
@@ -300,19 +300,19 @@ Warning: card / ignored
      hinit0       :      0.15s CPU      0.15s WALL (       1 calls)
 
      Called by electrons:
-     c_bands      :      0.50s CPU      0.50s WALL (      12 calls)
+     c_bands      :      0.49s CPU      0.50s WALL (      12 calls)
      sum_band     :      0.10s CPU      0.10s WALL (      12 calls)
      v_of_rho     :      0.03s CPU      0.03s WALL (      13 calls)
-     newd         :      0.03s CPU      0.03s WALL (      13 calls)
-     mix_rho      :      0.00s CPU      0.01s WALL (      12 calls)
+     newd         :      0.02s CPU      0.02s WALL (      13 calls)
+     mix_rho      :      0.01s CPU      0.01s WALL (      12 calls)
 
      Called by c_bands:
      init_us_2    :      0.01s CPU      0.01s WALL (     100 calls)
-     cegterg      :      0.48s CPU      0.48s WALL (      48 calls)
+     cegterg      :      0.47s CPU      0.48s WALL (      48 calls)
 
      Called by *egterg:
      cdiaghg      :      0.03s CPU      0.03s WALL (     198 calls)
-     h_psi        :      0.33s CPU      0.33s WALL (     202 calls)
+     h_psi        :      0.32s CPU      0.32s WALL (     202 calls)
      s_psi        :      0.04s CPU      0.04s WALL (     202 calls)
      g_psi        :      0.00s CPU      0.00s WALL (     150 calls)
 
@@ -329,10 +329,10 @@ Warning: card / ignored
 
      Parallel routines
 
-     PWSCF        :      0.95s CPU      0.97s WALL
+     PWSCF        :      0.96s CPU      0.97s WALL
 
 
-   This run was terminated on:  13:29:52   3Mar2025            
+   This run was terminated on:  13: 1: 9   9Mar2025            
 
 =------------------------------------------------------------------------------=
    JOB DONE.

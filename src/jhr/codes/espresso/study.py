@@ -86,7 +86,7 @@ class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
             calcs.append(
                 BaseQENormalCalculation(
                     self.template.copy(),
-                    self.code,
+                    self.suite+'/'+self.code,
                     files=files,
                     run=False,
                 )
@@ -282,6 +282,12 @@ class Grepper():
         return None  # If no line starting with '!' is found
 
 class QEGrepper(Grepper):
+    def __init__(self, criteria):
+        self.criteria = criteria
+    
+    def fetch(self):
+        return 
+
     def read_criteria(self, in_file = None, what = 'total energy'):
         if what == 'total energy':
             criteria = self.extract_number(in_file, starts_with = '!')

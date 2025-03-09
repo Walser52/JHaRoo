@@ -1,5 +1,5 @@
 
-     Program PWSCF v.6.7MaX starts on  3Mar2025 at 13:29:56 
+     Program PWSCF v.6.7MaX starts on  9Mar2025 at 13: 1:14 
 
      This program is part of the open-source Quantum ESPRESSO suite
      for quantum simulation of materials; please cite
@@ -250,7 +250,7 @@ Warning: card / ignored
      Davidson diagonalization with overlap
      ethr =  3.57E-08,  avg # of iterations =  4.0
 
-     total cpu time spent up to now is        0.9 secs
+     total cpu time spent up to now is        1.0 secs
 
      End of self-consistent calculation
 
@@ -311,7 +311,7 @@ Warning: card / ignored
      cegterg      :      0.47s CPU      0.48s WALL (      48 calls)
 
      Called by *egterg:
-     cdiaghg      :      0.03s CPU      0.03s WALL (     198 calls)
+     cdiaghg      :      0.03s CPU      0.04s WALL (     198 calls)
      h_psi        :      0.32s CPU      0.32s WALL (     202 calls)
      s_psi        :      0.04s CPU      0.04s WALL (     202 calls)
      g_psi        :      0.00s CPU      0.00s WALL (     150 calls)
@@ -325,14 +325,14 @@ Warning: card / ignored
      calbec       :      0.05s CPU      0.05s WALL (     250 calls)
      fft          :      0.02s CPU      0.02s WALL (     143 calls)
      ffts         :      0.00s CPU      0.00s WALL (      12 calls)
-     fftw         :      0.27s CPU      0.27s WALL (    4262 calls)
+     fftw         :      0.26s CPU      0.27s WALL (    4262 calls)
 
      Parallel routines
 
-     PWSCF        :      0.94s CPU      0.96s WALL
+     PWSCF        :      0.93s CPU      0.97s WALL
 
 
-   This run was terminated on:  13:29:57   3Mar2025            
+   This run was terminated on:  13: 1:15   9Mar2025            
 
 =------------------------------------------------------------------------------=
    JOB DONE.
