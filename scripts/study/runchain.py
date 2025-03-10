@@ -10,7 +10,7 @@ update = {}
 
 #-------define calcs-------
 relax = QECalc(template=mat_file, code="pw.x", files="scf", update=update, run=False)
-convergence = QEConv(template=mat_file, parameters={"ecutwfc": [2, 4, 5], "ecutrho": [10, 20, 30]}, criteria="Total Energy", code="pw.x")
+convergence = QEConv(template=mat_file, parameters={"ecutwfc": [2, 4, 5], "ecutrho": [10, 20, 30]}, criteria="total energy", code="qe/pw.x")
 
 
 #------modifications------

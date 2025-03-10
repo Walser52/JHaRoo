@@ -1,3 +1,10 @@
-ecutwfc	total_energy
-2	8.0
-4	8.0
+ecutwfc	ecutrho	total_energy
+2	10	8.0
+2	20	8.0
+2	30	8.0
+4	10	8.0
+4	20	8.0
+4	30	8.0
+5	10	8.0
+5	20	8.0
+5	30	8.0

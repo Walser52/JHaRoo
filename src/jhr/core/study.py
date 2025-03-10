@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ase.io.espresso import (read_espresso_in, read_espresso_ph,
                              write_espresso_in, write_espresso_ph)
-
+import seaborn as sns
 from jhr.codes.espresso.io import QEFileHandler, QEModifier
 from jhr.io.base import Basher
 
@@ -195,41 +195,23 @@ class BaseConvergenceCalculation:
             data = []
 
             # Read TSV file
-            with open(filename, "r") as file:
-                for line in file:
-                    values = line.strip().split("\t")  # Split by tab
-                    try:
-                        values = [float(v) for v in values]  # Convert to numbers
-                        data.append(values)
-                    except ValueError:
-                        continue  # Skip non-numeric rows
 
-            data = np.array(data, dtype=object)  # Convert to NumPy array
+            df = pd.read_csv (filename, sep = '\t')
+            data = np.array(df, dtype=object)  # Convert to NumPy array
 
             plt.figure(figsize=(6, 4))  # Set figure size
 
+            x, y = df.columns[0], df.columns[-1]
+
             if data.shape[1] == 2:  # Case: Two columns (x, y)
-                plt.scatter(data[:, 0], data[:, 1], color="blue", label="Data")
-                plt.xlabel("X-axis")
-                plt.ylabel("Y-axis")
+                sns.lineplot(data=df, x=x, y=y, marker="o")
 
-            elif data.shape[1] == 3:  # Case: Three columns (x, category, y)
-                line_data = defaultdict(
-                    list
-                )  # Dictionary to store data for each category
+            elif data.shape[1] == 3:
+                hue = df.columns[1]
+                sns.lineplot(data=df, x=x, y=y, hue=hue, marker="o", palette="tab10")
 
-                for row in data:
-                    x, category, y = row
-                    line_data[category].append((x, y))  # Group by category
-
-                for category, points in line_data.items():
-                    points.sort()  # Sort by x for proper line plotting
-                    xs, ys = zip(*points)
-                    plt.plot(xs, ys, marker="o", label=f"Category {category}")
-
-                plt.xlabel("X-axis")
-                plt.ylabel("Y-axis")
-                plt.legend(title="Categories")
+            plt.xlabel(df.columns[0])
+            plt.ylabel(df.columns[-1])
 
             plt.savefig(output_pdf)  # Save as PDF
             plt.close()  # Close figure to free memory
@@ -316,27 +298,27 @@ class BaseConvergenceCalculation:
             return category_convergence if category_convergence else None  # Return dict for categories
         return None  # Return None if no convergence found
 
-    def check_convergence(
-        self,
-        tolerance=0.00001,
-        relative=True,
-        check_convergence=True,
-        break_on_converge=True,
-    ):
-        """
-        Check if convergence has been achieved.
-        """
-
-        # Check if convergence has been achieved and return converged value
-        converged, self.converged_val = self.check_convergence(
-            convergence_params, tolerance, relative
-        )
-        if converged:
-            logging.info(f"Conv achieved {self.converged_val=}")
-            if break_on_converge:  # break loop if convergence achieved?
-                return self.converged_val
-
-        return
+#    def check_convergence(
+#        self,
+#        tolerance=0.00001,
+#        relative=True,
+#        check_convergence=True,
+#        break_on_converge=True,
+#    ):
+#        """
+#        Check if convergence has been achieved.
+#        """
+#
+#        # Check if convergence has been achieved and return converged value
+#        converged, self.converged_val = self.check_convergence(
+#            convergence_params, tolerance, relative
+#        )
+#        if converged:
+#            logging.info(f"Conv achieved {self.converged_val=}")
+#            if break_on_converge:  # break loop if convergence achieved?
+#                return self.converged_val
+#
+#        return
 
     @staticmethod
     def check_convergence(values, tolerance=0.01, relative=True):
