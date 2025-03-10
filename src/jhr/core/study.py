@@ -1,7 +1,11 @@
 # study level classes.
 import logging
+import re
+from collections import defaultdict
 from itertools import product
-
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 from ase.io.espresso import (read_espresso_in, read_espresso_ph,
                              write_espresso_in, write_espresso_ph)
 
@@ -80,13 +84,13 @@ class BaseConvergenceCalculation:
           update: Global updates that maybe needed for the template.
           grepper: Grepper class object for reading output files (to be provided by the code specific convergence class)
         """
-        print(code)
 
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
         self.template = self.read_template(template, update)
         self.parameters = parameters.keys()
         self.grepper = grepper
+        self.converged = np.nan
         # create an appropriate grepper depending on suite/code.
 
         # Create convergence value table
@@ -98,6 +102,9 @@ class BaseConvergenceCalculation:
                 parameters (dict): {'kx, ky, kz':[[4,4,2], [6,6,4]],
                                     'ecutwfc': [10, 15, 30]
                                     }
+            Returns:
+                convs: List of parameters over which convergence is performed.
+                vals: List of list of value sets over which convergence is performed.
             """
             convs = []
             vals = []
@@ -119,7 +126,7 @@ class BaseConvergenceCalculation:
             if method == "nested":
                 [print(f"performing convergence on {c}") for c in convs]
                 print("NOT YET IMPLEMENTED")
-                raise Exception("Sorry, no numbers below zero")
+                raise Exception("Sorry, nested convergence not implemented")
             elif method == "grid":
                 combinations = self.convergence_combos(vals)
             return combinations
@@ -155,34 +162,159 @@ class BaseConvergenceCalculation:
         command="",
         prepend="",
         check_conv=False,
+        conv_threshold = 1e-6,
+        break_on_conv = False
     ):
         """
         Args:
             check_conv (bool): True. Check convergence in parallel
         """
-        # x and y of convergence calculations
+
+        def to_tsv(filename, calc_x, calc_y, mode):
+            """Append only the latest convergence result to a TSV file."""
+            formatted_x = (
+                "\t".join(map(str, calc_x))
+                if isinstance(calc_x, (list, tuple))
+                else str(calc_x)
+            )
+            formatted_y = (
+                "\t".join(map(str, calc_y))
+                if isinstance(calc_y, (list, tuple))
+                else str(calc_y)
+            )
+
+            with open(filename, mode=mode) as file:  # 'mode' controls overwrite/append
+                file.write(
+                    f"{formatted_x}\t{formatted_y}\n"
+                )  # Write values separated by a tab
+
+            return
+
+        def plot_tsv(filename, output_pdf="plot.pdf"):
+            """Reads a TSV file and plots scatter or line plots based on column count."""
+            data = []
+
+            # Read TSV file
+            with open(filename, "r") as file:
+                for line in file:
+                    values = line.strip().split("\t")  # Split by tab
+                    try:
+                        values = [float(v) for v in values]  # Convert to numbers
+                        data.append(values)
+                    except ValueError:
+                        continue  # Skip non-numeric rows
+
+            data = np.array(data, dtype=object)  # Convert to NumPy array
+
+            plt.figure(figsize=(6, 4))  # Set figure size
+
+            if data.shape[1] == 2:  # Case: Two columns (x, y)
+                plt.scatter(data[:, 0], data[:, 1], color="blue", label="Data")
+                plt.xlabel("X-axis")
+                plt.ylabel("Y-axis")
+
+            elif data.shape[1] == 3:  # Case: Three columns (x, category, y)
+                line_data = defaultdict(
+                    list
+                )  # Dictionary to store data for each category
+
+                for row in data:
+                    x, category, y = row
+                    line_data[category].append((x, y))  # Group by category
+
+                for category, points in line_data.items():
+                    points.sort()  # Sort by x for proper line plotting
+                    xs, ys = zip(*points)
+                    plt.plot(xs, ys, marker="o", label=f"Category {category}")
+
+                plt.xlabel("X-axis")
+                plt.ylabel("Y-axis")
+                plt.legend(title="Categories")
+
+            plt.savefig(output_pdf)  # Save as PDF
+            plt.close()  # Close figure to free memory
+            return
+
+        out_prefix = "converged"
+        file_out = out_prefix + ".dat"
+        plot_out = out_prefix + ".pdf"
+
+        to_tsv(
+            file_out,
+            "\t".join(self.params),
+            self.grepper.criteria.replace(" ", "_"),
+            "w",
+        )
+
+        #Loop over calculations
         converged_x = []
         converged_y = []
+
         for each_calc, vals in zip(self.calcs, self.vals):
             each_calc.run(command, prepend)
 
-            # grep deta
-            #converged_y.append(self.grepper.fetch(each_calc.file_out))
-            #converged_x.append(vals)
+            # grep deta, save data, and plot
+            calc_x, calc_y = vals, self.grepper.fetch(each_calc.file_out)
+            converged_y.append(calc_y)
+            converged_x.append(calc_x)
 
-            # ---plot (Remember vals might be a grid)
-            # plt.plot(converged_x, converged_y, marker = 's')
-            # plt.savefig(f'{file_out}.pdf')
+            to_tsv(file_out, calc_x, calc_y, mode="a")
+            plot_tsv(file_out, plot_out)
 
-            # ---write to file
-            # with open(file_out, 'a') as f:
-            #  f.write(f'{str(vals)}\t{str(conv_param)}\n')
-            # print(convergence_params)
-
+            #check convergence and possibly break loop
             if check_conv:
-                check_convergence()
+                conv_res = self.find_convergence(file_out, threshold = conv_threshold)
+                if conv_res: 
+                    self.converged = conv_res
+                    print(f"Convergence achieved at {','.join(self.params)} = {conv_res}")
+                    if break_on_conv: 
+                        print("Breaking loop")
+                        return self.converged;
 
-        return
+        return 
+
+
+
+    def find_convergence(self, filename, threshold):
+        """
+        Reads a TSV file and finds the first x value where y is within the convergence threshold.
+        
+        Parameters:
+        - filename (str): Path to the TSV file.
+        - threshold (float): Convergence criterion for y.
+        
+        Returns:
+        - float or None: The x value where convergence is first met, or None if not found.
+        """
+
+        data = np.array(pd.read_csv (filename, sep = '\t'))
+
+        if data.shape[1] == 2:  # Case: Two columns (x, y)
+            y_values = data[:, 1]
+            for i in range(1, len(y_values)):  # Start from the second row
+                if abs(y_values[i] - y_values[i - 1]) <= threshold:
+                    return data[i, 0]  # Return x where convergence is met
+
+        elif data.shape[1] == 3:  # Case: Three columns (x, category, y)
+            category_data = {}
+
+            for x, category, y in data:
+                category = int(category)  # Ensure categories are integers
+                if category not in category_data:
+                    category_data[category] = []
+                category_data[category].append((x, y))
+
+            category_convergence = {}
+
+            for category, points in category_data.items():
+                points.sort()  # Ensure sorted by x
+                for i in range(1, len(points)):
+                    if abs(points[i][1] - points[i - 1][1]) <= threshold:
+                        category_convergence[category] = points[i][0]  # Store first x where convergence is met
+                        break  # Stop checking once we find the first convergence
+
+            return category_convergence if category_convergence else None  # Return dict for categories
+        return None  # Return None if no convergence found
 
     def check_convergence(
         self,
@@ -196,7 +328,9 @@ class BaseConvergenceCalculation:
         """
 
         # Check if convergence has been achieved and return converged value
-        converged, self.converged_val = self.check_convergence(convergence_params, tolerance, relative)
+        converged, self.converged_val = self.check_convergence(
+            convergence_params, tolerance, relative
+        )
         if converged:
             logging.info(f"Conv achieved {self.converged_val=}")
             if break_on_converge:  # break loop if convergence achieved?
@@ -205,7 +339,7 @@ class BaseConvergenceCalculation:
         return
 
     @staticmethod
-    def check_convergence(values, tolerance=0.01, relative = True):
+    def check_convergence(values, tolerance=0.01, relative=True):
         """
         Check if the successive values in the list have converged based on relative error.
 
@@ -219,20 +353,18 @@ class BaseConvergenceCalculation:
         """
         converged = False
         value = np.nan
-        if len(values) > 1: 
+        if len(values) > 1:
 
-#          for i in range(1, len(values)):
-              # Calculate the relative error between successive values
-          relative_error = abs(values[-1] - values[-2]) / abs(values[-2]) * 100
-          
-          # Check if the relative error is within the tolerance
-          if relative_error < tolerance:
-              print("Convergence achieved")
-              converged = True
+            #          for i in range(1, len(values)):
+            # Calculate the relative error between successive values
+            relative_error = abs(values[-1] - values[-2]) / abs(values[-2]) * 100
 
+            # Check if the relative error is within the tolerance
+            if relative_error < tolerance:
+                print("Convergence achieved")
+                converged = True
 
-        return converged, value  
-
+        return converged, value
 
     @property
     def converged_val(self):
@@ -243,6 +375,7 @@ class BaseConvergenceCalculation:
     def converged_val(self, value: float):
         """Setter for the converged_val attribute to enforce a condition"""
         self._converged_val = value
+
     def __iter__(self):
         self.index = 0
         return self
@@ -264,8 +397,7 @@ class BaseConvergenceCalculation:
         return "Convergence calculation QE"
 
 
-
-class BaseNormalCalculation():
+class BaseNormalCalculation:
     """
     Args:
     calc_type = 'normal', 'convergence'
@@ -288,18 +420,18 @@ class BaseNormalCalculation():
         self.code = code.split("/")[1]
         self.template = self.read_template(template, update)
 
-        self.file_in, self.file_out    = self.figure_file_names(files, template)
-        return 
+        self.file_in, self.file_out = self.figure_file_names(files, template)
+        return
 
     def read_template(self, template, update):
         """
         Read template from file depending on code.
         """
         if not isinstance(template, dict):
-            #if extension is .json
-            if self.suite == 'qe':
+            # if extension is .json
+            if self.suite == "qe":
                 template = QEFileHandler.from_flat_JSON(template)
-            #If extension is .in
+            # If extension is .in
         template.update({k: update[k] for k in update.keys()})
 
         return template
@@ -307,23 +439,13 @@ class BaseNormalCalculation():
     def figure_file_names(self, files=None, template=None):
         """
         Figures out file names to use.
+        Args:
+            files (str) | (list): If str. Use {files}.in and {files}.out. If list then use the first two as file names.
+
+        Returns:
+            file names.
         """
 
-        # if files is None:
-        #     if isinstance(template, str):
-        #       try: 
-        #         file_in = template + ".in"
-        #         file_out = template + ".out"                
-        #       except:
-        #         raise Exception("Couldn't create file name from template name.")
-        #     else: #if template is a dictionary
-        #       try:
-        #           file_in = self.template["prefix"] + ".in"
-        #           file_out = self.template["prefix"] + ".out"
-        #       except:
-        #           raise Exception(
-        #               "Couldn't read prefix from template. Consider adding 'prefix' to template or provide file name(s) for io files"
-        #           )
         if isinstance(files, str):
             file_in = files + ".in"
             file_out = files + ".out"
@@ -341,3 +463,36 @@ class BaseNormalCalculation():
         Basher.runcommand(command)
 
         return
+
+
+class Grepper:
+    """
+    Class for handling reading and writing. Every code should implement its own grepper e.g. QEGrepper.
+    """
+
+    def __init__(self, criteria=""):
+        """
+        Args:
+            grep (str): a string for the thing which is to be grepped. e.g. 'total energy'. Each code specific grepper will have its own methods for processing any possible `grep`.
+        """
+        self.criteria = criteria
+        return
+
+    def extract_number(self, file_path, starts_with="!") -> float:
+        """
+        Finds the line starting with '!' and extracts the number from it.
+
+        Args:
+            file_path (str): Path to the file to be read.
+
+        Returns:
+            float: The number found in the comment line, or None if not found.
+        """
+        with open(file_path, "r") as file:
+            for line in file:
+                if line.lstrip().startswith(starts_with):
+                    # Using regular expression to find numbers (integers or floating-point)
+                    match = re.search(r"!.*\s*(-?\d+(\.\d+)?)", line)
+                    if match:
+                        return float(match.group(1))  # Return the number as a float
+        return None  # If no line starting with '!' is found
