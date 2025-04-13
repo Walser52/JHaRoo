@@ -8,6 +8,7 @@ from ase.io.espresso import (read_espresso_in, read_espresso_ph,
 
 from jhr.codes.espresso.io import QEModifier
 from jhr.core.study import BaseConvergenceCalculation, BaseNormalCalculation
+from jhr.core.study import Grepper
 
 logging.basicConfig(
     filename="app.log",
@@ -57,6 +58,7 @@ class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
 
 
         """
+        #Create the grepper (and any other code specific tools and pass to base convergence calculator
         grepper = QEGrepper(criteria)
         super().__init__(
             template=template,
@@ -86,7 +88,7 @@ class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
             calcs.append(
                 BaseQENormalCalculation(
                     self.template.copy(),
-                    self.code,
+                    self.suite+'/'+self.code,
                     files=files,
                     run=False,
                 )
@@ -261,27 +263,18 @@ class BaseQENormalCalculation(BaseNormalCalculation):
 
 
 
-class Grepper():
-    def extract_number(file_path, starts_with = '!') -> float:
-        """
-        Finds the line starting with '!' and extracts the number from it.
-
-        Args:
-            file_path (str): Path to the file to be read.
-
-        Returns:
-            float: The number found in the comment line, or None if not found.
-        """
-        with open(file_path, "r") as file:
-            for line in file:
-                if line.lstrip().startswith(starts_with):
-                    # Using regular expression to find numbers (integers or floating-point)
-                    match = re.search(r"!.*\s*(-?\d+(\.\d+)?)", line)
-                    if match:
-                        return float(match.group(1))  # Return the number as a float
-        return None  # If no line starting with '!' is found
-
 class QEGrepper(Grepper):
+    def __init__(self, criteria):
+        super().__init__(criteria)
+    
+    def fetch(self, from_file = None):
+        """
+
+        """
+        if self.criteria == 'total energy':
+            val = self.extract_number(from_file, starts_with = '!')
+        return val 
+
     def read_criteria(self, in_file = None, what = 'total energy'):
         if what == 'total energy':
             criteria = self.extract_number(in_file, starts_with = '!')
