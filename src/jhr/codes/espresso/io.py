@@ -5,6 +5,7 @@ import os
 import re
 from ase.io.espresso import read_espresso_in
 from jhr.io.base import FileHandler
+from pathlib import Path
 
 class QEFileHandler(FileHandler):
   #Card list in different QE input files. 
@@ -19,7 +20,22 @@ class QEFileHandler(FileHandler):
     card_list.extend(v)
 
 
-  def __init__(self):
+  def __init__(self, template):
+    """
+    Args:
+        template (str|path): File path with template. Could be json or qe input.
+    """
+
+    filepath = Path(template)
+    name, ext = filepath.stem, filepath.suffix
+
+    if ext == '.in':
+        new_file = filepath.with_suffix('.json')
+        self.qeinput2json(file_in = template, file_out = new_file, update = {})
+
+    
+    self.template = self.from_flat_JSON(new_file)
+
     return 
 
   @classmethod

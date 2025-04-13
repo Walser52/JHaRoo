@@ -408,12 +408,18 @@ class BaseNormalCalculation:
     def read_template(self, template, update):
         """
         Read template from file depending on code.
+
+        If template is dict:
+            update dict and return template. 
+
+        Else:
+            Call relevant file handler for code.
+
         """
         if not isinstance(template, dict):
-            # if extension is .json
             if self.suite == "qe":
-                template = QEFileHandler.from_flat_JSON(template)
-            # If extension is .in
+                template = QEFileHandler(template).template
+
         template.update({k: update[k] for k in update.keys()})
 
         return template

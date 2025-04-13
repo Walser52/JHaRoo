@@ -181,7 +181,11 @@ class BaseQENormalCalculation(BaseNormalCalculation):
             if key in template.keys():
                 atoms_dict[key] = template.pop(key)
         symbols = template.pop("atoms")
-
+       
+        #saves any numbers after positions. Potentially dangerous
+        atoms_ifpos =  [site[4:] for site in atoms_dict['positions']]
+        atoms_dict['positions'] = [site[0:3] for site in atoms_dict['positions']]
+        
         atoms = Atoms(symbols, **atoms_dict)
 
         return atoms, template
