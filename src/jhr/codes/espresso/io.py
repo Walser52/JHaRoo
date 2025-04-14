@@ -6,6 +6,7 @@ import re
 from ase.io.espresso import read_espresso_in
 from jhr.io.base import FileHandler
 from pathlib import Path
+from _helpers import Dicter, Constants
 
 class QEFileHandler(FileHandler):
   #Card list in different QE input files. 
@@ -95,25 +96,25 @@ class QEFileHandler(FileHandler):
 
     return matdict
 
-  def flatten_dict(self, d):
-      """
-      Flattens a nested dict by removing parents. Helps in reading scf input file.
-      """
-      items = []
-      for k, v in d.items():
-          new_key = f"{k}" 
-
-          try:
-            v = v.data
-          except:
-            pass
-
-          if isinstance(v, dict):
-              items.extend(self.flatten_dict(v).items())
-          else:
-              items.append((new_key, v))
-
-      return dict(items)
+#  def flatten_dict(self, d):
+#      """
+#      Flattens a nested dict by removing parents. Helps in reading scf input file.
+#      """
+#      items = []
+#      for k, v in d.items():
+#          new_key = f"{k}" 
+#
+#          try:
+#            v = v.data
+#          except:
+#            pass
+#
+#          if isinstance(v, dict):
+#              items.extend(self.flatten_dict(v).items())
+#          else:
+#              items.append((new_key, v))
+#
+#      return dict(items)
 
 
 
@@ -216,7 +217,7 @@ class QEFileHandler(FileHandler):
 
     #Split cards according to QE namelists and cards. 
     cards_dict = self.additional_cards_splitter(additional_cards)
-    flattened_dict = self.flatten_dict(input_data)
+    flattened_dict = Dicter.flatten_dict(input_data)
 
     #Parse cards into dictionaries.
     parsed = {}
@@ -368,8 +369,8 @@ class PWParse:
 
 
   def __init__(self):
-    self.BOHRtoA = 0.529177249
-    self.RYtoeV = 13.605698066
+    self.BOHRtoA = constants.BOHRtoA
+    self.RYtoeV = constants.RYtoeV
     self.program_version = ""
     self.volume = 0.0
     self.alat = 0.0
@@ -428,13 +429,13 @@ class PWParse:
           self.RhoCut = float(i.split()[4])*self.RYtoeV
           next
         if "convergence threshold" in i:
-          self.Econv = float(i.split()[3])
+          self.Econv = float(i.split()[4])
           next
         if "mixing beta" in i:
           self.beta = float(i.split()[3])
           next
         if "Exchange-correlation" in i:
-          self.Exch = i.split()[2]
+          self.Exch = i.split()[1]
           next
         if "a(1) =" in i:
           tmp = i.split()
@@ -521,13 +522,24 @@ class PWParse:
         emax[counter] = j[np.searchsorted(j,  0.0,side='right')]
         counter += 1
       self.bandgap = float(np.min(emax-emin))
+    
+    def to_JSON(self):
+        """
+        Convert to JSON
+        """
+        for i in self.lattice:
+          self.lattice[i] = self.lattice[i].tolist() 
+        self.bnddiagram = self.bnddiagram.tolist() #JSON doesnt like numpy arrays
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    
 
-  def to_JSON(self):
-  """
-  Convert to JSON
-  """
-    for i in self.lattice:
-      self.lattice[i] = self.lattice[i].tolist() 
-    self.bnddiagram = self.bnddiagram.tolist() #JSON doesnt like numpy arrays
-    return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
- 
+    def to_pandas(self):
+        """
+        Convert JSON to pandas dataframe. 
+        """
+        data = json.loads(json_str)
+        # Strategy: flatten the top-level keys for simple values
+        flat_data = {k: v for k, v in data.items()}
+        # Convert to a single-row DataFrame
+        df = pd.DataFrame([flat_data]).T
+        return df

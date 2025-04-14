@@ -1,4 +1,4 @@
-#Extract relaxed parameters
+
 
 #from jhr.codes.espresso.io import QEio
 from jhr.codes.espresso.study import BaseQENormalCalculation as QECalc
@@ -9,6 +9,9 @@ from jhr.codes.espresso.study import QEChain
 
 mat_file = "../input/relax/relax.in"
 mat_file = "/home/fes33/Documents/GIK - R&D/Personal - Papers and Reports/--Libraries/abinit/jhr/scripts/inputfiles/relax/relax.in"
+import os
+print(os.getcwd())
+mat_file = "./scripts/inputfiles/relax/relax.in"
 # ------SCF/Relax-------
 update = {}
 

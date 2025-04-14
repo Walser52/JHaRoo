@@ -9,8 +9,10 @@ import numpy as np
 from ase.io.espresso import (read_espresso_in, read_espresso_ph,
                              write_espresso_in, write_espresso_ph)
 import seaborn as sns
-from jhr.codes.espresso.io import QEFileHandler, QEModifier
 from jhr.io.base import Basher
+
+from typing import List, Optional
+from collections import deque
 
 logging.basicConfig(
     filename="app.log",
@@ -387,7 +389,7 @@ class BaseNormalCalculation:
     code:   'pw.x'
     """
 
-    def __init__(self, template=None, code="", update={}, files=None):
+    def __init__(self, template=None, code="", update={}, files=None, filehandler = None):
         """
         Args:
           template (dict|str|path): Read template either from a dictionary or a json file path.
@@ -396,10 +398,13 @@ class BaseNormalCalculation:
                   If None given: Read from template['prefix']
                   If str given: Use that (append '.in' and '.out' for input and output
                   If list given: Use the first two as file names.
+          filehandler: A filehandler object for reading templates. 
         """
 
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
+        self.filehandler = filehandler
+
         self.template = self.read_template(template, update)
 
         self.file_in, self.file_out = self.figure_file_names(files, template)
@@ -416,9 +421,9 @@ class BaseNormalCalculation:
             Call relevant file handler for code.
 
         """
+
         if not isinstance(template, dict):
-            if self.suite == "qe":
-                template = QEFileHandler(template).template
+            template = self.filehandler(template).template
 
         template.update({k: update[k] for k in update.keys()})
 
@@ -484,3 +489,48 @@ class Grepper:
                     if match:
                         return float(match.group(1))  # Return the number as a float
         return None  # If no line starting with '!' is found
+
+
+    def grep_file(
+        file_path: str,
+        starts_with: Optional[str] = None,
+        ends_with: Optional[str] = None,
+        contains: Optional[str] = None,
+        case_sensitive: bool = True,
+        before: int = 0,
+        after: int = 0
+    ) -> List[str]:
+        matched_lines = []
+        context_before = deque(maxlen=before)
+        after_counter = 0
+
+        def match(line: str) -> bool:
+            l = line if case_sensitive else line.lower()
+            if starts_with and not l.startswith(starts_with if case_sensitive else starts_with.lower()):
+                return False
+            if ends_with and not l.rstrip().endswith(ends_with if case_sensitive else ends_with.lower()):
+                return False
+            if contains and (contains if case_sensitive else contains.lower()) not in l:
+                return False
+            return True
+
+        with open(file_path, 'r') as f:
+            lines = list(f)
+            i = 0
+            while i < len(lines):
+                line = lines[i]
+                if match(line):
+                    # Add before-context
+                    start = max(0, i - before)
+                    end = min(len(lines), i + after + 1)
+                    for j in range(start, end):
+                        matched_lines.append(lines[j].rstrip())
+                    matched_lines.append('---')  # separator between matches
+                    i += after  # skip the lines we've already included
+                i += 1
+
+        # Remove last separator if present
+        if matched_lines and matched_lines[-1] == '---':
+            matched_lines.pop()
+
+        return matched_lines
