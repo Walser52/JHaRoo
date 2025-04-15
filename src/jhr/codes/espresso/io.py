@@ -6,7 +6,8 @@ import re
 from ase.io.espresso import read_espresso_in
 from jhr.io.base import FileHandler
 from pathlib import Path
-from _helpers import Dicter, Constants
+from jhr._helpers import Dicter, Constants
+import pandas as pd
 
 class QEFileHandler(FileHandler):
   #Card list in different QE input files. 
@@ -369,8 +370,8 @@ class PWParse:
 
 
   def __init__(self):
-    self.BOHRtoA = constants.BOHRtoA
-    self.RYtoeV = constants.RYtoeV
+    self.BOHRtoA = Constants.BOHRtoA
+    self.RYtoeV = Constants.RYtoeV
     self.program_version = ""
     self.volume = 0.0
     self.alat = 0.0
@@ -523,23 +524,24 @@ class PWParse:
         counter += 1
       self.bandgap = float(np.min(emax-emin))
     
-    def to_JSON(self):
-        """
-        Convert to JSON
-        """
-        for i in self.lattice:
-          self.lattice[i] = self.lattice[i].tolist() 
-        self.bnddiagram = self.bnddiagram.tolist() #JSON doesnt like numpy arrays
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    
+  def to_JSON(self):
+    """
+    Convert to JSON
+    """
+    for i in self.lattice:
+      self.lattice[i] = self.lattice[i].tolist() 
+    self.bnddiagram = self.bnddiagram.tolist() #JSON doesnt like numpy arrays
+    return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+  
 
-    def to_pandas(self):
-        """
-        Convert JSON to pandas dataframe. 
-        """
-        data = json.loads(json_str)
-        # Strategy: flatten the top-level keys for simple values
-        flat_data = {k: v for k, v in data.items()}
-        # Convert to a single-row DataFrame
-        df = pd.DataFrame([flat_data]).T
-        return df
+  def to_pandas(self):
+    """
+    Convert JSON to pandas dataframe. 
+    """
+    json_str = self.to_JSON()
+    data = json.loads(json_str)
+    # Strategy: flatten the top-level keys for simple values
+    flat_data = {k: v for k, v in data.items()}
+    # Convert to a single-row DataFrame
+    df = pd.DataFrame([flat_data]).T
+    return df
