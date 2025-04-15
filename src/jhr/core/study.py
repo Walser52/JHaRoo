@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 
-class Chain:
+class Chain:
     def __init__(self):
         pipe = ["pw_convA", "pw_convB", "pw_convC"]
         pass
@@ -381,6 +381,12 @@ class BaseConvergenceCalculation:
         return "Convergence calculation QE"
 
 
+from pathlib import Path
+from typing import Union, List, Tuple
+
+
+
+
 class BaseNormalCalculation:
     """
     Args:
@@ -389,7 +395,7 @@ class BaseNormalCalculation:
     code:   'pw.x'
     """
 
-    def __init__(self, template=None, code="", update={}, files=None, filehandler = None):
+    def __init__(self, template=None, code="", update={}, files=None, filehandler = None, parser = None):
         """
         Args:
           template (dict|str|path): Read template either from a dictionary or a json file path.
@@ -404,10 +410,12 @@ class BaseNormalCalculation:
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
         self.filehandler = filehandler
+        self.parser = parser
 
-        self.template = self.read_template(template, update)
+        self.file_in, self.file_out = resolve_io_files(template, files)
+        self.file_json = self.file_in.with_suffix(".json")
+        self.template = self.filehandler(self.file_in).contents #convert to json if needed.
 
-        self.file_in, self.file_out = self.figure_file_names(files, template)
         return
 
     def read_template(self, template, update):
@@ -422,34 +430,83 @@ class BaseNormalCalculation:
 
         """
 
-        if not isinstance(template, dict):
-            template = self.filehandler(template).template
 
         template.update({k: update[k] for k in update.keys()})
 
         return template
 
-    def figure_file_names(self, files=None, template=None):
+    def resolve_io_files(template: Union[dict, str, Path], 
+                         files: Union[None, str, Path, List[Union[str, Path]]] = None
+                        ) -> Tuple[Path, Path]:
         """
-        Figures out file names to use.
-        Args:
-            files (str) | (list): If str. Use {files}.in and {files}.out. If list then use the first two as file names.
+        Determines input and output file paths based on the template and files argument.
+
+        If template is dict:
+            If files is None:
+                Raise error.
+            If files is str/Path:
+                Use it to generate names for both input as well as output using .in as suffix for input and .out as suffix for output.
+            
+            If files is list (2 elements) of str/path:
+                use first element to create input, second to create output.
+
+        If template is not dict:
+            if files is None:
+                Use the template to create the filenames.
+
+            If files is str/path:
+                Use it to determine the output of the filepath
+
+            If files is list (2 elements) of str/path:
+                use first element to create input, second to create output.
 
         Returns:
-            file names.
+            A tuple of (input_path, output_path)
         """
+        
+        def to_path(p):
+            return p if isinstance(p, Path) else Path(p)
 
-        if isinstance(files, str):
-            file_in = files + ".in"
-            file_out = files + ".out"
-        elif isinstance(files, list):
-            file_in = files[0]
-            file_out = files[1]
-        return file_in, file_out
+        # Case: template is a dict
+        if isinstance(template, dict):
+            if files is None:
+                raise ValueError("You must provide a file path for output when passing template as a dict.")
+            
+            if isinstance(files, (str, Path)):
+                base = to_path(files)
+                input_path = base.with_suffix(".in")
+                output_path = base.with_suffix(".out")
 
+            elif isinstance(files, list) and len(files) == 2:
+                input_path = to_path(files[0])
+                output_path = to_path(files[1])
+
+            else:
+                raise TypeError("files must be str/Path or a list of two str/Path when template is a dict.")
+
+        # Case: template is not a dict
+        else:
+            if files is None:
+                # derive from template
+                base = to_path(template)
+                input_path = base.with_suffix(".in")
+                output_path = base.with_suffix(".out")
+
+            elif isinstance(files, (str, Path)):
+                output_path = to_path(files)
+                input_path = to_path(template)
+
+            elif isinstance(files, list) and len(files) == 2:
+                input_path = to_path(files[0])
+                output_path = to_path(files[1])
+
+            else:
+                raise TypeError("files must be None, str/Path or list of two str/Path when template is not a dict.")
+
+        return input_path, output_path
     def run(self, command="", prepend=""):
         """
-        Execute command
+        Execute command. If complete command is not given then uses prepend, code, file_in and file_out to generate a command.
         """
         if command == "":
             command = f"{prepend} {self.code} < {self.file_in} > {self.file_out}"

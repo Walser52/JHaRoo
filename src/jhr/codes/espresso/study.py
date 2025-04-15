@@ -129,12 +129,12 @@ class BaseQENormalCalculation(BaseNormalCalculation):
                   If list given: Use the first two as file names.
         """
         # Read and update template; set code; decide file names to use for .in/.out files
-        super().__init__(template, code, update, files, QEFileHandler)
+        super().__init__(template, code, update, files, QEFileHandler, QEParser)
 
         self.result = np.nan
 
         ase_dict, qe_template = self.extract_ase_dict(self.template)
-        self._save_file(self.file_in, qe_template, ase_dict, self.code)
+        self._save_file(self.file_in, qe_template, ase_dict, self.code) #create final .in
 
         if run:
             self.run()
@@ -276,31 +276,7 @@ class BaseQENormalCalculation(BaseNormalCalculation):
 
         return
 
-#    def _separate_args(self, templates: Union[Dict, List[Dict]]):
-#        """
-#        Sifts dictionary template into a format for ase. The file template is separated from other arguments.
-#
-#        Args:
-#        templates
-#
-#        Returns:
-#        mod_templates: modified by popping out unnecessary keys. Accepts a single dict or a list of dicts.
-#        ase_dicts: other options to be passed to ase.
-#        """
-#
-#        if isinstance(templates, dict):
-#            templates = [templates]
-#
-#        ase_dicts, mod_templates = [], []
-#
-#        for template in templates:
-#            ase_dict, template = self.extract_ase_dict(template)
-#
-#        mod_templates.append(template)
-#        ase_dicts.append(ase_dict)
-#
-#        return mod_templates, ase_dicts
-#
+
 
 
 class QEGrepper(Grepper):

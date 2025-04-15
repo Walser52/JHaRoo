@@ -16,7 +16,14 @@ mat_file = "./scripts/inputfiles/relax/relax.in"
 update = {}
 
 #-------define calcs-------
-relax = QECalc(template=mat_file, code="qe/pw.x", files="scf", update=update, run=False)
+#relax = QECalc(template=mat_file, code="qe/pw.x", files="scf", update=update, run=False)
+
+from jhr.codes.espresso.io import PWParse
+
+outfile = "/home/fahad/Documents/Work/repos/Abinitio-Codes/scripts/inputfiles/relax.out"
+
+
+
 #convergence = QEConv(template=mat_file, parameters={"ecutwfc": [2, 4, 5], "ecutrho": [10, 20, 30]}, criteria="total energy", code="qe/pw.x")
 
 
