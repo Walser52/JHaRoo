@@ -6,6 +6,9 @@ from ase import Atoms
 from ase.io.espresso import (read_espresso_in, read_espresso_ph,
                              write_espresso_in, write_espresso_ph)
 
+from jhr.codes.espresso.io import QEFileHandler, QEModifier
+
+import re
 from jhr.codes.espresso.io import QEModifier
 from jhr.core.study import BaseConvergenceCalculation, BaseNormalCalculation
 from jhr.core.study import Grepper
@@ -126,12 +129,12 @@ class BaseQENormalCalculation(BaseNormalCalculation):
                   If list given: Use the first two as file names.
         """
         # Read and update template; set code; decide file names to use for .in/.out files
-        super().__init__(template, code, update, files)
+        super().__init__(template, code, update, files, QEFileHandler, QEParser)
 
         self.result = np.nan
 
         ase_dict, qe_template = self.extract_ase_dict(self.template)
-        self._save_file(self.file_in, qe_template, ase_dict, self.code)
+        self._save_file(self.file_in, qe_template, ase_dict, self.code) #create final .in
 
         if run:
             self.run()
@@ -141,13 +144,37 @@ class BaseQENormalCalculation(BaseNormalCalculation):
         """
         Pops out ase_dict elements from template.
 
-        Args: template
+        Args: 
+            template
         Returns:
         ase_dict
         template: modified by popping ase_dict
         """
+        def gen_atoms_from_template(template):
+            """
+            Extract atoms object from template.
 
-        atoms, template = self.gen_atoms_from_template(template)
+            Returns:
+              atoms: ase's atoms object.
+              template: modified template.
+            """
+            # Create atoms object from template
+            atoms_dict = {}
+            for key in ["positions", "cell", "pbc"]:
+                if key in template.keys():
+                    atoms_dict[key] = template.pop(key)
+            symbols = template.pop("atoms")
+           
+            #saves any numbers after positions. Potentially dangerous
+            atoms_ifpos =  [site[4:] for site in atoms_dict['positions']]
+            atoms_dict['positions'] = [site[0:3] for site in atoms_dict['positions']]
+            
+            atoms = Atoms(symbols, **atoms_dict)
+
+            return atoms, template
+
+        #Create Atoms object from template and pop atoms.
+        atoms, template = gen_atoms_from_template(template)
 
         # Create ase dict for other options
         ase_dict = {"atoms": atoms}
@@ -167,24 +194,7 @@ class BaseQENormalCalculation(BaseNormalCalculation):
 
         return ase_dict, template
 
-    def gen_atoms_from_template(self, template):
-        """
-        Extract atoms object from template.
 
-        Returns:
-          atoms: ase's atoms object.
-          template: modified template.
-        """
-        # Create atoms object from template
-        atoms_dict = {}
-        for key in ["positions", "cell", "pbc"]:
-            if key in template.keys():
-                atoms_dict[key] = template.pop(key)
-        symbols = template.pop("atoms")
-
-        atoms = Atoms(symbols, **atoms_dict)
-
-        return atoms, template
 
     def _save_file(self, filename, template, ase_dict: dict = {}, code: str = "ph.x"):
         """
@@ -196,14 +206,44 @@ class BaseQENormalCalculation(BaseNormalCalculation):
           ase_dict: other options. See ase's documentation.
 
         """
-        #        print(filename, template, ase_dict)
+        #set ibrav to 0 (because ase doesn't work with ibrav!=0)
+        if 'ibrav' in template.keys():
+            ibrav = template['ibrav']
+            template['ibrav'] = 0
 
+        #write file
+        print(filename)
         with open(filename, "w") as f:
             if code == "pw.x":
                 write_espresso_in(f, input_data=template, **ase_dict)
             if code == "ph.x":
                 write_espresso_ph(f, template, **ase_dict)
 
+        #return ibrav to its original value
+        def update_ibrav(input_path, output_path=None, old_val="0", new_val="4"):
+            """
+            Manually insert ibrav 
+            """
+            with open(input_path, 'r') as f:
+                lines = f.readlines()
+
+            updated_lines = []
+            for line in lines:
+                if 'ibrav' in line:
+                    # Replace only if ibrav = old_val (to avoid incorrect replacements)
+                    line = re.sub(rf'\bibrav\s*=\s*{old_val}\b', f'ibrav = {new_val}', line)
+                updated_lines.append(line)
+
+            # Write to output (overwrite if output_path is None)
+            if output_path is None:
+                output_path = input_path
+
+            with open(output_path, 'w') as f:
+                f.writelines(updated_lines)
+        
+        update_ibrav(filename, new_val = ibrav)
+
+        #log 
         logging.info(f"Saved {filename=}")
         return
 
@@ -236,30 +276,6 @@ class BaseQENormalCalculation(BaseNormalCalculation):
 
         return
 
-    def _separate_args(self, templates: Union[Dict, List[Dict]]):
-        """
-        Sifts dictionary template into a format for ase. The file template is separated from other arguments.
-
-        Args:
-        templates
-
-        Returns:
-        mod_templates: modified by popping out unnecessary keys. Accepts a single dict or a list of dicts.
-        ase_dicts: other options to be passed to ase.
-        """
-
-        if isinstance(templates, dict):
-            templates = [templates]
-
-        ase_dicts, mod_templates = [], []
-
-        for template in templates:
-            ase_dict, template = self.extract_ase_dict(template)
-
-        mod_templates.append(template)
-        ase_dicts.append(ase_dict)
-
-        return mod_templates, ase_dicts
 
 
 

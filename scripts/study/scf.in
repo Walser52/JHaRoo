@@ -1,23 +1,28 @@
 &CONTROL
-   calculation      = 'scf'
+   calculation      = 'relax'
    outdir           = '../tmp/'
-   prefix           = 'CsPbI3'
+   prefix           = 'gr'
+   etot_conv_thr    = 1e-05
+   forc_conv_thr    = 0.0001
    pseudo_dir       = '../pseudo/'
 /
 &SYSTEM
-   a                = 6.27514229
-   nat              = 3
-   ntyp             = 3
-   ecutwfc          = 5
+   ibrav            = 0
+   a                = 2.4623
+   c                = 10.0
+   nat              = 2
+   ntyp             = 1
+   ecutwfc          = 60
    occupations      = 'smearing'
-   degauss          = 0.0146997236
-   smearing         = 'cold'
-   space_group      = 221
+   degauss          = 0.02
+   smearing         = 'mv'
 /
 &ELECTRONS
-   conv_thr         = 1e-06
+   conv_thr         = 1e-09
+   mixing_beta      = 0.7
 /
 &IONS
+   ion_dynamics     = 'bfgs'
 /
 &CELL
 /
@@ -26,16 +31,17 @@
 &RISM
 /
 ATOMIC_SPECIES
-Cs 132.90545196 C.pbe-n-rrkjus_psl.0.1.UPF
-Pb 207.2 C.pbe-n-rrkjus_psl.0.1.UPF
-I 126.90447 C.pbe-n-rrkjus_psl.0.1.UPF
+C 12.011 C.pbe-n-rrkjus_psl.0.1.UPF
 
 K_POINTS automatic
-2 2 2  0 0 0
+12 12 1  0 0 0
 
+CELL_PARAMETERS angstrom
+0.00000000000000 0.00000000000000 0.00000000000000
+0.00000000000000 0.00000000000000 0.00000000000000
+0.00000000000000 0.00000000000000 0.00000000000000
 
-ATOMIC_POSITIONS crystal_sg
-Cs 0.5000000000 0.5000000000 0.5000000000  
-Pb 0.0000000000 0.0000000000 0.0000000000  
-I 0.0000000000 0.0000000000 0.5000000000  
+ATOMIC_POSITIONS angstrom
+C 0.3333333330 0.6666666660 0.5000000000  
+C 0.6666666660 0.3333333330 0.4000000000  
 
