@@ -31,19 +31,57 @@ class Linkers:
         modify: Calc object (or list thereof) for which an update dictionary is generated?
     """
 
-    def __init__(self, link = None, from = None, modify = None):
+    def __init__(self, link = None, from = None, modify = None, func = None):
         self.link = link
         self.from = from
+        self.func = func
 
         if not isinstance(list, modify):
             self.modify = [modify]
         #Case I:
             #Extract linker from parser (which is passed)
-            link_val = from.parser.data.loc[link, :][0]
-            update = {link: link_val}
-            [eachcalc.update_template(update) for eachcalc in self.modify]
+            #link_val = from.parser.data.loc[link, :][0]
+            #update = {link: link_val}
+            #[eachcalc.update_template(update) for eachcalc in self.modify]
             
             
 
         return
+
+    def link(self):
+        #use parser to extract value to link. 
+            #the value may come from the df associated with the parser
+        link_val = self._retrieve_link_val(link)
+
+#        link_val = self.from.parser.data.loc[link, :][0]
+            #or it may come through a special function (less likely)
+        update = {link: link_val}
+        [eachcalc.update_template(update, savefile = True) for eachcalc in self.modify]
+    
+        return
+
+    def _retrieve_link_val(self, link):
+        """
+        Retrieve the value that is to be updated. 
+        """
+        #Parser should have retrieving functions for three (possible) cases:
+        #Case I: Dataframe already has the value
+        #Case II: Link value is the convergence output
+        #Case III:  
+        retriever = getattr(self.from.parser, self.func)
+        link_val = retriever()
+        
+        return link_val        
+
+
+
+
+class QELinker(Linker):
+
+    def __init__(self):
+        pass
+
+    def link(self):
+        return
+
 

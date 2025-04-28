@@ -10,6 +10,7 @@ from ase.io.espresso import (read_espresso_in, read_espresso_ph,
 from jhr.codes.espresso.io import QEFileHandler, QEModifier
 from jhr.core.study import (BaseConvergenceCalculation, BaseNormalCalculation,
                             Grepper)
+from jhr.io.linkers import QELinker
 
 logging.basicConfig(
     filename="app.log",
@@ -131,20 +132,32 @@ class BaseQENormalCalculation(BaseNormalCalculation):
                   If list given: Use the first two as file names.
         """
         # Read and update template; set code; decide file names to use for .in/.out files
-        super().__init__(template, code, update, files, QEFileHandler, QEParser)
+        #Determine: self.template, self.code, self.file_in, self.file_out, make updates, 
+        super().__init__(template, code, update, files, QEFileHandler, QEParser, QELinker)
 
         self.result = np.nan
 
-        ase_dict, qe_template = self.extract_ase_dict(self.template)
-        self._save_file(
-            self.file_in, qe_template, ase_dict, self.code
-        )  # create final .in
+        #Generate QE input file from self.template
+        self.create_file_in()
+
 
         if run:
             self.run()
         return
 
-    def extract_ase_dict(self, template, return_atoms=False):
+    def create_file_in(self):
+        """
+        Write whatever self.template is to file given by self.file_in
+        """
+        ase_dict, qe_template = self._extract_ase_dict(self.template.copy())
+        self._save_file(
+            self.file_in, qe_template, ase_dict, self.code
+        )  # create final .in
+
+
+        return
+
+    def _extract_ase_dict(self, template, return_atoms=False):
         """
         Pops out ase_dict elements from template.
 

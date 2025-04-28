@@ -414,7 +414,7 @@ class BaseNormalCalculation:
 
         return
 
-    def update_template(self, update):
+    def update_template(self, update, savefile = False):
         """
         Update self.template (dict) using update (dict)
 
@@ -424,7 +424,12 @@ class BaseNormalCalculation:
         """
 
 
-        return self.template.update({k: update[k] for k in update.keys()})
+        self.template.update({k: update[k] for k in update.keys()})
+        if savefile:
+            #write to file
+            pass
+        return self.template
+
 
 
     def resolve_io_files(template: Union[dict, str, Path], 
@@ -503,6 +508,13 @@ class BaseNormalCalculation:
         if command == "":
             command = f"{prepend} {self.code} < {self.file_in} > {self.file_out}"
         Basher.runcommand(command)
+        
+        #check if calculation is successful
+        #if linking is needed, then update calculations downstream.
+        if self.linker.link:
+            self.linker.link()
+            #Link caclulated value to all relevant calculations
+            pass
 
         return
 
