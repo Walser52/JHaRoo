@@ -11,7 +11,9 @@ from ase.io.espresso import (read_espresso_in, read_espresso_ph,
 import seaborn as sns
 from jhr.io.base import Basher
 
-from typing import List, Optional
+from pathlib import Path
+from typing import Union, List, Tuple, Optional
+
 from collections import deque
 
 logging.basicConfig(
@@ -23,7 +25,7 @@ logging.basicConfig(
 )
 
 
-class Chain:
+class Chain:
     def __init__(self):
         pipe = ["pw_convA", "pw_convB", "pw_convC"]
         pass
@@ -35,7 +37,7 @@ class Chain:
         pass
 
 
-class Calculation:
+class Calculation: 
     """
     Args:
     calc_type = 'normal', 'convergence'
@@ -381,12 +383,6 @@ class BaseConvergenceCalculation:
         return "Convergence calculation QE"
 
 
-from pathlib import Path
-from typing import Union, List, Tuple
-
-
-
-
 class BaseNormalCalculation:
     """
     Args:
@@ -418,22 +414,18 @@ class BaseNormalCalculation:
 
         return
 
-    def read_template(self, template, update):
+    def update_template(self, update):
         """
-        Read template from file depending on code.
+        Update self.template (dict) using update (dict)
 
-        If template is dict:
-            update dict and return template. 
-
-        Else:
-            Call relevant file handler for code.
+        Return:
+            Updated self.template
 
         """
 
 
-        template.update({k: update[k] for k in update.keys()})
+        return self.template.update({k: update[k] for k in update.keys()})
 
-        return template
 
     def resolve_io_files(template: Union[dict, str, Path], 
                          files: Union[None, str, Path, List[Union[str, Path]]] = None

@@ -4,6 +4,9 @@ import re
 import tempfile
 from pathlib import Path
 
+import sys
+import numpy as np
+
 import pandas as pd
 from ase import Atoms
 from ase.io.espresso import read_espresso_in
@@ -315,12 +318,6 @@ class QEOutParser:
         if code == "pw.x":
             self.parser = PWParse()
         return
-
-
-import json
-import sys
-
-import numpy as np
 
 
 class PWParse:
