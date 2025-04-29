@@ -51,11 +51,11 @@ class Linkers:
     def link(self):
         #use parser to extract value to link. 
             #the value may come from the df associated with the parser
-        link_val = self._retrieve_link_val(link)
+        update = self._retrieve_link_val(link)
 
 #        link_val = self.from.parser.data.loc[link, :][0]
             #or it may come through a special function (less likely)
-        update = {link: link_val}
+        #update = {link: link_val}
         [eachcalc.update_template(update, savefile = True) for eachcalc in self.modify]
     
         return

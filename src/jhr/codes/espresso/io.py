@@ -220,7 +220,7 @@ class QEFileHandler(FileHandler):
 
 
 # =================Modifiers==================
-from jhr.io.modifier import Modifier
+from jhr.io.modifiers import Modifier
 
 
 class QEModifier(Modifier):
@@ -517,4 +517,24 @@ class PWParse:
                 self.data.loc["Fermi_energy"] = [val, "eV", "Fermi level"]
                 continue
         return self.data
+    def lattice_vectors(self):
+        a_v = self.data.loc['a_vector'][0]
+        b_v =  self.data.loc['b_vector'][0]
+        c_v =  self.data.loc['c_vector'][0]
+        alat = self.data.loc['alat'][0]
+        
+        if {a_v,b_v,c_v} == {[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]}
+            vals = {'cell': [1,1,1], 'a': alat}
+
+        return vals
+    def atomic_positions(self):
+        atm = [at[0] for at in df.loc['atomic_positions'][0]]
+        atoms = ''.join(atm)
+
+        positions = [at[1:] for at in df.loc['atomic_positions'][0]]
+
+        return {'atoms': atoms, 'positions': positions}
+    
+
+
     
