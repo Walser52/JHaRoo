@@ -7,7 +7,7 @@ from ase import Atoms
 from ase.io.espresso import (read_espresso_in, read_espresso_ph,
                              write_espresso_in, write_espresso_ph)
 
-from jhr.codes.espresso.io import QEFileHandler, QEModifier
+from jhr.codes.espresso.io import QEFileHandler, QEModifier, QEOutParser
 from jhr.core.study import (BaseConvergenceCalculation, BaseNormalCalculation,
                             Grepper)
 from jhr.io.linkers import QELinker
@@ -35,12 +35,23 @@ class QEChain:
     Create QE computaiton chains.
     """
 
-    def __init__(self, chain=[]):
+    def __init__(self, chain=[], linker = None):
+        """
+        QE Chain object for connecting calculations
+        Args:
+            chain = list of calculation objects
+            linker = Linker object for linking outputs to inputs downstream.
+        """
         self.chain = chain
+        self.linker = linker
 
     def run(self, command="", prepend=""):
         for each_calc in self.chain:
             each_calc.run(command, prepend)
+
+    def link(self, source = None, target = None, link = None):
+        #Use the parser to extract data and update the other input templates downstream. 
+        return
 
 
 class BaseQEConvergenceCalculation(BaseConvergenceCalculation):
@@ -133,7 +144,7 @@ class BaseQENormalCalculation(BaseNormalCalculation):
         """
         # Read and update template; set code; decide file names to use for .in/.out files
         #Determine: self.template, self.code, self.file_in, self.file_out, make updates, 
-        super().__init__(template, code, update, files, QEFileHandler, QEParser, QELinker)
+        super().__init__(template, code, update, files, QEFileHandler, QEOutParser)
 
         self.result = np.nan
 

@@ -401,14 +401,17 @@ class BaseNormalCalculation:
                   If str given: Use that (append '.in' and '.out' for input and output
                   If list given: Use the first two as file names.
           filehandler: A filehandler object for reading templates. 
+          parser: A Parser object for parsing output files
+          [Remove] linker: A Linker object for linking outputs of calculations to inputs of subsequent calculations in a chain.
         """
 
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
         self.filehandler = filehandler
         self.parser = parser
+        #self.linker = linker
 
-        self.file_in, self.file_out = resolve_io_files(template, files)
+        self.file_in, self.file_out = self.resolve_io_files(template, files)
         self.file_json = self.file_in.with_suffix(".json")
         self.template = self.filehandler(self.file_in).contents #convert to json if needed.
 
@@ -432,7 +435,7 @@ class BaseNormalCalculation:
 
 
 
-    def resolve_io_files(template: Union[dict, str, Path], 
+    def resolve_io_files(self, template: Union[dict, str, Path], 
                          files: Union[None, str, Path, List[Union[str, Path]]] = None
                         ) -> Tuple[Path, Path]:
         """

@@ -523,7 +523,7 @@ class PWParse:
         c_v =  self.data.loc['c_vector'][0]
         alat = self.data.loc['alat'][0]
         
-        if {a_v,b_v,c_v} == {[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]}
+        if {a_v,b_v,c_v} == {[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]}:
             vals = {'cell': [1,1,1], 'a': alat}
 
         return vals
