@@ -1,0 +1,43 @@
+&CONTROL
+   calculation      = 'nscf'
+   outdir           = '../tmp/'
+   prefix           = 'gr'
+   pseudo_dir       = '../pseudo/'
+/
+&SYSTEM
+   ibrav = 4
+   a                = 2.4639055825
+   c                = 15.0
+   nat              = 2
+   ntyp             = 1
+   nbnd             = 16
+   ecutwfc          = 40
+   occupations      = 'tetrahedra'
+/
+&ELECTRONS
+   conv_thr         = 1e-06
+   mixing_beta      = 0.7
+/
+&IONS
+/
+&CELL
+/
+&FCP
+/
+&RISM
+/
+ATOMIC_SPECIES
+C 12.011 C.pbe-n-rrkjus_psl.0.1.UPF
+
+K_POINTS automatic
+48 48 1  0 0 0
+
+CELL_PARAMETERS angstrom
+0.00000000000000 0.00000000000000 0.00000000000000
+0.00000000000000 0.00000000000000 0.00000000000000
+0.00000000000000 0.00000000000000 0.00000000000000
+
+ATOMIC_POSITIONS angstrom
+C 0.3333333330 0.6666666660 0.5000000000  
+C 0.6666666660 0.3333333330 0.5000000000  
+

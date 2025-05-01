@@ -11,7 +11,9 @@ from ase.io.espresso import (read_espresso_in, read_espresso_ph,
 import seaborn as sns
 from jhr.io.base import Basher
 
-from typing import List, Optional
+from pathlib import Path
+from typing import Union, List, Tuple, Optional
+
 from collections import deque
 
 logging.basicConfig(
@@ -23,7 +25,7 @@ logging.basicConfig(
 )
 
 
-class Chain:
+class Chain:
     def __init__(self):
         pipe = ["pw_convA", "pw_convB", "pw_convC"]
         pass
@@ -35,7 +37,7 @@ class Chain:
         pass
 
 
-class Calculation:
+class Calculation: 
     """
     Args:
     calc_type = 'normal', 'convergence'
@@ -381,12 +383,6 @@ class BaseConvergenceCalculation:
         return "Convergence calculation QE"
 
 
-from pathlib import Path
-from typing import Union, List, Tuple
-
-
-
-
 class BaseNormalCalculation:
     """
     Args:
@@ -405,37 +401,41 @@ class BaseNormalCalculation:
                   If str given: Use that (append '.in' and '.out' for input and output
                   If list given: Use the first two as file names.
           filehandler: A filehandler object for reading templates. 
+          parser: A Parser object for parsing output files
+          [Remove] linker: A Linker object for linking outputs of calculations to inputs of subsequent calculations in a chain.
         """
 
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
         self.filehandler = filehandler
         self.parser = parser
+        #self.linker = linker
 
-        self.file_in, self.file_out = resolve_io_files(template, files)
+        self.file_in, self.file_out = self.resolve_io_files(template, files)
         self.file_json = self.file_in.with_suffix(".json")
         self.template = self.filehandler(self.file_in).contents #convert to json if needed.
 
         return
 
-    def read_template(self, template, update):
+    def update_template(self, update, savefile = False):
         """
-        Read template from file depending on code.
+        Update self.template (dict) using update (dict)
 
-        If template is dict:
-            update dict and return template. 
-
-        Else:
-            Call relevant file handler for code.
+        Return:
+            Updated self.template
 
         """
 
 
-        template.update({k: update[k] for k in update.keys()})
+        self.template.update({k: update[k] for k in update.keys()})
+        if savefile:
+            #write to file
+            pass
+        return self.template
 
-        return template
 
-    def resolve_io_files(template: Union[dict, str, Path], 
+
+    def resolve_io_files(self, template: Union[dict, str, Path], 
                          files: Union[None, str, Path, List[Union[str, Path]]] = None
                         ) -> Tuple[Path, Path]:
         """
@@ -511,6 +511,13 @@ class BaseNormalCalculation:
         if command == "":
             command = f"{prepend} {self.code} < {self.file_in} > {self.file_out}"
         Basher.runcommand(command)
+        
+        #check if calculation is successful
+        #if linking is needed, then update calculations downstream.
+        if self.linker.link:
+            self.linker.link()
+            #Link caclulated value to all relevant calculations
+            pass
 
         return
 
