@@ -534,7 +534,70 @@ class PWParse:
         positions = [at[1:] for at in df.loc['atomic_positions'][0]]
 
         return {'atoms': atoms, 'positions': positions}
-    
+
+    def band_occupancy(self, file):
+        def _extract_occupancy(file, keywords, num_KS_states):
+            with open(file, 'r') as file:
+                text = file.read()
+                
+            occupancy_dict={}
+            
+            for keyword in keywords:
+                parts = text.split(keyword)
+                print(f"Found {len(parts)-1} occurrences of {keyword}")
+                numbers = []
+                for part in parts[1:]:
+                    lines = part.splitlines()
+                    
+                    values = []
+                    for line in lines:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        for word in line.split():
+                            try:
+                                values.append(float(word))
+                                if len(values) == num_KS_states:
+                                    break
+                            except ValueError:
+                                continue
+                        if len(values) == num_KS_states:
+                            break
+                    numbers.append(np.array(values))
+                    occupancy_dict[keyword] = np.array(numbers)
+
+            return occupancy_dict
+        def _find_kpoints(lines):
+            """
+            Extract kpoints from file
+            """
+            
+            kpoints = []
+
+            for line in lines:
+                if 'k =' in line and 'wk =' not in line:
+                    # Extract the first three floats after "k ="
+                    floats = re.findall(r'[-+]?\d*\.\d+|\d+', line)
+                    kpoints.append([float(f) for f in floats[:3]])
+            k_array = np.array(kpoints)   
+            return k_array
+
+        num_KS_states = self.data.loc['bands'][0]
+
+        keywords = ['bands (ev)', 'occupation numbers']
+        occupancy_dict = _extract_occupancy(file, keywords, num_KS_states)
+        
+        occupancy_dict['bands_array'] = occupancy_dict.pop('bands (ev)')
+        occupancy_dict['occupancy_array'] = occupancy_dict.pop('occupation numbers')
+
+        with open(file, 'r') as f:
+            lines = f.readlines()
+            occupancy_dict['kpoint_array'] = _find_kpoints(lines)
+ 
+
+        return occupancy_dict
+
+            
 
 
     
