@@ -62,13 +62,13 @@ class Calculation:
         self.suite = code.lower().split("/")[0]
         self.code = code.lower().split("/")[1]
         self.mode = mode.lower()
-        if self.suite == "qe" or self.suite == "espresso":
-            if self.mode == "normal":
-                self.calc = BaseQENormalCalculation(
-                    template, code, files=files, run=run
-                )
-            elif self.mode == "convergence":
-                self.calc = BaseQEConvergenceCalculation(template, code, settings, run)
+#        if self.suite == "qe" or self.suite == "espresso":
+#            if self.mode == "normal":
+#                self.calc = BaseQENormalCalculation(
+#                    template, code, files=files, run=run
+#                )
+#            elif self.mode == "convergence":
+#                self.calc = BaseQEConvergenceCalculation(template, code, settings, run)
         return
 
 
@@ -493,7 +493,7 @@ class BaseNormalCalculation:
                 output_path = base.with_suffix(".out")
 
             elif isinstance(files, (str, Path)):
-                output_path = to_path(files)
+                output_path = to_path(files).with_suffix(".out")
                 input_path = to_path(template)
 
             elif isinstance(files, list) and len(files) == 2:
@@ -514,10 +514,9 @@ class BaseNormalCalculation:
         
         #check if calculation is successful
         #if linking is needed, then update calculations downstream.
-        if self.linker.link:
-            self.linker.link()
+        #if self.linker.link:
+        #    self.linker.link()
             #Link caclulated value to all relevant calculations
-            pass
 
         return
 

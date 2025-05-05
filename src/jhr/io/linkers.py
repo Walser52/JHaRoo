@@ -29,33 +29,25 @@ class Linker:
     Args:
         source: Parser or file
         modify: Calc object (or list thereof) for which an update dictionary is generated?
+        func: source argument's method which is to be called.
     """
 
-    def __init__(self, link = None, source = None, modify = None, func = None):
-        self.link = link
+    def __init__(self, source = None, modify = None, func = None):
         self.source = source
         self.func = func
 
         if not isinstance(list, modify):
             self.modify = [modify]
-        #Case I:
-            #Extract linker from parser (which is passed)
-            #link_val = source.parser.data.loc[link, :][0]
-            #update = {link: link_val}
-            #[eachcalc.update_template(update) for eachcalc in self.modify]
-            
-            
+
 
         return
 
     def link(self):
-        #use parser to extract value to link. 
-            #the value may come from the df associated with the parser
-        update = self._retrieve_link_val(link)
 
-#        link_val = self.source.parser.data.loc[link, :][0]
-            #or it may come through a special function (less likely)
-        #update = {link: link_val}
+        retriever = getattr(self.source.parser, self.func)
+        update = retriever()
+        #update = self._retrieve_link_val(link)
+
         [eachcalc.update_template(update, savefile = True) for eachcalc in self.modify]
     
         return
@@ -77,11 +69,20 @@ class Linker:
 
 
 class QELinker(Linker):
+    """
+    QE class for linking values across calculations.
+    """
 
-    def __init__(self):
-        pass
+    def __init__(self, link = None, source = None, target = None):
+        #Determine function needed to extract data.
+        if link in ['atomic positions', 'atomic_positions']:
+            func = 'atomic_positions'
 
-    def link(self):
+        super.__init__(source = source, target = target, func = func)
+        self.link()    
         return
+
+#    def link(self):
+#        return
 
 

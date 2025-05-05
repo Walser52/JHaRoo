@@ -36,11 +36,14 @@ nscf = QECalc(template=nscf_in,
               files="nscf", 
               update=update, run=False)
 
+#link1 = QELinker(link = 'atomic_positions', source = relax, target = [scf, nscf])
+
  
-chain = QEChain([relax, scf, nscf]) 
+#chain = QEChain([relax, scf, nscf]) 
+
 #chain.link()
 #
-#chain.run()
+chain.run()
 #
 
 #Case III: There is no chain. Simply connect files (if needed)
