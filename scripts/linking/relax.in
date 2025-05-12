@@ -2,7 +2,7 @@
    calculation      = 'relax'
    outdir           = '../tmp/'
    prefix           = 'gr'
-   etot_conv_thr    = 1e-05
+   etot_conv_thr    = 0.001
    forc_conv_thr    = 0.0001
    pseudo_dir       = '../pseudo/'
 /
@@ -18,7 +18,7 @@
    smearing         = 'mv'
 /
 &ELECTRONS
-   conv_thr         = 1e-09
+   conv_thr         = 0.0001
    mixing_beta      = 0.7
 /
 &IONS
@@ -36,10 +36,6 @@ C 12.011 C.pbe-n-rrkjus_psl.0.1.UPF
 K_POINTS automatic
 12 12 1  0 0 0
 
-CELL_PARAMETERS angstrom
-0.00000000000000 0.00000000000000 0.00000000000000
-0.00000000000000 0.00000000000000 0.00000000000000
-0.00000000000000 0.00000000000000 0.00000000000000
 
 ATOMIC_POSITIONS angstrom
 C 0.3333333330 0.6666666660 0.5000000000  

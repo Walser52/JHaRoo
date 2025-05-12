@@ -311,12 +311,15 @@ class QEModifier(Modifier):
 
 
 class QEOutParser:
-    def __init__(self, code):
+    def __init__(self, code, file = None):
         """
         Determine which parser to use.
         """
+        self.file = file
         if code == "pw.x":
-            self.parser = PWParse()
+            self.outparser = PWParse(self.file)
+        #self.linker = linker
+
         return
 
 
@@ -336,7 +339,8 @@ class PWParse:
     """
 
 
-    def __init__(self):
+    def __init__(self, file = None):
+        self.file = file
         self.BOHRtoA = Constants.BOHRtoA
         self.RYtoeV = Constants.RYtoeV
 #        self.program_version = ""
@@ -354,7 +358,7 @@ class PWParse:
 #        self.natoms = 0
 #        self.bandgap = 0.0
 #        self.bands = 0
-#        self.lattice = {"a": np.zeros(3), "b": np.zeros(3), "c": np.zeros(3)}
+    #        self.lattice = {"a": np.zeros(3), "b": np.zeros(3), "c": np.zeros(3)}
 #        self.atoms = []
 #        self.norms = {"a": 0.0, "b": 0.0, "c": 0.0}
 #        self.angles = {"alpha": 0.0, "beta": 0.0, "gamma": 0.0}
@@ -362,14 +366,21 @@ class PWParse:
 #        self.bnddiagram = np.zeros(0)
 #        self.FermiTest = False
 #        self.Fermi = 0.0
-    def Process(self, filestring):
-        self.data = pd.DataFrame(columns=["value", "unit", "description"])
+    def Process(self, file_path = None):
+        """
+        Parses a passed file for standard parsing. Uses self.file if no file is passed. 
+        """
+        if file_path is None: file_path = self.file
+
+        cols = ["value", "unit", "description"]
+        self.data = pd.DataFrame(columns=cols)
         self.lattice = {"a": [0, 0, 0], "b": [0, 0, 0], "c": [0, 0, 0]}
         self.norms = {}
         self.angles = {}
         self.atoms = []
-
-        f = open(filestring, "r")
+        
+        print(file_path)
+        f = open(file_path, "r")
 
         for linenum, i in enumerate(f):
             if linenum < 1000:
@@ -506,7 +517,16 @@ class PWParse:
                                 bnddiagram[counter][idx] = float(val)
                                 idx += 1
                         counter += 1
-                self.data.loc["bnddiagram"] = [bnddiagram.tolist(), "N/A", "Band diagram"]
+#                l = bnddiagram.tolist()
+#                self.data.loc["bnddiagram", cols[0]] = np.array([[1,1],[1,1]])
+#                self.data.loc["bnddiagram", cols[1]] = "N/A"
+#                self.data.loc["bnddiagram", cols[2]] = "Band diagram"
+#                print(bnddiagram.shape, type(bnddiagram))
+#                print("---")
+                #print(bnddiagram.shape)
+                #print("---")
+                print(bands, kpts)
+                self.data.loc["bnddiagram"] = [bnddiagram, "N/A", "Band diagram"]
                 continue
             if "highest occupied, lowest unoccupied level (ev)" in i:
                 val = float(i.split()[7]) - float(i.split()[6])
@@ -516,39 +536,41 @@ class PWParse:
                 val = float(i.split()[4])
                 self.data.loc["Fermi_energy"] = [val, "eV", "Fermi level"]
                 continue
+
+        f.close()
         return self.data
     def lattice_vectors(self):
         a_v = self.data.loc['a_vector'][0]
         b_v =  self.data.loc['b_vector'][0]
         c_v =  self.data.loc['c_vector'][0]
         alat = self.data.loc['alat'][0]
-        
+
         if {a_v,b_v,c_v} == {[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]}:
             vals = {'cell': [1,1,1], 'a': alat}
 
         return vals
     def atomic_positions(self):
-        atm = [at[0] for at in df.loc['atomic_positions'][0]]
+        atm = [at[0] for at in self.data.loc['atomic_positions'][0]]
         atoms = ''.join(atm)
 
-        positions = [at[1:] for at in df.loc['atomic_positions'][0]]
+        positions = [at[1:] for at in self.data.loc['atomic_positions'][0]]
 
         return {'atoms': atoms, 'positions': positions}
 
-    def band_occupancy(self, file):
+    def band_occupancy(self, file=None):
         def _extract_occupancy(file, keywords, num_KS_states):
             with open(file, 'r') as file:
                 text = file.read()
-                
+
             occupancy_dict={}
-            
+
             for keyword in keywords:
                 parts = text.split(keyword)
                 print(f"Found {len(parts)-1} occurrences of {keyword}")
                 numbers = []
                 for part in parts[1:]:
                     lines = part.splitlines()
-                    
+
                     values = []
                     for line in lines:
                         line = line.strip()
@@ -571,7 +593,7 @@ class PWParse:
             """
             Extract kpoints from file
             """
-            
+
             kpoints = []
 
             for line in lines:
@@ -581,6 +603,8 @@ class PWParse:
                     kpoints.append([float(f) for f in floats[:3]])
             k_array = np.array(kpoints)   
             return k_array
+
+        if file is None: file = self.file
 
         num_KS_states = self.data.loc['bands'][0]
 

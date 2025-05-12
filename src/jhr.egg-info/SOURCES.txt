@@ -27,13 +27,13 @@ src/jhr/core/__init__.py
 src/jhr/core/convergers.py
 src/jhr/core/dag.py
 src/jhr/core/study.py
+src/jhr/dev/defect/read_VBM.py
 src/jhr/io/__init__.py
 src/jhr/io/base.py
+src/jhr/io/linkers.py
 src/jhr/io/logger.py
-src/jhr/io/modifier.py
 src/jhr/io/modifiers.py
-src/jhr/io/pwparser.py
-src/jhr/io/qe.py
+src/jhr/io/pp.py
 src/jhr/plotters/_aesthete.py
 src/jhr/plotters/_base.py
 src/jhr/plotters/express.py

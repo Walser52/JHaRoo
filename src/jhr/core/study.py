@@ -62,13 +62,13 @@ class Calculation:
         self.suite = code.lower().split("/")[0]
         self.code = code.lower().split("/")[1]
         self.mode = mode.lower()
-        if self.suite == "qe" or self.suite == "espresso":
-            if self.mode == "normal":
-                self.calc = BaseQENormalCalculation(
-                    template, code, files=files, run=run
-                )
-            elif self.mode == "convergence":
-                self.calc = BaseQEConvergenceCalculation(template, code, settings, run)
+#        if self.suite == "qe" or self.suite == "espresso":
+#            if self.mode == "normal":
+#                self.calc = BaseQENormalCalculation(
+#                    template, code, files=files, run=run
+#                )
+#            elif self.mode == "convergence":
+#                self.calc = BaseQEConvergenceCalculation(template, code, settings, run)
         return
 
 
@@ -408,11 +408,11 @@ class BaseNormalCalculation:
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
         self.filehandler = filehandler
-        self.parser = parser
-        #self.linker = linker
 
         self.file_in, self.file_out = self.resolve_io_files(template, files)
         self.file_json = self.file_in.with_suffix(".json")
+
+        self.parser = parser(self.code, self.file_out) #Suite parser e.g. QEOutParser
         self.template = self.filehandler(self.file_in).contents #convert to json if needed.
 
         return
@@ -493,7 +493,7 @@ class BaseNormalCalculation:
                 output_path = base.with_suffix(".out")
 
             elif isinstance(files, (str, Path)):
-                output_path = to_path(files)
+                output_path = to_path(files).with_suffix(".out")
                 input_path = to_path(template)
 
             elif isinstance(files, list) and len(files) == 2:
@@ -514,10 +514,9 @@ class BaseNormalCalculation:
         
         #check if calculation is successful
         #if linking is needed, then update calculations downstream.
-        if self.linker.link:
-            self.linker.link()
+        #if self.linker.link:
+        #    self.linker.link()
             #Link caclulated value to all relevant calculations
-            pass
 
         return
 

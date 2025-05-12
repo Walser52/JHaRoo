@@ -51,6 +51,9 @@ class QEChain:
 
     def link(self, source = None, target = None, link = None):
         #Use the parser to extract data and update the other input templates downstream. 
+        #Every calc has a parser. Invoke the parser.
+        #source.parser(
+
         return
 
 
@@ -233,21 +236,22 @@ class BaseQENormalCalculation(BaseNormalCalculation):
           ase_dict: other options. See ase's documentation.
 
         """
-        # set ibrav to 0 (because ase doesn't work with ibrav!=0)
-        if "ibrav" in template.keys():
-            ibrav = template["ibrav"]
-            template["ibrav"] = 0
+        def write_file(filename, template, ase_dict = {}, code = None):
+            """
+            Write file
+            """
+            # write file
+            print(filename)
+            with open(filename, "w") as f:
+                if code == "pw.x":
+                    write_espresso_in(f, input_data=template, **ase_dict)
+                if code == "ph.x":
+                    write_espresso_ph(f, template, **ase_dict)
 
-        # write file
-        print(filename)
-        with open(filename, "w") as f:
-            if code == "pw.x":
-                write_espresso_in(f, input_data=template, **ase_dict)
-            if code == "ph.x":
-                write_espresso_ph(f, template, **ase_dict)
+            return
 
         # return ibrav to its original value
-        def update_ibrav(input_path, output_path=None, old_val="0", new_val="4"):
+        def update_ibrav(input_path, output_path=None, old_val="0", new_val=""):
             """
             Manually insert ibrav
             """
@@ -269,9 +273,20 @@ class BaseQENormalCalculation(BaseNormalCalculation):
 
             with open(output_path, "w") as f:
                 f.writelines(updated_lines)
+            return
+        #________________________________________________
 
-        update_ibrav(filename, new_val=ibrav)
-
+        # set ibrav to 0 (because ase doesn't work with ibrav!=0)
+        if "ibrav" in template.keys():
+            ibrav = template["ibrav"]
+            template["ibrav"] = 0
+            write_file(filename, template, ase_dict, code = code)
+            update_ibrav(filename, new_val=ibrav)
+            if ibrav != 0: 
+                self.ase_hacks(remove_cell_parameters = True)
+        # if 
+        else:
+            write_file(filename, template, ase_dict, code = code)
         # log
         logging.info(f"Saved {filename=}")
         return
