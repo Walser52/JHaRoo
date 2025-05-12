@@ -3,6 +3,18 @@ import numpy as np
 
 #calculate sum of (mui)*(ni)
 def chem_pot(mu_energies: dict, n: dict) -> float:
+    """
+    Find chemical potential.
+
+    Args:
+      mu_energies: Chemical potential of defects. 
+      n: 
+    Returns: 
+
+    Example:
+      
+        
+    """
     tot_chem_pot = 0
     for k, mu in mu_energies.items():
         elem = k.replace('_mu', '')  # Extract 'Pb' from 'Pb_mu'

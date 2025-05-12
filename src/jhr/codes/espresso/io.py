@@ -517,16 +517,8 @@ class PWParse:
                                 bnddiagram[counter][idx] = float(val)
                                 idx += 1
                         counter += 1
-#                l = bnddiagram.tolist()
-#                self.data.loc["bnddiagram", cols[0]] = np.array([[1,1],[1,1]])
-#                self.data.loc["bnddiagram", cols[1]] = "N/A"
-#                self.data.loc["bnddiagram", cols[2]] = "Band diagram"
-#                print(bnddiagram.shape, type(bnddiagram))
-#                print("---")
-                #print(bnddiagram.shape)
-                #print("---")
-                print(bands, kpts)
-                self.data.loc["bnddiagram"] = [bnddiagram, "N/A", "Band diagram"]
+                row = [bnddiagram, "N/A", "Band diagram"]
+                self.data.loc["bnddiagram"] = pd.Series(row, index = cols)
                 continue
             if "highest occupied, lowest unoccupied level (ev)" in i:
                 val = float(i.split()[7]) - float(i.split()[6])
