@@ -28,27 +28,27 @@ class Linker:
     Class for creating linkers. A linker takes a value from one output file (or parser) and writes it to another output file or parser.
     Args:
         source: Parser or file
-        modify: Calc object (or list thereof) for which an update dictionary is generated?
+        target: Calc object (or list thereof) for which an update dictionary is generated?
         func: source argument's method which is to be called.
     """
 
-    def __init__(self, source = None, modify = None, func = None):
+    def __init__(self, source = None, target = None, func = None):
         self.source = source
         self.func = func
 
-        if not isinstance(list, modify):
-            self.modify = [modify]
+        if not isinstance(target, list):
+            self.target = [target]
 
 
         return
 
     def link(self):
 
-        retriever = getattr(self.source.parser, self.func)
+        retriever = getattr(self.source.parser.outparser, self.func)
         update = retriever()
         #update = self._retrieve_link_val(link)
 
-        [eachcalc.update_template(update, savefile = True) for eachcalc in self.modify]
+        [eachcalc.update_template(update, savefile = True) for eachcalc in self.target]
     
         return
 
@@ -60,7 +60,7 @@ class Linker:
         #Case I: Dataframe already has the value
         #Case II: Link value is the convergence output
         #Case III:  
-        retriever = getattr(self.source.parser, self.func)
+        retriever = getattr(self.source.parse.outparser, self.func)
         link_val = retriever()
         
         return link_val        
@@ -78,8 +78,7 @@ class QELinker(Linker):
         if link in ['atomic positions', 'atomic_positions']:
             func = 'atomic_positions'
 
-        super.__init__(source = source, target = target, func = func)
-        self.link()    
+        super().__init__(source = source, target = target, func = func)
         return
 
 #    def link(self):

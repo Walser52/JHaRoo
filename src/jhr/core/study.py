@@ -408,11 +408,11 @@ class BaseNormalCalculation:
         self.suite = code.split("/")[0]
         self.code = code.split("/")[1]
         self.filehandler = filehandler
-        self.parser = parser
-        #self.linker = linker
 
         self.file_in, self.file_out = self.resolve_io_files(template, files)
         self.file_json = self.file_in.with_suffix(".json")
+
+        self.parser = parser(self.code, self.file_out) #Suite parser e.g. QEOutParser
         self.template = self.filehandler(self.file_in).contents #convert to json if needed.
 
         return

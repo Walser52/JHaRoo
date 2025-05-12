@@ -317,7 +317,9 @@ class QEOutParser:
         """
         self.file = file
         if code == "pw.x":
-            self.parser = PWParse(self.file)
+            self.outparser = PWParse(self.file)
+        #self.linker = linker
+
         return
 
 
@@ -356,7 +358,7 @@ class PWParse:
 #        self.natoms = 0
 #        self.bandgap = 0.0
 #        self.bands = 0
-#        self.lattice = {"a": np.zeros(3), "b": np.zeros(3), "c": np.zeros(3)}
+    #        self.lattice = {"a": np.zeros(3), "b": np.zeros(3), "c": np.zeros(3)}
 #        self.atoms = []
 #        self.norms = {"a": 0.0, "b": 0.0, "c": 0.0}
 #        self.angles = {"alpha": 0.0, "beta": 0.0, "gamma": 0.0}
@@ -370,12 +372,14 @@ class PWParse:
         """
         if file_path is None: file_path = self.file
 
-        self.data = pd.DataFrame(columns=["value", "unit", "description"])
+        cols = ["value", "unit", "description"]
+        self.data = pd.DataFrame(columns=cols)
         self.lattice = {"a": [0, 0, 0], "b": [0, 0, 0], "c": [0, 0, 0]}
         self.norms = {}
         self.angles = {}
         self.atoms = []
-
+        
+        print(file_path)
         f = open(file_path, "r")
 
         for linenum, i in enumerate(f):
@@ -513,7 +517,16 @@ class PWParse:
                                 bnddiagram[counter][idx] = float(val)
                                 idx += 1
                         counter += 1
-                self.data.loc["bnddiagram"] = [bnddiagram.tolist(), "N/A", "Band diagram"]
+#                l = bnddiagram.tolist()
+#                self.data.loc["bnddiagram", cols[0]] = np.array([[1,1],[1,1]])
+#                self.data.loc["bnddiagram", cols[1]] = "N/A"
+#                self.data.loc["bnddiagram", cols[2]] = "Band diagram"
+#                print(bnddiagram.shape, type(bnddiagram))
+#                print("---")
+                #print(bnddiagram.shape)
+                #print("---")
+                print(bands, kpts)
+                self.data.loc["bnddiagram"] = [bnddiagram, "N/A", "Band diagram"]
                 continue
             if "highest occupied, lowest unoccupied level (ev)" in i:
                 val = float(i.split()[7]) - float(i.split()[6])

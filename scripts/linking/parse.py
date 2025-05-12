@@ -33,10 +33,13 @@ nscf = QECalc(template=nscf_in,
 
 
 from jhr.io.linkers import Linker
-chain = QEChain([relax, scf, nscf], linker = link1 ) 
+#chain = QEChain([relax, scf, nscf]) 
 
 #chain = QEChain([relax, scf, nscf]) 
-chain.run()
+#chain.run()
 
-#qelink = QELinker(func = 'atomic_positions', source = relax, target = [scf, nscf])
+qelink = QELinker(link = 'atomic_positions', source = relax, target = [scf, nscf])
+relax.parser.outparser.Process()
+qelink.link()
+
 
