@@ -475,23 +475,10 @@ class FormationEnergyDiagram(MSONable):
             #IMPELEMENT FOR QE
             directory = Path(directory)
             vr = PWxml(get_file(directory, ".xml"))
+            #standardize vr.
             ent = vr.get_computed_entry(entry_id = "")
-
-
-#            d_ = {
-#                "energy": ent.energy+00,
-#                "composition": ent.composition,
-#                "entry_id": ent.entry_id,
-#                "correction": ent.correction,
-#            }
-#
-#            ent = ComputedEntry.from_dict(d_) #Computed entries list. Why twice?
-#
-#
-
-
             locpot = VolumetricData.from_cube(get_file(directory, "cube"))
-            print(locpot)
+#            print(locpot)
             return ent, locpot
 
         if "bulk" not in directory_map:
