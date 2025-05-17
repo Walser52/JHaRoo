@@ -14,6 +14,8 @@ from ase.io.espresso import read_espresso_in
 from jhr._helpers import Constants, Dicter
 from jhr.io.base import FileHandler
 
+from pymatgen.io.espresso.outputs import PWxml
+
 
 class QEFileHandler(FileHandler):
     # Card list in different QE input files.
@@ -311,16 +313,20 @@ class QEModifier(Modifier):
 
 
 class QEOutParser:
-    def __init__(self, code, file = None):
+    def __init__(self, code, out = None, xml = None):
         """
         Determine which parser to use.
         """
-        self.file = file
+        self.out = out
+        self.xml = xml
         if code == "pw.x":
-            self.outparser = PWParse(self.file)
+            if self.out: self.outparser = PWParse(self.file)
+            if self.xml: self.xmlparser = PWxml()
         #self.linker = linker
 
         return
+
+
 
 
 class PWParse:
@@ -366,6 +372,8 @@ class PWParse:
 #        self.bnddiagram = np.zeros(0)
 #        self.FermiTest = False
 #        self.Fermi = 0.0
+    
+
     def Process(self, file_path = None):
         """
         Parses a passed file for standard parsing. Uses self.file if no file is passed. 
