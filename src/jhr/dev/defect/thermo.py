@@ -430,7 +430,7 @@ class FormationEnergyDiagram(MSONable):
         )
 
     @classmethod
-    def with_directoriesQE(
+    def with_directories_espresso(
         cls,
         directory_map: dict[str, str | Path],
         defect: Defect,
