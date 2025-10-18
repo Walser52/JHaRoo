@@ -7,8 +7,17 @@
 #
 #  
 
+
+import sys
+sys.path.append("/home/fes33/Documents/GIK - R&D/Personal - Papers and Reports/--Cloned/_forked/pymatgen-io-espresso/pymatgen/io/espresso/outputs")
+
+#from pymatgen.io.espresso.outputs import PWxml
+from pwxml import PWxml
+import pwxml
+
+
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.io.espresso.outputs import PWxml
+
 from pathlib import Path
 import numpy as np
 
@@ -41,6 +50,7 @@ class QECalcTools:
     @classmethod
     @fileread
     def standardize_total_energy(cls, struct):
+        print("STRUCT ENERGY: ", struct.energy)
         e_bulk = struct.energy
         composition = struct.composition
         
@@ -60,6 +70,8 @@ class QECalcTools:
         """
         Return a computed entry with the standard formation enthalpy as total energy
         """
+        print(xml_file, "\n")
+        
         calc = PWxml(xml_file)
         struct = calc.get_computed_entry(entry_id = "")
 
