@@ -4,7 +4,7 @@ import re
 from jhr.codes.espresso.io import QEOutParser
 
 
-file = "../../../../data/outfiles/scf/pwscf.out"        
+file = "pwscf copy.out"        
 
 prs = QEOutParser('pw.x')
 df = prs.parser.Process(file)

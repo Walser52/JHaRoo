@@ -85,7 +85,7 @@ def plotHomoLumo(homolumo, show = None, efermi = None, linesettings = None, text
       ly, hy, lx, hx = homolumo[i]
       #____Add text showing bandgap with arrows____    
       if annotate: 
-        bg = trunc(bandgaps[i],3)
+        bg = trunc(bandgaps[i],2)
         arrowDouble(xyfrom = [lx,ly], xyto = [hx, hy], xytext = None, text = f"{bg} eV", textsettings = textsettings)
 
 

@@ -64,7 +64,7 @@ def bandsExpress(data_file, plotsettings, toskip = [], code='QE', scale_k = 1, h
 
   plotBands(plotsettings, toskip = toskip, efermi = efermi)
 
-  plotHomoLumo(homolumo, show = showhomolumo, efermi = efermi, textsettings = homolumosettings)
+  # plotHomoLumo(homolumo, show = showhomolumo, efermi = efermi, textsettings = homolumosettings)
   return
 
 
@@ -72,9 +72,10 @@ def bandsExpress(data_file, plotsettings, toskip = [], code='QE', scale_k = 1, h
 
 
 #_______________________________DOS_________________________________
-def DOSExpress(pdos_folder, totaldosfile, toskip, plotTDOS, efermi, plotsettings):
+def DOSExpress(pdos_folder, totaldosfile, spin_polarized_atoms, toskip, plotTDOS, efermi, plotsettings):
 
-  x,y,labels = DOSHandlerQE(pdos_folder, totaldosfile, toskip, plotTDOS, efermi)
+  x,y,labels = DOSHandlerQE(pdos_folder, totaldosfile, spin_polarized_atoms, toskip, plotTDOS, efermi)
+  
 
   plotsettings['plot']['x'] = x
   plotsettings['plot']['y'] = y
@@ -82,5 +83,7 @@ def DOSExpress(pdos_folder, totaldosfile, toskip, plotTDOS, efermi, plotsettings
 
   plotDOS(plotsettings)
   return
+
+
 
 
