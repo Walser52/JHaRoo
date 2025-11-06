@@ -2,6 +2,28 @@ from DFE_module import extract_tot_energy, extract_mu, chem_pot, energy_dict
 from jhr.codes.espresso.io import QEOutParser
 
 
+
+# Standardize QE calc: Total energy -> Standard Formation energy 
+  #PWxml (read standard calculation -> composition -> elements)
+  #Retrieve formation energy for elements from database. 
+  #Compute formation energy. Use that as Total Energy (define a new computed entry).
+
+# Pass to pymatgen.analysis.defects. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 files = {
     'pristine': 'pwscf.out',
     'defected': 'pwscf copy.out',

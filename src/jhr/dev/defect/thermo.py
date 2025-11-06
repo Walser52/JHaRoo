@@ -35,6 +35,8 @@ from scipy.spatial import ConvexHull
 from pymatgen.io.espresso.outputs import PWxml
 
 
+from jhr.codes.espresso.calc import QECalcTools
+
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
@@ -269,6 +271,7 @@ class FormationEnergyDiagram(MSONable):
     bulk_entry: ComputedStructureEntry | None = None
     inc_inf_values: bool = False
     bulk_stability: float = 0.001
+    standardize: str | None = None
 
     def __post_init__(self) -> None:
         """Post-initialization.
@@ -286,6 +289,7 @@ class FormationEnergyDiagram(MSONable):
             raise ValueError(
                 msg,
             )
+
         # if all of the `DefectEntry` objects have the same `bulk_entry` then `self.bulk_entry` is not needed
         if self.bulk_entry is None and any(
             x.bulk_entry is None for x in self.defect_entries
@@ -299,7 +303,7 @@ class FormationEnergyDiagram(MSONable):
             [x.bulk_entry for x in self.defect_entries],
             key=lambda x: x.energy_per_atom,
         )
-        print("BULK EN/ATOM: ", bulk_entry.energy_per_atom)
+
 
         #=======Create PD of stable entries+bulk out of all the entries given (ensure bulk stability)
         pd_ = PhaseDiagram(self.pd_entries)
@@ -308,7 +312,7 @@ class FormationEnergyDiagram(MSONable):
 
         entries = pd_.stable_entries | {bulk_entry}
 
-        print("ENERGY", bulk_entry.energy)
+
         pd_ = PhaseDiagram(entries)
 
         self.phase_diagram = ensure_stable_bulk(pd_, bulk_entry, self.bulk_stability)
@@ -326,11 +330,10 @@ class FormationEnergyDiagram(MSONable):
             }
             if np.abs(d_["energy"]) > 1000: 
               continue
-            print("FORM EN", d_["energy"], d_["composition"])
+
             entries.append(ComputedEntry.from_dict(d_)) #Computed entries list. Why twice?
             #entries.append(ComputedEntry.from_dict(d_))
-        print("FROM ENERGY BULK", self.phase_diagram.get_form_energy(bulk_entry))
-        print("--", bulk_entry.composition, self.phase_diagram.get_hull_energy(bulk_entry.composition))
+
 
          #============Create a chempot diagram from the pared down list of compute entries `entries`.
         self.chempot_diagram = ChemicalPotentialDiagram(entries, default_min_limit = -5900)
@@ -427,13 +430,14 @@ class FormationEnergyDiagram(MSONable):
         )
 
     @classmethod
-    def with_directoriesQE(
+    def with_directories_espresso(
         cls,
         directory_map: dict[str, str | Path],
         defect: Defect,
         pd_entries: list[ComputedEntry],
         dielectric: float | NDArray,
         vbm: float | None = None,
+        standardize: str | None = None,
         **kwargs,
     ) -> FormationEnergyDiagram:
         """Create a FormationEnergyDiagram from VASP directories.
@@ -447,6 +451,8 @@ class FormationEnergyDiagram(MSONable):
                 of the bulk crystal.
             dielectric: The dielectric constant of the bulk crystal.
             vbm: The VBM of the bulk crystal.
+            standardize: None to use value as is. 'pbe', 'pbesol' etc. to standardize w.r.t. formation energies.
+
             **kwargs: Additional keyword arguments for the constructor.
         """
         def get_file(directory: str | Path, ends_with: str = '.cube') -> Path:
@@ -471,39 +477,31 @@ class FormationEnergyDiagram(MSONable):
             return
 
 
-        def _read_dir(directory: str | Path) -> tuple[ComputedEntry, Locpot]:
+        def _read_dir(directory: str | Path, standardize: str | None = None) -> tuple[ComputedEntry, Locpot]:
             #IMPELEMENT FOR QE
             directory = Path(directory)
-            vr = PWxml(get_file(directory, ".xml"))
-            ent = vr.get_computed_entry(entry_id = "")
+            xml_file = get_file(directory, ".xml")
 
-
-#            d_ = {
-#                "energy": ent.energy+00,
-#                "composition": ent.composition,
-#                "entry_id": ent.entry_id,
-#                "correction": ent.correction,
-#            }
-#
-#            ent = ComputedEntry.from_dict(d_) #Computed entries list. Why twice?
-#
-#
-
-
+            if standardize:
+              ent = QECalcTools.standardized_computed_entry(xml_file) 
+            else:
+              vr = PWxml(xml_file)
+              ent = vr.get_computed_entry(entry_id = "")
             locpot = VolumetricData.from_cube(get_file(directory, "cube"))
-            print(locpot)
+
             return ent, locpot
 
         if "bulk" not in directory_map:
             msg = "The bulk directory must be provided."
             raise ValueError(msg)
-        bulk_entry, bulk_locpot = _read_dir(directory_map["bulk"])
+        bulk_entry, bulk_locpot = _read_dir(directory_map["bulk"], standardize = standardize)
 
         def_entries = []
         for qq, q_dir in directory_map.items():
             if qq == "bulk":
                 continue
-            q_entry, q_locpot = _read_dir(q_dir)
+            q_entry, q_locpot = _read_dir(q_dir, standardize = standardize)
+
             q_d_entry = DefectEntry(
                 defect=defect,
                 charge_state=int(qq),
@@ -527,6 +525,7 @@ class FormationEnergyDiagram(MSONable):
             defect_entries=def_entries,
             pd_entries=pd_entries,
             vbm=vbm,
+            standardize=standardize,
             **kwargs,
         )
 
