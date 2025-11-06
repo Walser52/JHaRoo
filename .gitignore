@@ -1,5 +1,12 @@
 **/*.wfc*
 **/*.hdf5
+*.vasp
+*.hdf5
+*.pdf
+vasprun.xml
+*.dat
+*.WSWQ.*
+
 
 **/*pychache*
 **/.ipynb_checkpoints
