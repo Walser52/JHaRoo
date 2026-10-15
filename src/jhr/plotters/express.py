@@ -75,13 +75,15 @@ def bandsExpress(data_file, plotsettings, toskip = [], code='QE', scale_k = 1, h
 def DOSExpress(pdos_folder, totaldosfile, spin_polarized_atoms, toskip, plotTDOS, efermi, plotsettings):
 
   x,y,labels = DOSHandlerQE(pdos_folder, totaldosfile, spin_polarized_atoms, toskip, plotTDOS, efermi)
-  
 
   plotsettings['plot']['x'] = x
   plotsettings['plot']['y'] = y
   plotsettings['plot']['label'] = labels
 
   plotDOS(plotsettings)
+
+
+
   return
 
 
