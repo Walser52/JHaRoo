@@ -1,0 +1,14 @@
+site_name: JHaRoo (jhr)
+site_description: Scientific calculation interfaces and AiiDA workflow integration
+docs_dir: docs
+theme:
+  name: readthedocs
+nav:
+  - Home: index.md
+  - User guide:
+      - AiiDA overview: user-guide/aiida/index.md
+      - Local setup: user-guide/aiida/local-setup.md
+      - Submitting ORCA jobs: user-guide/aiida/orca.md
+  - Developer guide:
+      - Architecture: developer-guide/aiida/architecture.md
+      - ORCA CalcJob: developer-guide/aiida/orca-calcjob.md
