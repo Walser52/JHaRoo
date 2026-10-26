@@ -1,9 +1,10 @@
-
+from io import StringIO
 from pathlib import Path
 import shutil
 import subprocess
 
 from pathlib import Path
+from jhr.codes.orca.validator import ORCAValidator
 
 from ase.io.orca import write_orca
 from ase import Atoms
@@ -13,7 +14,8 @@ class OrcaIO:
     """Construct, write, and organize ORCA input files."""
 
     def __init__(self, config=None, root="calculations"):
-        self.config = {**CONFIG, **(config or {})}
+        # self.config = {**CONFIG, **(config or {})}
+        self.config = config
         self.root = Path(root)
 
     # ========================================================
@@ -21,30 +23,98 @@ class OrcaIO:
     # ========================================================
 
     def make_orcasimpleinput(self, state=None):
-        """Build the ORCA simple-input line."""
+        """
+        Construct the ORCA simple-input keyword string.
+
+        Parameters
+        ----------
+        state : dict or None, optional
+            Calculation-specific configuration.
+
+            Values in state take precedence over instance defaults.
+
+        Returns
+        -------
+        str
+            Space-separated ORCA simple-input keywords.
+
+        Raises
+        ------
+        ValueError
+            If the method or basis set is not provided by either
+            the state or the instance configuration.
+        """
         state = state or {}
+        config = self.config or {}
 
-        keywords = state.get(
-            "keywords",
-            [
-                self.config["dispersion"],
-                self.config["scf"],
-                self.config["optimization"],
-            ],
-        )
+        method = state.get("method")
+        if method is None:
+            method = config.get("method")
 
-        return " ".join([
-            state.get("method", self.config["method"]),
-            state.get("basis", self.config["basis"]),
-            *keywords,
-        ])
+        basis = state.get("basis")
+        if basis is None:
+            basis = config.get("basis")
 
-    def make_orcablocks(self, state):
-        """Build ORCA % blocks from a state configuration."""
-        blocks = [
-            f"%pal nprocs {self.config['nprocs']} end",
-            f"%maxcore {self.config['maxcore']}",
-        ]
+        if not method or not basis:
+            raise ValueError(
+                "Both method and basis must be specified."
+            )
+
+        keywords = state.get("keywords")
+
+        if keywords is None:
+            keywords = [
+                config[key]
+                for key in ("dispersion", "scf", "optimization")
+                if config.get(key)
+            ]
+
+        return " ".join([method, basis, *keywords])
+
+    def make_orcablocks(self, state, include_resources=True):
+        """
+        Construct the native ORCA input blocks.
+
+        Parameters
+        ----------
+        state : dict
+            Configuration containing optional native ORCA blocks.
+
+            Blocks are represented by nested dictionaries. Each outer
+            key identifies an ORCA block, while its corresponding value
+            contains the options belonging to that block.
+
+        include_resources : bool, optional
+            Whether to include the parallel execution and memory settings
+            from ``self.config``.
+
+            The default is True to preserve the existing behavior of
+            standalone ORCA input generation.
+
+            When False, only scientifically specified ORCA blocks are
+            generated. This is appropriate when resource configuration
+            will be supplied separately by an execution system.
+
+        Returns
+        -------
+        str
+            Formatted ORCA blocks suitable for inclusion in an input file.
+
+        Notes
+        -----
+        Resource settings such as ``%pal`` and ``%maxcore`` are execution
+        parameters rather than scientific parameters.
+
+        Excluding them allows the execution layer to determine resource
+        allocation independently of the scientific specification.
+        """
+        blocks = []
+
+        if include_resources:
+            blocks.extend([
+                f"%pal nprocs {self.config['nprocs']} end",
+                f"%maxcore {self.config['maxcore']}",
+            ])
 
         for block_name, options in state.get("blocks", {}).items():
             lines = [f"%{block_name}"]
@@ -56,6 +126,87 @@ class OrcaIO:
             blocks.append("\n".join(lines))
 
         return "\n\n".join(blocks)
+    
+    def render_orca_input(
+        self,
+        atoms,
+        state,
+        include_resources=False,
+    ):
+        """
+        Generate a conventional ORCA input entirely in memory.
+
+        Parameters
+        ----------
+        atoms : ase.Atoms
+            Atomic structure used as the initial molecular geometry.
+
+            Atomic positions are interpreted in Angstrom, following
+            ASE conventions.
+
+        state : dict
+            ORCA calculation configuration.
+
+            Supported keys include:
+
+            - ``method``: Electronic-structure method.
+            - ``basis``: Basis set.
+            - ``charge``: Total molecular charge.
+            - ``mult``: Spin multiplicity.
+            - ``keywords``: Additional ORCA simple-input keywords.
+            - ``blocks``: Native ORCA input blocks.
+
+        include_resources : bool, optional
+            Whether resource configuration should be included in the
+            generated input.
+
+            The default is False because execution resources should
+            ordinarily be controlled by the execution layer.
+
+        Returns
+        -------
+        str
+            Complete ORCA input file contents.
+
+        Raises
+        ------
+        TypeError
+            If atoms is not an ASE Atoms object.
+
+        Notes
+        -----
+        This method performs no filesystem operations and does not
+        execute ORCA.
+
+        The returned string can be written to a file, inspected,
+        validated, or passed to an automated execution framework.
+
+        Examples
+        --------
+        >>> from ase import Atoms
+        >>> atoms = Atoms("H2", positions=[
+        ...     [0, 0, 0],
+        ...     [0, 0, 0.74],
+        ... ])
+        >>> text = io.render_orca_input(atoms, state)
+        """
+        if not isinstance(atoms, Atoms):
+            raise TypeError("atoms must be an ASE Atoms object.")
+
+        params = {
+            "orcasimpleinput": self.make_orcasimpleinput(state),
+            "orcablocks": self.make_orcablocks(
+                state,
+                include_resources=include_resources,
+            ),
+            "charge": state.get("charge", 0),
+            "mult": state.get("mult", 1),
+        }
+
+        buffer = StringIO()
+        write_orca(buffer, atoms, params)
+
+        return buffer.getvalue()
 
     def make_compound_input(self, atoms, steps):
         """Generate an ORCA Compound input string."""
@@ -193,20 +344,20 @@ class OrcaIO:
         return created_files
 
     def prepare_compound_calculation(
-        self, atoms, molecule_id, calculation_name, steps
+        self, atoms, molecule_id, calculation_name, steps, input_file = "calc.inp"
     ):
         """Create a Compound input in its own calculation directory."""
         calculation_dir = self.root / molecule_id / calculation_name
-        input_file = calculation_dir / "calc.inp"
+        input_file = calculation_dir / input_file
 
         return self.write_compound_input(
             input_file,
             atoms,
             steps,
         )
-    
+
 class ORCARunner:
-    """Responsible only for executing ORCA calculations."""
+    """Execute ORCA calculations with standardized output filenames."""
 
     def __init__(self, executable="orca"):
         self.executable = shutil.which(executable)
@@ -222,179 +373,22 @@ class ORCARunner:
             raise FileNotFoundError(input_file)
 
         output_file = input_file.with_suffix(".out")
-        log_file = input_file.with_suffix(".launcher.log")
+        error_file = input_file.with_suffix(".err")
 
-        with log_file.open("w") as log:
+        with output_file.open("w") as out, error_file.open("w") as err:
             result = subprocess.run(
                 [self.executable, input_file.name],
                 cwd=input_file.parent,
-                stdout=log,
-                stderr=subprocess.STDOUT,
+                stdout=out,
+                stderr=err,
                 timeout=timeout,
                 check=False,
-            )
-
-        if not output_file.is_file():
-            raise RuntimeError(
-                f"ORCA output was not created: {output_file}"
             )
 
         if result.returncode != 0:
             raise RuntimeError(
                 f"ORCA failed with exit code {result.returncode}. "
-                f"See {output_file} and {log_file}"
+                f"See {output_file} and {error_file}"
             )
 
         return output_file
-
-class ORCAValidator:
-    """Validates ORCA output before subsequent steps are generated."""
-
-    @staticmethod
-    def validate_termination(output_file):
-        text = Path(output_file).read_text(errors="replace")
-
-        if "ORCA TERMINATED NORMALLY" not in text:
-            raise RuntimeError(
-                f"ORCA did not terminate normally: {output_file}"
-            )
-
-        if "FINAL SINGLE POINT ENERGY" not in text:
-            raise RuntimeError(
-                f"Final energy not found: {output_file}"
-            )
-
-        return True
-
-    @staticmethod
-    def validate_optimization(output_file):
-        ORCAValidator.validate_termination(output_file)
-
-        text = Path(output_file).read_text(errors="replace")
-        if "THE OPTIMIZATION HAS CONVERGED" not in text:
-            raise RuntimeError(
-                f"Optimization convergence not confirmed: {output_file}"
-            )
-
-        return True
-
-    @staticmethod
-    def validate_tddft(output_file, expected_roots=5):
-        ORCAValidator.validate_termination(output_file)
-
-        text = Path(output_file).read_text(errors="replace")
-
-        # Preliminary check only; later, parse singlet and triplet
-        # sections separately to verify the requested roots.
-        import re
-
-        roots = {
-            int(n)
-            for n in re.findall(
-                r"^\s*STATE\s+(\d+)\s*:",
-                text,
-                flags=re.MULTILINE,
-            )
-        }
-
-        if len(roots) < expected_roots:
-            raise RuntimeError(
-                f"Expected at least {expected_roots} distinct "
-                f"TDDFT roots; found {len(roots)}."
-            )
-
-        return True
-
-class TADFWorkflow:
-    """Coordinate S0, vertical TDDFT, and excited-state calculations."""
-
-    def __init__(
-        self,
-        atoms,
-        molecule_id,
-        workdir="calculations",
-        io=None,
-        runner=None,
-        validator=None,
-    ):
-        self.atoms = atoms
-        self.molecule_id = molecule_id
-        self.root = Path(workdir).resolve() / molecule_id
-
-        self.io = io or OrcaIO(root=Path(workdir))
-        self.runner = runner or ORCARunner()
-        self.validator = validator or ORCAValidator()
-
-        self.root.mkdir(parents=True, exist_ok=True)
-
-    def run_s0_tddft(self):
-        """Generate, execute, and validate S0 plus vertical TDDFT."""
-        
-        S0_OPT = calcs("S0_OPT")
-        TDDFT_VERTICAL = calcs("TDDFT_VERTICAL")
-        
-        input_file = self.io.prepare_compound_calculation(
-            self.atoms,
-            self.molecule_id,
-            "S0_TDDFT",
-            [S0_OPT, TDDFT_VERTICAL],
-        )
-
-        output_file = self.runner.run(input_file)
-
-        # These checks assume the compound output includes both stages.
-        self.validator.validate_termination(output_file)
-        self.validator.validate_optimization(output_file)
-        self.validator.validate_tddft(output_file)
-
-        return output_file
-
-    def prepare_excited_states(self, s0_geometry):
-        """Prepare independent S1 and T1 inputs from the same S0 geometry."""
-        S1_OPT = case("S1_OPT")
-        T1_OPT = case("T1_OPT")
-        
-        s0_geometry = Path(s0_geometry).resolve()
-
-        if not s0_geometry.is_file():
-            raise FileNotFoundError(
-                f"Optimized S0 geometry not found: {s0_geometry}"
-            )
-
-        # Read the optimized structure rather than reusing the original atoms.
-        from ase.io import read
-        optimized_atoms = read(s0_geometry)
-
-        s1_input = self.io.prepare_compound_calculation(
-            optimized_atoms,
-            self.molecule_id,
-            "S1_OPT",
-            [S1_OPT],
-        )
-
-        t1_input = self.io.prepare_compound_calculation(
-            optimized_atoms,
-            self.molecule_id,
-            "T1_OPT",
-            [T1_OPT],
-        )
-
-        return {
-            "s1_input": s1_input,
-            "t1_input": t1_input,
-        }
-
-    def run(self):
-        """Run the initial stage and prepare the excited-state inputs."""
-        s0_output = self.run_s0_tddft()
-
-        # This path must match the geometry-export implementation.
-        s0_geometry = self.root / "S0_TDDFT" / "S0_opt.xyz"
-
-        excited_inputs = self.prepare_excited_states(s0_geometry)
-
-        return {
-            "s0_tddft_output": s0_output,
-            "s0_geometry": s0_geometry,
-            **excited_inputs,
-        }

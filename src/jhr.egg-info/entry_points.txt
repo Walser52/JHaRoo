@@ -1,2 +1,5 @@
+[aiida.calculations]
+jhr.orca = jhr.integrations.aiida.calculations.orca:OrcaCalculation
+
 [console_scripts]
 jhr = jhr:main

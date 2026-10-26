@@ -72,3 +72,6 @@ jhr = "jhr:main"
 package-data = { "jhr" = ["*.dat"] }
 #packages = ["find_namespace:"]
 package-dir = {"" = "src"}
+
+[project.entry-points."aiida.calculations"]
+"jhr.orca" = "jhr.integrations.aiida.calculations.orca:OrcaCalculation"
